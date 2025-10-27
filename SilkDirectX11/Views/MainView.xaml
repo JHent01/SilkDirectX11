@@ -1,0 +1,53 @@
+﻿<mahx:MetroWindow x:Class="SilkDirectX11.Views.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SilkDirectX11.Views"
+         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+         xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
+         xmlns:prism="http://prismlibrary.com/"
+         prism:ViewModelLocator.AutoWireViewModel="True"
+        mc:Ignorable="d"
+        Title="MainView" Height="450" Width="800"  Background="Transparent" >
+    <Grid Background="Transparent"   >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid ShowGridLines="True" AllowDrop="True" x:Name="Test" Grid.Row="1" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ListBox x:Name="ListViewCameras" ItemsSource="{Binding WindowsFormsHosts}" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  SelectedItem="{Binding VideoHost}" >
+                <!--logListBox-->
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+
+                        <Label Content="{Binding Name}" Panel.ZIndex="0" >
+                            <!--<i:Interaction.Behaviors>
+                                <custom:ListViewCustomBehavior />
+                            </i:Interaction.Behaviors>-->
+                        </Label>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Grid  ShowGridLines="True"   Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"  SizeChanged="VideoCanvas1_SizeChanged"   >
+            </Grid>
+
+        </Grid>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8">
+            <Button Content="Add" Width="100" Margin="0,0,8,0" Command="{Binding AddCameraCommand}"/>
+            <Button Content="Start" Width="100" Margin="0,0,8,0" Command="{Binding StartCommand}" />
+            <!--<Button Content="Stop" Width="100" Command="{Binding Stop}" />-->
+        </StackPanel>
+    </Grid>
+</mahx:MetroWindow>

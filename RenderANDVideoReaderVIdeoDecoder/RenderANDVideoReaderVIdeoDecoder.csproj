@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="bin\Debug\net8.0\Autogen\avcodec-61.dll" />
+    <None Include="bin\Debug\net8.0\Autogen\avdevice-61.dll" />
+    <None Include="bin\Debug\net8.0\Autogen\avfilter-10.dll" />
+    <None Include="bin\Debug\net8.0\Autogen\avformat-61.dll" />
+    <None Include="bin\Debug\net8.0\Autogen\avutil-59.dll" />
+    <None Include="bin\Debug\net8.0\Autogen\postproc-58.dll" />
+    <None Include="bin\Debug\net8.0\Autogen\swresample-5.dll" />
+    <None Include="bin\Debug\net8.0\Autogen\swscale-8.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+    <PackageReference Include="Silk.NET.Core" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Direct3D11" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.DXGI" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Windowing" Version="2.22.0" />
+  </ItemGroup>
+
+</Project>

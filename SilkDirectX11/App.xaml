@@ -1,0 +1,22 @@
+﻿<prism:PrismApplication x:Class="SilkDirectX11.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:SilkDirectX11"
+             xmlns:prism="http://prismlibrary.com/" 
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+            >
+    <prism:PrismApplication.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+
+
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Dark.Blue.xaml" />
+
+            </ResourceDictionary.MergedDictionaries>
+
+        </ResourceDictionary>
+    </prism:PrismApplication.Resources>
+</prism:PrismApplication>
