@@ -53,8 +53,8 @@ namespace RenderANDVideoReaderVIdeoDecoder
                 }
                 else if (videoStreamDecoder.TryDecodeNextFrame(out var frame, pacets.Dequeue()))
                 {
-
-                  //  rend.RenderFrame(frame, testWind, name);
+                    
+                    rend.PushFrameFromDecoder(frame);
 
                 }
 
