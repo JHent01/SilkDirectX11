@@ -41,8 +41,11 @@ namespace RenderANDVideoReaderVIdeoDecoder
             var convertedFrame1 = vfc.Convert(frame1);
 
             Render rend = new Render();
-            rend.Init(convertedFrame1.width, convertedFrame1.height, name, testWind);
-
+           // rend.Init(convertedFrame1.width, convertedFrame1.height, name, testWind);
+          //  NewReander newReander = new NewReander();
+            //newReander.TestMain(testWind);
+             
+            //newReander.InitD3D(testWind, frame1);
             while (true)
             {
                 if (pacets.Count == 0)
@@ -54,7 +57,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
                 else if (videoStreamDecoder.TryDecodeNextFrame(out var frame, pacets.Dequeue()))
                 {
                     
-                    rend.PushFrameFromDecoder(frame);
+                  //  rend.PushFrameFromDecoder(frame);
 
                 }
 
