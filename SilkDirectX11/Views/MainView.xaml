@@ -40,6 +40,9 @@
             </ListBox>
 
             <Grid  ShowGridLines="True"   Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"  SizeChanged="VideoCanvas1_SizeChanged"   >
+                <Border >
+                    
+                </Border>
             </Grid>
 
         </Grid>

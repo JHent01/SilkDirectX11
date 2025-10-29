@@ -52,7 +52,7 @@ namespace SilkDirectX11.ViewModels
             //  g.Tag = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
             g.Tag = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
             g.AllowDrop = true;
-            g.Child = new System.Windows.Forms.Panel { Name = g.Name  /*AutoSize=true*/ };
+            g.Child = new System.Windows.Forms.Panel { Name = g.Name , AutoSize = true };
             g.Background = System.Windows.Media.Brushes.AliceBlue;
             WindowsFormsHosts.Add(g);
             if (test == 14) test = 15;
@@ -78,13 +78,20 @@ namespace SilkDirectX11.ViewModels
             //tt.Content = VideoHost;
             if (gr.Children.Contains(VideoHost))
             {
+                var panel = VideoHost.Child as System.Windows.Forms.Panel;
+                panel.CreateControl();
+                // RenderTargetHwnd = VideoHost.Handle;
+                RenderTargetHwnd = panel.Handle;
                 RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
-                Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, VideoHost.Handle));
+                Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd /*VideoHost.Handle*/));
             }
             else
             {
                 gr.Children.Add(VideoHost);
-                RenderTargetHwnd = VideoHost.Handle;
+                var panel = VideoHost.Child as System.Windows.Forms.Panel;
+                panel.CreateControl();
+               // RenderTargetHwnd = VideoHost.Handle;
+               RenderTargetHwnd = panel.Handle;
                 RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
                 Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd));
             }
