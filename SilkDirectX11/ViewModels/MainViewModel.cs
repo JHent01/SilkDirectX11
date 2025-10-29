@@ -72,7 +72,10 @@ namespace SilkDirectX11.ViewModels
             var gr = wind.FindName("VideoCanvas1") as Grid;
             VideoHost.Height = gr.ActualHeight;
             VideoHost.Width = gr.ActualWidth;
-
+            //  Window tt = new Window();
+            //tt.Width = 800;
+            //tt.Height = 600;
+            //tt.Content = VideoHost;
             if (gr.Children.Contains(VideoHost))
             {
                 RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();

@@ -42,10 +42,10 @@ namespace RenderANDVideoReaderVIdeoDecoder
 
             Render rend = new Render();
             Test test = new Test();
-            // rend.Init(convertedFrame1.width, convertedFrame1.height, name, testWind);
+             // rend.Init(convertedFrame1.width, convertedFrame1.height, name, testWind);
             //  NewReander newReander = new NewReander();
             //newReander.TestMain(testWind);
-            test.Init(convertedFrame1.width, convertedFrame1.height, name, testWind, frame1);
+         test.Init(convertedFrame1.width, convertedFrame1.height, name, testWind, convertedFrame1);
             while (true)
             {
                 if (pacets.Count == 0)
@@ -56,7 +56,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
                 }
                 else if (videoStreamDecoder.TryDecodeNextFrame(out var frame, pacets.Dequeue()))
                 {
-                    test.PresentFrame(frame);
+                       test.PresentFrame(frame);
                     //  rend.PushFrameFromDecoder(frame);
 
                 }

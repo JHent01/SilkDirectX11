@@ -22,12 +22,14 @@
   <ItemGroup>
     <PackageReference Include="DevExpress.Data" Version="25.1.6" />
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
-    <PackageReference Include="SharpDX" Version="4.2.0" />
-    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="Vortice.D3DCompiler" Version="3.6.2" />
+    <PackageReference Include="Vortice.Direct2D1" Version="3.6.2" />
     <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" />
     <PackageReference Include="Vortice.DirectX" Version="3.6.2" />
     <PackageReference Include="Vortice.DXGI" Version="3.6.2" />
+    <PackageReference Include="Vortice.Win32.Graphics.DirectWrite" Version="2.3.0" />
+    <PackageReference Include="Vortice.Win32.Graphics.Imaging" Version="2.3.0" />
   </ItemGroup>
 
 </Project>

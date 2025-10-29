@@ -1,9 +1,10 @@
-﻿using System;
+﻿using FFmpeg.AutoGen;
+using System;
 using System.Runtime.InteropServices;
-using FFmpeg.AutoGen;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
+using static DevExpress.Data.Filtering.Helpers.SubExprHelper.ThreadHoppingFiltering;
 using ID3D11Device = Vortice.Direct3D11.ID3D11Device;
 using ID3D11DeviceContext = Vortice.Direct3D11.ID3D11DeviceContext;
 using ID3D11Texture2D = Vortice.Direct3D11.ID3D11Texture2D;
@@ -12,7 +13,10 @@ namespace RenderANDVideoReaderVIdeoDecoder
 {
     public class Test : IDisposable
     {
-        
+        private IDXGIFactory1 _factory;
+
+
+
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
 
@@ -27,13 +31,13 @@ namespace RenderANDVideoReaderVIdeoDecoder
         private int _bbWidth;
         private int _bbHeight;
 
-        // FFmpeg SWS
+         
         private unsafe SwsContext* _swsCtx;
         private int _frameWidth;
         private int _frameHeight;
         private AVPixelFormat _srcPixFmt = AVPixelFormat.AV_PIX_FMT_NONE;
 
-        // Буфер для BGRA-конверсии
+         
         private byte[] _bgraBuffer;
         private int _bgraStride; // bytes per row
 
@@ -51,10 +55,10 @@ namespace RenderANDVideoReaderVIdeoDecoder
                 _bbHeight = Math.Max(1, height);
             }
 
-       
-            var swapChainDesc = new SwapChainDescription
+
+            SwapChainDescription swapChainDesc = new SwapChainDescription
             {
-                BufferCount = 2,
+                BufferCount = 1,
                 OutputWindow = testWind,
                 BufferUsage = Usage.RenderTargetOutput,
                 BufferDescription = new ModeDescription((uint)_bbWidth, (uint)_bbHeight, new Rational(60, 1), Format.B8G8R8A8_UNorm),
@@ -72,29 +76,32 @@ namespace RenderANDVideoReaderVIdeoDecoder
                 FeatureLevel.Level_10_0
             };
 
-            var creationFlags = DeviceCreationFlags.BgraSupport;
+          //  var creationFlags = DeviceCreationFlags.BgraSupport;
 
-#if DEBUG
-            creationFlags |= DeviceCreationFlags.Debug;
-#endif
+ 
+            //creationFlags |= DeviceCreationFlags.Debug;
+ 
 
-            FeatureLevel? createdLevel;
-            var hr = D3D11.D3D11CreateDeviceAndSwapChain(
-                null,
-                DriverType.Hardware,
-                creationFlags,
-                requestedFeatureLevels,
-                swapChainDesc,
-                out _swapChain,
-                out _device,
-                out  createdLevel,
-                out _context
+           // FeatureLevel? createdLevel;
+            //var hr = D3D11.D3D11CreateDeviceAndSwapChain(
+            //    null,
+            //    DriverType.Hardware,
+            //    creationFlags,
+            //    requestedFeatureLevels,
+            //    swapChainDesc,
+            //    out _swapChain,
+            //    out _device,
+            //    out  createdLevel,
+            //    out _context
 
-            );
-            hr.CheckError();
+            //);
+            //hr.CheckError();
 
+            //_context = _device.ImmediateContext;
+            _factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
+            _device = D3D11.D3D11CreateDevice(DriverType.Hardware, DeviceCreationFlags.None, requestedFeatureLevels);                                       // _device = D3D11.D3D11CreateDevice(DriverType.Hardware, DeviceCreationFlags.BgraSupport, featureLevels);
+            _swapChain = _factory.CreateSwapChain(_device, swapChainDesc);
             _context = _device.ImmediateContext;
-
             CreateOrUpdateRTV();
 
             
@@ -131,7 +138,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
             //}
 
             
-            ResizeIfNeeded();
+          //  ResizeIfNeeded();
 
             
             fixed (byte* dstPtr0 = _bgraBuffer)
@@ -168,8 +175,12 @@ namespace RenderANDVideoReaderVIdeoDecoder
             {
                  _context.UpdateSubresource(_bgraBuffer, backBuffer, 0, (uint)_bgraStride, 0);
                 
-                _swapChain.Present(1, PresentFlags.None);
+                _swapChain.Present(0, PresentFlags.None);
             }
+
+
+
+
         }
 
         private void CreateOrUpdateRTV()
@@ -178,6 +189,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
             using var backBuffer = _swapChain.GetBuffer<ID3D11Texture2D>(0);
             _rtv = _device.CreateRenderTargetView(backBuffer);
             _context.OMSetRenderTargets(_rtv);
+            _swapChain.Present(0, PresentFlags.None);
         }
 
         private unsafe void EnsureSwsForFrame()
@@ -185,7 +197,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
             if (_frameWidth <= 0 || _frameHeight <= 0)
                 return;
 
-            // Освободить старый контекст, если был
+             
             if (_swsCtx != null)
             {
                 ffmpeg.sws_freeContext(_swsCtx);
