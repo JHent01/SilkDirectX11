@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -28,9 +29,27 @@ namespace SilkDirectX11.Behaviors
             AssociatedObject.PreviewDragEnter += ellipse_DragEnter;
             AssociatedObject.AllowDrop = true;
             AssociatedObject.Drop += AssociatedObject_Drop;
-            
-        }
 
+
+            AssociatedObject.PreviewDragOver += AssociatedObject_PreviewDragOver;
+        }
+        private void AssociatedObject_PreviewDragOver(object sender, System.Windows.DragEventArgs e)
+        {
+            var grid = (Grid)sender;
+             
+            var point = e.GetPosition(grid);
+            int row = GetRowGrid(point);
+            int col = GetColumnGrid(point);
+
+            var cell = grid.Children
+                           .OfType<Grid>()
+                           .FirstOrDefault(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == col);
+
+            //imageDragDrop.GridChange = cell ?? grid;
+
+            e.Effects = System.Windows.DragDropEffects.Move;
+            e.Handled = true;
+        }
         private void MouseDrop(object sender, MouseButtonEventArgs e)
         {
 
@@ -71,8 +90,9 @@ namespace SilkDirectX11.Behaviors
             // var cellChil //= Rite.Children.OfType<WindowsFormsHost>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
             var cellChil2 = Rite.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
 
+             
+             
 
-            Panel ellipse = sender as Panel;
 
 
             if (cellChil2 != null)
@@ -84,96 +104,112 @@ namespace SilkDirectX11.Behaviors
                 //     imageDragDrop.HostChange = cellChil as WindowsFormsHost;
                 // }
                 // else
-                imageDragDrop.GridChange = cellChil2;
+                //imageDragDrop.GridChange = cellChil2;
                 //DragDrop.DoDragDrop(imageDragDrop.GridChange, imageDragDrop, System.Windows.DragDropEffects.Move);
             }
             else imageDragDrop.GridChange = Rite;
         }
         private void ellipse_DragEnter(object sender, System.Windows.DragEventArgs e)
         {
-            var Rite = AssociatedObject as Grid;
-            System.Windows.Point point = e.GetPosition(Rite);
-            int row = GetRowGrid(point);
-            int colum = GetColumnGrid(point);
-           // var cellChil //= Rite.Children.OfType<WindowsFormsHost>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
-            var cellChil2 = Rite.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+           // var Rite = AssociatedObject as Grid;
+           // System.Windows.Point point = e.GetPosition(Rite);
+           // int row = GetRowGrid(point);
+           // int colum = GetColumnGrid(point);
+           //// var cellChil //= Rite.Children.OfType<WindowsFormsHost>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+           // var cellChil2 = Rite.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
 
 
-            Panel ellipse = sender as Panel;
+           // Panel ellipse = sender as Panel;
 
           
-            if (cellChil2 != null)
-            {
+           // if (cellChil2 != null)
+           // {
                  
-               //var cellChil= cellChil2.Children.OfType<WindowsFormsHost>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
-               // if (cellChil != null)
-               // {
-               //     imageDragDrop.HostChange = cellChil as WindowsFormsHost;
-               // }
-               // else
-                    imageDragDrop.GridChange = cellChil2;
-                //DragDrop.DoDragDrop(imageDragDrop.GridChange, imageDragDrop, System.Windows.DragDropEffects.Move);
-            }
-            else imageDragDrop.GridChange = Rite;
-            //else if (sender as Grid != null)
+           //    //var cellChil= cellChil2.Children.OfType<WindowsFormsHost>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+           //    // if (cellChil != null)
+           //    // {
+           //    //     imageDragDrop.HostChange = cellChil as WindowsFormsHost;
+           //    // }
+           //    // else
+           //         imageDragDrop.GridChange = cellChil2;
+           //     //DragDrop.DoDragDrop(imageDragDrop.GridChange, imageDragDrop, System.Windows.DragDropEffects.Move);
+           // }
+           // else imageDragDrop.GridChange = Rite;
+            var Rite = AssociatedObject as Grid;
+            //int x = args.X;
+            //int y = args.Y;
+            // System.Windows.Point point =args.GetPosition(Rite);//args.Location.X(Rite);
+            // int row = GetRowGrid(point);
+            // int colum = GetColumnGrid(point);
+            //var cellChil2 = Rite.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+            //Grid cellChil2 ;
+            //var panel = sender as Panel;
+            //if (panel != null)
+            //{ cellChil2 = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault(); }
+            //else cellChil2 = null;
+            //Panel ellipse = grid as Panel;
+            var grid = sender as Grid;
+            //var cild = grid.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+            //if (sender as Grid != null)
             //{
-            //    imageDragDrop.GridChange = sender as Grid;
-            //    // e.Effects = DragDropEffects.Move;
+
+
+            //    imageDragDrop.GridChange = (sender as Grid);
+
             //}
+            //else imageDragDrop.GridChange = Rite;
         }
         
         private void MouseD(object s, System.Windows.Forms.MouseEventArgs args, object t )
         {
-            //var flag = s as WindowsFormsHost; 
-            
-           
-            //if (flag != null )
-            //{
-                 
-            //    imageDragDrop.HostTake = s as WindowsFormsHost;
-            //    DragDrop.DoDragDrop(imageDragDrop.HostTake, imageDragDrop, System.Windows.DragDropEffects.Move);
-               
-            //}
-            var grid = s as Grid;
+            var Rite = AssociatedObject as Grid;
+            var panel = s as Grid;
+            var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+
             if (grid != null)
             {
                 imageDragDrop.GridTake = grid;
-                DragDrop.DoDragDrop(imageDragDrop.GridTake, imageDragDrop, System.Windows.DragDropEffects.Move);
             }
+
         }
         private void testetmetod(object s, System.Windows.Forms.MouseEventArgs args)
         {
             var Rite = AssociatedObject as Grid;
-            int x = args.X;
-            int y = args.Y;
-            System.Windows.Point point = new Point(x, y);//args.Location.X(Rite);
-            int row = GetRowGrid(point);
-            int colum = GetColumnGrid(point);
-             var cellChil2 = Rite.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
-
-
-            //Panel ellipse = grid as Panel;
-
-
-            if (cellChil2 != null)
+            var panel = s as Panel;
+            // var grid = Rite.Children as Grid;
+            var cild = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+            if (cild != null)
             {
 
-                 
-                imageDragDrop.GridChange = cellChil2;
-                 
+
+                imageDragDrop.GridChange = (cild);
+               
             }
             else imageDragDrop.GridChange = Rite;
+
+            ////Panel ellipse = grid as Panel;
+
+
+            //if (cellChil2 != null)
+            //{
+
+                 
+            //    imageDragDrop.GridChange = cellChil2;
+                 
+            //}
+            //else imageDragDrop.GridChange = Rite;
         }
         private void testetmetod(object s, System.Windows.Input.MouseEventArgs args)
         {
             var Rite = AssociatedObject as Grid;
             //int x = args.X;
             //int y = args.Y;
-            System.Windows.Point point =args.GetPosition(Rite);//args.Location.X(Rite);
-            int row = GetRowGrid(point);
-            int colum = GetColumnGrid(point);
-            var cellChil2 = Rite.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
-
+           // System.Windows.Point point =args.GetPosition(Rite);//args.Location.X(Rite);
+           // int row = GetRowGrid(point);
+           // int colum = GetColumnGrid(point);
+            //var cellChil2 = Rite.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+            var panel = s as Panel; 
+            var cellChil2 = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
 
             //Panel ellipse = grid as Panel;
 
@@ -182,16 +218,64 @@ namespace SilkDirectX11.Behaviors
             {
 
 
-                imageDragDrop.GridChange = cellChil2;
+                //imageDragDrop.GridChange = cellChil2;
+
+            }
+            else imageDragDrop.GridChange = Rite;
+        }
+
+        private void MouseD1(object? sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            var Rite = AssociatedObject as Grid;
+            var panel = sender as Panel;
+            var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+
+            if (grid != null)
+            {
+                imageDragDrop.GridTake = grid;
+               
+             }
+        }
+
+        private void MouseUps(object s, System.Windows.Forms.MouseEventArgs args)
+        {
+            if (imageDragDrop.GridTake!=null)
+            DragDrop.DoDragDrop(imageDragDrop.GridTake, imageDragDrop, System.Windows.DragDropEffects.Move);
+
+        }
+        private void Panel_MouseMove(object? sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            var Rite = AssociatedObject as Grid;
+            var panel = sender as Panel;
+             
+            var cild = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+            if (cild != null)
+            { 
+                imageDragDrop.GridChange = (cild);
 
             }
             else imageDragDrop.GridChange = Rite;
         }
 
 
-        private void MouseUps(object s, System.Windows.Forms.MouseEventArgs args)
+
+
+        private void TEsterMetod(object s, PreviewKeyDownEventArgs args)
         {
-            throw new NotImplementedException();
+
+            var Rite = AssociatedObject as Grid;
+            var panel = s as Panel;
+            // var grid = Rite.Children as Grid;
+            var cild = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+            if (cild != null)
+            {
+
+
+                imageDragDrop.GridChange = (cild);
+
+            }
+            else imageDragDrop.GridChange = Rite;
+
         }
         //private void dd(object s, System.Windows.Forms.MouseEventArgs args)
         //{
@@ -264,7 +348,7 @@ namespace SilkDirectX11.Behaviors
                 WindowsFormsHost VideoHost = VideoHostSelect;
                 VideoHost.Margin = new Thickness(5);
                 VideoHost.MouseDown += MouseDrop;
-                VideoHost.MouseMove += testetmetod;
+               // VideoHost.MouseMove += testetmetod;
                // VideoHost.PreviewDragEnter += ellipse_DragEnter;
                // VideoHost.DragEnter += (s, args) => { dragEntert(s, args); };
                //VideoHost.PreviewDragEnter += (s,agr) => { dragEntert(s, agr); };
@@ -273,7 +357,7 @@ namespace SilkDirectX11.Behaviors
                 //VideoHost.Drop += AssociatedObject_Drop;
                 //VideoHost.Name = "VideoHost" + Guid.NewGuid().ToString("N"); yf gjnjv 
                 System.Windows.Forms.Panel panel = VideoHost.Child as System.Windows.Forms.Panel;
-
+                panel.Name= "grid" + Guid.NewGuid().ToString("N");
                 //    new WindowsFormsHost//потом вместо ебануть форму
                 //{
                 //    //Source = img.Source,
@@ -326,11 +410,11 @@ namespace SilkDirectX11.Behaviors
                 //grid.MouseDown += MouseDrop;
              // System.Windows.Input.MouseEventArgs t = new() ;
                 
-                grid.MouseMove += ellipse_DragEnter;
-                grid.MouseMove += (s, args) => { testetmetod(s, args);   };//--------------------
-
+                 grid.MouseMove += ellipse_DragEnter;
+                //grid.MouseMove += (s, args) => { testetmetod(s, args);   };//--------------------
+                grid.Name = panel.Name;
                 grid.AllowDrop = true;
-                grid.Name=$"grid{tester}";
+               // grid.Name=$"grid{tester}";
                 tester++;
                 try
                 {
@@ -343,11 +427,16 @@ namespace SilkDirectX11.Behaviors
                     return;
                 }
                 if (panel != null)
-                {
-                     panel.MouseDown += (s, args) => { MouseD(grid, args, s); };
+                {//попробовать сделатьь это через другие елементы а не через панель
+                    panel.MouseMove += (s, args) => { testetmetod(s, args); };
+                    panel.PreviewKeyDown += (s, args) => { TEsterMetod(s, args); };
+                    panel.MouseDown += (s, args) => {    MouseD(grid, args, s);   };
                   //  panel.MouseMove += (s, args) => { var g = t; testetmetod(s, t); };
                     panel.MouseUp += (s, args) => {   MouseUps(s, args); };
-                    //panel.MouseMove += (s, args) => { testetmetod(s, args); };
+                  
+
+                    //panel.MouseDown += MouseD1;
+                    //panel.MouseMove += Panel_MouseMove;
                     // panel.AllowDrop = true;
                     // panel.PreviewKeyDown += (s,args)=> { dragEnter(grid, args); ; };
                     // panel.DragEnter += (s, args) => { dragEnter(s, args); };

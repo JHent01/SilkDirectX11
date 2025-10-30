@@ -34,7 +34,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
             if (pacets.Count == 0)
             {
 
-                Thread.Sleep(10);
+                Thread.Sleep(50);
 
             }
             videoStreamDecoder.TryDecodeNextFrame(out var frame1, pacets.Dequeue());
