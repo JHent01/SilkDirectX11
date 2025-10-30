@@ -74,13 +74,14 @@ namespace RenderANDVideoReaderVIdeoDecoder
         private string _overlayText  ;
         public unsafe void Init(int width, int height, string name, nint testWind, AVFrame Frame)
         {   _overlayText = name;
-            if (GetClientRect((IntPtr)testWind, out RECT rc))
-            {
-                _width = Math.Max(1, rc.Right - rc.Left);
-                _height = Math.Max(1, rc.Bottom - rc.Top);
-            }
+            //if (GetClientRect((IntPtr)testWind, out RECT rc))
+            //{
+            //    _width = Math.Max(1, rc.Right - rc.Left);
+            //    _height = Math.Max(1, rc.Bottom - rc.Top);
+            //}
            _wind= testWind;
-
+            _width = width;
+            _height = height;
             SwapChainDescription swapChainDesc = new SwapChainDescription
             {
                 BufferCount = 1,
@@ -108,13 +109,13 @@ namespace RenderANDVideoReaderVIdeoDecoder
            // _device = Vortice.Direct3D11.D3D11.D3D11CreateDevice(DriverType.Hardware, DeviceCreationFlags.None, requestedFeatureLevels);
             _swapChain = _factory.CreateSwapChain(_device, swapChainDesc);
             _context = _device.ImmediateContext;
-            InitText();
+            
             //CreateOrUpdateD2DTarget();
             CreateOrUpdateRTV();
-           
+            InitText();
 
-            var viewport = new Vortice.Mathematics.Viewport(0, 0, _width, _height, 0, 1);
-            _context.RSSetViewport(viewport);
+            //var viewport = new Vortice.Mathematics.Viewport(0, 0, width, height, 0, 1);
+            //_context.RSSetViewport(viewport);
 
             _frameWidth = Frame.width;
             _frameHeight = Frame.height;
@@ -147,9 +148,9 @@ namespace RenderANDVideoReaderVIdeoDecoder
             //    _height = Math.Max(1, rc.Bottom - rc.Top);
             //}
 
-           // Resize();
+            // Resize();
 
-             
+
             int w = _frameWidth;
             int h = _frameHeight;
             int uvW = (w + 1) >> 1;
@@ -209,30 +210,45 @@ namespace RenderANDVideoReaderVIdeoDecoder
 
             _context.Draw(4, 0);
 
+             UpdateText();
+            _d2dContext.BeginDraw();
+            var textRect = new Rect(0, 0, _width, _height);
+              _d2dContext.DrawText(_overlayText , _textFormat, textRect, _textBrush);
+            _d2dContext.EndDraw();
+            //  var bp = new BitmapProperties1(
+            //   new Vortice.DCommon.PixelFormat(Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied),
+            //    98f,
+            //    98f,
+            //    BitmapOptions.Target | BitmapOptions.CannotDraw
+            //);
+            // GetClientRect(_wind, out RECT rc);
 
-            _context.Flush();  
-            
-                _d2dContext.BeginDraw();
- 
-                 
-                var textRect = new Rect(10f, 10f, _width - 10f, _height - 10f);
-                _d2dContext.DrawText(_overlayText ?? string.Empty, _textFormat, textRect, _textBrush);
+            // int newW = Math.Max(1, rc.Right - rc.Left);
+            // int newH = Math.Max(1, rc.Bottom - rc.Top);
 
-                _d2dContext.EndDraw();
+            // var textRect = new Rect(0, 0, _width , _height  );
+            // _d2dContext.DrawText(_overlayText , _textFormat, textRect, _textBrush);
 
-            var bp = new BitmapProperties1(
-              new Vortice.DCommon.PixelFormat(Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied),
-               96.0f,
-               96.0f,
-               BitmapOptions.Target | BitmapOptions.CannotDraw
-           );
+            // _d2dContext.EndDraw();
 
-            using var surface = _swapChain.GetBuffer<IDXGISurface>(0);
-            _d2dTarget = _d2dContext.CreateBitmapFromDxgiSurface(surface, bp);
-            _d2dContext.Target = _d2dTarget;
+            // var bp = new BitmapProperties1(
+            //   new Vortice.DCommon.PixelFormat(Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied),
+            //    200,
+            //   200,
+            //    BitmapOptions.Target | BitmapOptions.CannotDraw
+            //);
 
+            // using var surface = _swapChain.GetBuffer<IDXGISurface>(0);
+            // _d2dTarget = _d2dContext.CreateBitmapFromDxgiSurface(surface, bp);
+            // _d2dContext.Target = _d2dTarget;
 
+            //
+           
+            _context.Flush();
+
+           
             _swapChain.Present(0, PresentFlags.None);
+         
         }
         private void CreateOrUpdateRTV()//???
         {
@@ -261,13 +277,23 @@ namespace RenderANDVideoReaderVIdeoDecoder
 
             //_rtv?.Dispose();
             //_rtv = null;
-
+           
             _swapChain.ResizeBuffers(0, (uint)_bufWidth, (uint)_bufHeight, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
             CreateOrUpdateRTV();
+            //var bp = new BitmapProperties1(
+            //       new Vortice.DCommon.PixelFormat(Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied),
+            //        96.0f,
+            //        96.0f,
+            //        BitmapOptions.Target | BitmapOptions.CannotDraw
+            //    );
             var viewport = new Vortice.Mathematics.Viewport(0, 0, _bufWidth, _bufHeight, 0, 1);
             _context.RSSetViewport(viewport);
-          //  CreateOrUpdateD2DTarget();
-          
+            //using var surface = _swapChain.GetBuffer<IDXGISurface>(0);
+            //_d2dTarget = _d2dContext.CreateBitmapFromDxgiSurface(surface, bp);
+            //_d2dContext.Target = _d2dTarget;
+
+            //  CreateOrUpdateD2DTarget();
+
         }
 
         private void Resources(int width, int height)
@@ -432,8 +458,8 @@ float4 PSMain(VSOut input) : SV_Target
             _textBrush?.Dispose();
             _textFormat?.Dispose();
 
-            _d2dFactory = D2D1.D2D1CreateFactory<ID2D1Factory1>(Vortice.Direct2D1.FactoryType.SingleThreaded);
-            _dwFactory = DWrite.DWriteCreateFactory<IDWriteFactory>(Vortice.DirectWrite.FactoryType.Shared);
+            _d2dFactory = D2D1.D2D1CreateFactory<ID2D1Factory1>();//Vortice.Direct2D1.FactoryType.SingleThreaded
+            _dwFactory = DWrite.DWriteCreateFactory<IDWriteFactory>();//Vortice.DirectWrite.FactoryType.Shared
             using var dxgiDevice = _device.QueryInterface<IDXGIDevice>();
             _d2dDevice = _d2dFactory.CreateDevice(dxgiDevice);
             _d2dContext = _d2dDevice.CreateDeviceContext(DeviceContextOptions.None);
@@ -444,7 +470,8 @@ float4 PSMain(VSOut input) : SV_Target
                 FontWeight.SemiBold,
                 FontStyle.Normal,
                 FontStretch.Normal,
-                28.0f
+                220
+               //_width/10
             );
             _textFormat.TextAlignment = TextAlignment.Leading;
             _textFormat.ParagraphAlignment = ParagraphAlignment.Near;
@@ -452,25 +479,25 @@ float4 PSMain(VSOut input) : SV_Target
             _textBrush = _d2dContext.CreateSolidColorBrush(new Color4(0.1f, 1f, 0f, 1f));
         }
 
-       
-        //private void CreateOrUpdateD2DTarget()
-        //{
-          
 
-        //    if (_d2dContext == null || _swapChain == null) return;
+        private void UpdateText()
+        {
 
-        //   // using var surface = _swapChain.GetBuffer<IDXGISurface>(0);
-        //    var bp = new BitmapProperties1(
-        //       new Vortice.DCommon.PixelFormat(Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied),
-        //        96.0f,
-        //        96.0f,
-        //        BitmapOptions.Target | BitmapOptions.CannotDraw  
-        //    );
 
-        //    using var surface = _swapChain.GetBuffer<IDXGISurface>(0);
-        //    _d2dTarget = _d2dContext.CreateBitmapFromDxgiSurface(surface, bp);
-        //    _d2dContext.Target = _d2dTarget;
-        //}
+            if (_d2dContext == null || _swapChain == null) return;
+
+            // using var surface = _swapChain.GetBuffer<IDXGISurface>(0);
+            var bp = new BitmapProperties1(
+               new Vortice.DCommon.PixelFormat(Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied),
+                96.0f,
+                96.0f,
+                BitmapOptions.Target | BitmapOptions.CannotDraw
+            );
+
+            using var surface = _swapChain.GetBuffer<IDXGISurface>(0);
+            _d2dTarget = _d2dContext.CreateBitmapFromDxgiSurface(surface, bp);
+            _d2dContext.Target = _d2dTarget;
+        }
 
         // // ReleaseD2DTarget();
         // private void ReleaseD2DTarget()

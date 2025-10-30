@@ -49,8 +49,8 @@ namespace SilkDirectX11.ViewModels
 
             var g = new WindowsFormsHost();
             g.Name = $"VideoHost{test}";
-            //  g.Tag = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
-            g.Tag = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+              g.Tag = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
+           // g.Tag = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
             g.AllowDrop = true;
             g.Child = new System.Windows.Forms.Panel { Name = g.Name , AutoSize = true };
             g.Background = System.Windows.Media.Brushes.AliceBlue;

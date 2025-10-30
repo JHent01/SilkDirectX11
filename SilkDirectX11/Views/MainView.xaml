@@ -7,6 +7,10 @@
          xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
          xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
          xmlns:prism="http://prismlibrary.com/"
+                   xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                 xmlns:custom="clr-namespace:SilkDirectX11.Behaviors"
+                   xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
          prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
         Title="MainView" Height="450" Width="800"  Background="Transparent" >
@@ -31,18 +35,22 @@
                     <DataTemplate>
 
                         <Label Content="{Binding Name}" Panel.ZIndex="0" >
-                            <!--<i:Interaction.Behaviors>
+                            <i:Interaction.Behaviors>
                                 <custom:ListViewCustomBehavior />
-                            </i:Interaction.Behaviors>-->
+                            </i:Interaction.Behaviors>
                         </Label>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
 
             <Grid  ShowGridLines="True"   Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"  SizeChanged="VideoCanvas1_SizeChanged"   >
-                <Border >
-                    
-                </Border>
+                
+                
+
+                <i:Interaction.Behaviors>
+                    <custom:GridCustomBehavior />
+                </i:Interaction.Behaviors>
+                 
             </Grid>
 
         </Grid>

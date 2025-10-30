@@ -74,10 +74,10 @@ namespace RenderANDVideoReaderVIdeoDecoder
 
 
                 videoRide.ReadPacket(pacets);
-                if (pacets.Count > 1000)
-                {
-                    Thread.Sleep(500);
-                }
+                //if (pacets.Count > 10000)
+                //{
+                //    Thread.Sleep(50);
+                //}
             }
         }
     }
