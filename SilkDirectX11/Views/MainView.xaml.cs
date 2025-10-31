@@ -27,28 +27,28 @@ namespace SilkDirectX11.Views
         }
         private void VideoCanvas1_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            var grid = sender as Grid;
+            //var grid = sender as Grid;
 
-            if (grid.Children.Count < 2) return;
-            var host1 = grid.Children[1];
-            var host = host1 as WindowsFormsHost;
-            if (host != null)
-            {
-                host.Width = e.NewSize.Width;
-                host.Height = e.NewSize.Height;
-                var t = host.Child as System.Windows.Forms.Panel;
-                t.Width = (int)e.NewSize.Width;
-                t.Height = (int)e.NewSize.Height;
-                if (grid.ColumnDefinitions.Count > 1)
-                {
-                    t.Width = (int)e.NewSize.Width / grid.ColumnDefinitions.Count;
-                }
-                else if (grid.RowDefinitions.Count > 1)
-                {
-                    t.Height = (int)e.NewSize.Height / grid.RowDefinitions.Count;
-                }
-              //  renderInstance?.Resize((int)e.NewSize.Width, (int)e.NewSize.Height);
-            }
+            //if (grid.Children.Count < 2) return;
+            //var host1 = grid.Children[1];
+            //var host = host1 as WindowsFormsHost;
+            //if (host != null)
+            //{
+            //    host.Width = e.NewSize.Width;
+            //    host.Height = e.NewSize.Height;
+            //    var t = host.Child as System.Windows.Forms.Panel;
+            //    t.Width = (int)e.NewSize.Width;
+            //    t.Height = (int)e.NewSize.Height;
+            //    if (grid.ColumnDefinitions.Count > 1)
+            //    {
+            //        t.Width = (int)e.NewSize.Width / grid.ColumnDefinitions.Count;
+            //    }
+            //    else if (grid.RowDefinitions.Count > 1)
+            //    {
+            //        t.Height = (int)e.NewSize.Height / grid.RowDefinitions.Count;
+            //    }
+            //  //  renderInstance?.Resize((int)e.NewSize.Width, (int)e.NewSize.Height);
+            //}
         }
     }
 }

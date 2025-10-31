@@ -138,7 +138,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
                 //DisposeResources();
                 Resources(_frameWidth, _frameHeight);
             }
-            Resize();
+           
             //_context.OMSetRenderTargets(_rtv);
             //_context.ClearRenderTargetView(_rtv, new Vortice.Mathematics.Color4(0f, 0f, 0f, 1f)); // чёрный фон
 
@@ -159,32 +159,41 @@ namespace RenderANDVideoReaderVIdeoDecoder
             byte[] yBuf = new byte[w * h];
             byte[] uvBuf = new byte[uvW * uvH * 2];
 
-            byte* srcY = frame.data[0];
+            
+
+            byte * srcY = frame.data[0];
             byte* srcUV = frame.data[1];
             int srcYStride = frame.linesize[0];
             int srcUVStride = frame.linesize[1];
+            // какаято хуйня тут , видео нахуй кривое
+            // и при этом какието друге работат 
 
-            fixed (byte* dstY = yBuf)//???
-            {
-                for (int row = 0; row < h; row++)
-                {
-                    Buffer.MemoryCopy(srcY + row * srcYStride, dstY + row * w, w, w);
-                }
-            }
-
+            fixed (byte* dstY = yBuf)
+                Buffer.MemoryCopy(srcY + srcYStride, dstY, srcYStride, srcYStride);
             fixed (byte* dstUV = uvBuf)//??
-            {
-                int rowBytes = uvW * 2;
-                for (int row = 0; row < uvH; row++)
-                {
-                    Buffer.MemoryCopy(srcUV + row * srcUVStride, dstUV + row * rowBytes, rowBytes, rowBytes);
-                }
-            }
+                Buffer.MemoryCopy(srcUV + srcUVStride, dstUV , srcUVStride, srcUVStride);
 
-             
+            //_context.CopyResource(_texY, _texY);??
+            //fixed (byte* dstY = yBuf)//???
+            //{
+            //    for (int row = 0; row < h; row++)
+            //    {
+            //        Buffer.MemoryCopy(srcY + row * srcYStride, dstY + row * w, w, w);
+            //    }
+            //}
+            //fixed (byte* dstUV = uvBuf)//??
+            //{
+            //    int rowBytes = uvW * 2;
+            //    for (int row = 0; row < uvH; row++)
+            //    {
+            //        Buffer.MemoryCopy(srcUV + row * srcUVStride, dstUV + row * rowBytes, rowBytes, rowBytes);
+            //    }
+            //}
+
+
             _context.UpdateSubresource(yBuf, _texY, 0, (uint)w, 0);
-            _context.UpdateSubresource(uvBuf, _texUV, 0, (uint)(uvW * 2), 0);
-
+            _context.UpdateSubresource(uvBuf, _texUV, 0, (uint)h, 0);//(uvW * 2)
+            
             
             _context.OMSetRenderTargets(_rtv);
 
@@ -215,6 +224,18 @@ namespace RenderANDVideoReaderVIdeoDecoder
             var textRect = new Rect(0, 0, _width, _height);
               _d2dContext.DrawText(_overlayText , _textFormat, textRect, _textBrush);
             _d2dContext.EndDraw();
+            _context.Flush();
+
+            GetClientRect(_wind, out RECT rc);
+
+            int newW = rc.Right - rc.Left;
+            int newH = rc.Bottom - rc.Top;
+
+            if (newW != _bufWidth && newH != _bufHeight)
+                _swapChain.ResizeBuffers(0, (uint)newW, (uint)newH, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
+            _swapChain.Present(0, PresentFlags.None);
+
+            //Resize();
             //  var bp = new BitmapProperties1(
             //   new Vortice.DCommon.PixelFormat(Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied),
             //    98f,
@@ -243,17 +264,17 @@ namespace RenderANDVideoReaderVIdeoDecoder
             // _d2dContext.Target = _d2dTarget;
 
             //
-           
-            _context.Flush();
 
-           
-            _swapChain.Present(0, PresentFlags.None);
-         
+            //_context.Flush();
+
+
+            //_swapChain.Present(0, PresentFlags.None);
+
         }
         private void CreateOrUpdateRTV()//???
         {
-            //_rtv?.Dispose();
-           // using var backBuffer = _swapChain.GetBuffer<ID3D11Texture2D>(0);
+            _rtv?.Dispose();
+            using var backBuffer = _swapChain.GetBuffer<ID3D11Texture2D>(0);
             _rtv = _device.CreateRenderTargetView(_swapChain.GetBuffer<ID3D11Texture2D>(0));
             _context.OMSetRenderTargets(_rtv);
             _swapChain.Present(0, PresentFlags.None);
@@ -265,29 +286,30 @@ namespace RenderANDVideoReaderVIdeoDecoder
             
             GetClientRect(_wind, out RECT rc);
                
-            int newW = Math.Max(1, rc.Right - rc.Left);
-            int newH = Math.Max(1, rc.Bottom - rc.Top);
+            int newW =  rc.Right - rc.Left;
+            int newH =   rc.Bottom - rc.Top;
 
             if (newW == _bufWidth && newH == _bufHeight) return;
 
-            _bufWidth = newW;
-            _bufHeight = newH;
+            //_bufWidth = newW;
+            //_bufHeight = newH;
 
-            _context.OMSetRenderTargets(Array.Empty<ID3D11RenderTargetView>());
+            //_context.OMSetRenderTargets(Array.Empty<ID3D11RenderTargetView>());
 
             //_rtv?.Dispose();
             //_rtv = null;
            
-            _swapChain.ResizeBuffers(0, (uint)_bufWidth, (uint)_bufHeight, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
-            CreateOrUpdateRTV();
+            _swapChain.ResizeBuffers(0, (uint)newW, (uint)newH, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
+            //_swapChain.Present(0, PresentFlags.None);
+            //CreateOrUpdateRTV();
             //var bp = new BitmapProperties1(
             //       new Vortice.DCommon.PixelFormat(Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied),
             //        96.0f,
             //        96.0f,
             //        BitmapOptions.Target | BitmapOptions.CannotDraw
             //    );
-            var viewport = new Vortice.Mathematics.Viewport(0, 0, _bufWidth, _bufHeight, 0, 1);
-            _context.RSSetViewport(viewport);
+            //var viewport = new Vortice.Mathematics.Viewport(0, 0, newW, newH, 0, 1);
+            //_context.RSSetViewport(viewport);
             //using var surface = _swapChain.GetBuffer<IDXGISurface>(0);
             //_d2dTarget = _d2dContext.CreateBitmapFromDxgiSurface(surface, bp);
             //_d2dContext.Target = _d2dTarget;
