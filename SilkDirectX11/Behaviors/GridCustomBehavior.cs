@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xaml.Behaviors;
+using RenderANDVideoReaderVIdeoDecoder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -87,13 +89,7 @@ namespace SilkDirectX11.Behaviors
 
             }
         }
-        private void TestMo(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            var Rite = sender as Grid;
-            System.Windows.Point point = e.GetPosition(Rite);
-            int row = GetRowGrid(point);
-            int colum = GetColumnGrid(point);
-        }
+        
         private void AssociatedObject_Drop(object sender, System.Windows.DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(ImageDragDrop)))
@@ -131,12 +127,13 @@ namespace SilkDirectX11.Behaviors
                     DataContext = VideoHostSelect.Child.DataContext,
                     Name = "Test" + Guid.NewGuid().ToString("N"),
                     AutoSize = true,
-                    
+                    Tag = VideoHostSelect.Tag
 
                 };
                 paneltest.MouseDown += Child_MouseDown;
                 paneltest.MouseUp += MouseUps;
-                WindowsFormsHost test = new WindowsFormsHost 
+                paneltest.MouseDoubleClick += MouseDoubleClick;
+                WindowsFormsHost VideoHost = new WindowsFormsHost 
                 {   DataContext=VideoHostSelect.DataContext,
                     Child= paneltest,
                     Tag = VideoHostSelect.Tag,
@@ -172,7 +169,7 @@ namespace SilkDirectX11.Behaviors
 
                 
                 // uIElement = VideoHost;
-                uIElement = test;
+                uIElement = VideoHost;
 
                 uIElement.AllowDrop = true;
 
@@ -181,8 +178,8 @@ namespace SilkDirectX11.Behaviors
                 uIElement2 = button;
                 uIElement2.AllowDrop = true;
                  
-                grid.Name = test.Child.Name;//panel.Name;
-                Rite.MouseMove += TestMo;
+                grid.Name = VideoHost.Child.Name;//panel.Name;
+                
                 grid.Children.Add(uIElement2);
                 try
                 {
@@ -251,15 +248,66 @@ namespace SilkDirectX11.Behaviors
                    
 
                 }
-                string _videoSourceTest = test.Tag.ToString();
-                string a = test.Name;
-                nint RenderTargetHwnd = test.Child.Handle;
+                string _videoSourceTest = VideoHost.Tag.ToString();
+                string a = VideoHost.Name;
+                nint RenderTargetHwnd = VideoHost.Child.Handle;
                 RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
                 Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd));
 
 
             }
         }
+
+        private void MouseDoubleClick(object? sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            var panel = sender as Panel;
+            var Rite = AssociatedObject as Grid;
+            var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+            if (grid != null)
+            {
+                
+                var screen = Screen.FromHandle(panel.Handle);
+
+                Window window = new Window
+                {
+                    Title = "Video",
+                   
+                    WindowStartupLocation = WindowStartupLocation.Manual,
+                    Left = screen.Bounds.Left,
+                    Top = screen.Bounds.Top,
+                    WindowState = WindowState.Maximized,
+                    Content = new WindowsFormsHost
+                    {
+                        Child =  new Panel
+                        {
+                            DataContext = panel.DataContext,
+                            Name = panel.Name,
+                            AutoSize = true,
+                        },
+                        DataContext = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().DataContext,
+                        Tag = panel.Tag,
+                    }
+                };
+
+                Program startVideo = new Program();
+
+                if (panel.Tag == null)
+                {
+                    startVideo.Stop();
+                    return;
+                }
+
+                string _videoSourceTest = panel.Tag.ToString();
+                string a = window.Title;
+                var wfh = window.Content as WindowsFormsHost;
+                var panelNew = wfh.Child as Panel;
+
+                startVideo.Start(panel.Tag.ToString(), window.Title, panelNew.Handle);
+                window.ShowDialog();
+                startVideo.Stop();
+            }
+        }
+
         private void Swich()
         {
             var rowSet = Grid.GetRow(imageDragDrop.GridChange);

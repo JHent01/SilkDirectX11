@@ -156,45 +156,10 @@ namespace RenderANDVideoReaderVIdeoDecoder
             int uvW = (w + 1) >> 1;
             int uvH = (h + 1) >> 1;
 
-            byte[] yBuf = new byte[w * h];
-            byte[] uvBuf = new byte[uvW * uvH * 2];
+           
+            _context.UpdateSubresource(_texY, 0, null, (nint)frame.data[0], (uint)frame.linesize[0], 0);
+            _context.UpdateSubresource(_texUV, 0, null, (nint)frame.data[1], (uint)frame.linesize[1], 0);
 
-            
-
-            byte * srcY = frame.data[0];
-            byte* srcUV = frame.data[1];
-            int srcYStride = frame.linesize[0];
-            int srcUVStride = frame.linesize[1];
-            // какаято хуйня тут , видео нахуй кривое
-            // и при этом какието друге работат 
-
-            fixed (byte* dstY = yBuf)
-                Buffer.MemoryCopy(srcY + srcYStride, dstY, srcYStride, srcYStride);
-            fixed (byte* dstUV = uvBuf)//??
-                Buffer.MemoryCopy(srcUV + srcUVStride, dstUV , srcUVStride, srcUVStride);
-
-            //_context.CopyResource(_texY, _texY);??
-            //fixed (byte* dstY = yBuf)//???
-            //{
-            //    for (int row = 0; row < h; row++)
-            //    {
-            //        Buffer.MemoryCopy(srcY + row * srcYStride, dstY + row * w, w, w);
-            //    }
-            //}
-            //fixed (byte* dstUV = uvBuf)//??
-            //{
-            //    int rowBytes = uvW * 2;
-            //    for (int row = 0; row < uvH; row++)
-            //    {
-            //        Buffer.MemoryCopy(srcUV + row * srcUVStride, dstUV + row * rowBytes, rowBytes, rowBytes);
-            //    }
-            //}
-
-
-            _context.UpdateSubresource(yBuf, _texY, 0, (uint)w, 0);
-            _context.UpdateSubresource(uvBuf, _texUV, 0, (uint)h, 0);//(uvW * 2)
-            
-            
             _context.OMSetRenderTargets(_rtv);
 
             var viewport = new Vortice.Mathematics.Viewport(0, 0, _width, _height, 0, 1);

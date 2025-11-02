@@ -46,7 +46,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
             //  NewReander newReander = new NewReander();
             //newReander.TestMain(testWind);
          test.Init(convertedFrame1.width, convertedFrame1.height, name, testWind, convertedFrame1);
-            while (true)
+            while (stoper)
             {
                 if (pacets.Count == 0)
                 {
@@ -66,10 +66,11 @@ namespace RenderANDVideoReaderVIdeoDecoder
             return Task.CompletedTask;
 
         }
+        bool stoper = true;
         unsafe void Read(VideoReader videoRide)
         {
 
-            while (true)
+            while (stoper)
             {
 
 
@@ -80,5 +81,10 @@ namespace RenderANDVideoReaderVIdeoDecoder
                 //}
             }
         }
+
+        public void Stop()
+        {
+            stoper = false;
+        }   
     }
 }
