@@ -5,6 +5,7 @@ using SilkDirectX11.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -268,9 +269,9 @@ namespace SilkDirectX11.Behaviors
                 nint RenderTargetHwnd = VideoHost.Child.Handle;
 
                 var mainFlow = Process.GetCurrentProcess();
-
+                string patch = Path.Combine(GetSolutionParentDir(),  "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
                 Process process = new();
-               ProcessStartInfo start = new ProcessStartInfo("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe");
+               ProcessStartInfo start = new ProcessStartInfo(patch);
                 // process.StartInfo.FileName = "RenderANDVideoReaderVIdeoDecoder.exe";
                 //  start.Arguments = $"\"{tag.subStream}\"" , $"\"{nameCamera}\"", $"\"{RenderTargetHwnd}\"";
                 start.ArgumentList.Add(tag.subStream);
@@ -280,8 +281,9 @@ namespace SilkDirectX11.Behaviors
               //  start.CreateNoWindow = true;
              //  start.WindowStyle = ProcessWindowStyle.Hidden;
                 process.StartInfo = start;
-                
                 process.Start();
+                grid.Tag = process.Id.ToString();
+
                 //   Process.Start("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe" );
                 ////   start.Arguments = "";
                 //   Process.Start(start);
@@ -293,8 +295,18 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-       
 
+        static string GetSolutionParentDir()
+        {
+            var dir = new DirectoryInfo(AppContext.BaseDirectory); 
+            while (dir != null)
+            {
+                if (dir.GetFiles("*.sln").Any()) return dir.Parent!.FullName; 
+                
+                dir = dir.Parent; 
+            } 
+            throw new InvalidOperationException("Solution folder not found"); 
+        }
         private void MouseDoubleClick(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
             var panel = sender as Panel;
@@ -327,6 +339,7 @@ namespace SilkDirectX11.Behaviors
                 //}
 
                 // var screen = Screen.FromHandle(panel.Handle);
+                Process process = new();
                 var full = Rite.Parent as Grid;
                 var newWind = new WindowsFormsHost
                 {
@@ -337,25 +350,52 @@ namespace SilkDirectX11.Behaviors
                         DataContext = panel.DataContext,
                         Name = panel.Name,
                         AutoSize = true,
+                        
                     },
                     DataContext = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().DataContext,
                     Name = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Name,
-                    Tag = panel.Tag,
+                   // Tag = Process.GetProcessById(),
                 };
-                 full.Children.Add(new Grid()
-                //Grid nGrid = new Grid() 
+                newWind.Child.MouseDoubleClick += MouseDoubleClick;
+                
+
+                if (full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
                 {
-                     Name = "FullScreenGrid",
-                     Width = Rite.ActualWidth,
-                    Height = Rite.ActualHeight,
-                    Children =
+                    full.Children.Add(new Grid()
+                    //Grid nGrid = new Grid() 
+                    {
+                        Name = "FullScreenGrid",
+                        Width = Rite.ActualWidth,
+                        Height = Rite.ActualHeight,
+                        Children =
                     {
                         newWind
 
                     }
-                     , Margin = new Thickness((full.ColumnDefinitions.First().Width).Value+5,0,0,0),
+                     ,
+                        Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
+                        
+                    });
+                    var panelNew = wfh.Child as Panel;
+                    CameraConnectStrings tag = (CameraConnectStrings)panel.Tag;
+                    var mainFlow = Process.GetCurrentProcess();
+                    string patch = Path.Combine(GetSolutionParentDir(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
 
-                 });
+                    ProcessStartInfo start = new ProcessStartInfo(patch);
+                    start.ArgumentList.Add(tag.subStream);
+                    start.ArgumentList.Add(wfh.Name);
+                    start.ArgumentList.Add(newWind.Child.Handle.ToString());
+                    start.ArgumentList.Add(mainFlow.Id.ToString());
+                    process.StartInfo = start;
+                    process.Start();
+                    full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag = process.Id.ToString();
+                }
+                else
+                {
+                    var t = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag as string;
+                     Process.GetProcessById(int.Parse(t)).Kill();
+                    full.Children.Remove(full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault());
+                }
                 //var newWfh = new WindowsFormsHost
                 //{Width= Rite.ActualWidth,
                 //    Height= Rite.ActualHeight,
@@ -369,18 +409,8 @@ namespace SilkDirectX11.Behaviors
                 //    Name = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Name,
                 //    Tag = panel.Tag,
                 //};
-                var panelNew = wfh.Child as Panel;
-                  CameraConnectStrings tag = (CameraConnectStrings)panel.Tag;
-                var mainFlow = Process.GetCurrentProcess();
-                   Process process = new();
-                  ProcessStartInfo start = new ProcessStartInfo("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe");
-                  start.ArgumentList.Add(tag.subStream);
-                start.ArgumentList.Add(wfh.Name);
-                start.ArgumentList.Add(newWind.Child.Handle.ToString());
-                start.ArgumentList.Add(mainFlow.Id.ToString());
-                process.StartInfo = start;
-                process.Start();
-                
+
+
 
 
 
@@ -540,6 +570,17 @@ namespace SilkDirectX11.Behaviors
             var IndexR = Grid.GetRow((UIElement)stackP);
             var cellContent = Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == IndexR && Grid.GetColumn(c) == indexC);
             Grid grid = cellContent as Grid;
+            if (grid != null)
+            {
+                var tag = grid.Tag as string;
+                if (!string.IsNullOrEmpty(tag))
+                {
+                     
+                        Process.GetProcessById(int.Parse(tag)).Kill();
+                    
+                    
+                }
+            }
            //var g = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child;
            //  grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child = null;
            // var k = g.Handle;
