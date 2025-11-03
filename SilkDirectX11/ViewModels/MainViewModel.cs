@@ -1,4 +1,5 @@
 ﻿using FFmpeg.AutoGen;
+using SilkDirectX11.Model;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -49,8 +50,8 @@ namespace SilkDirectX11.ViewModels
 
             var g = new WindowsFormsHost();
             g.Name = $"VideoHost{test}";
-             //  g.Tag = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
-             g.Tag = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+            g.Tag = new CameraConnectStrings { mainStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E", subStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream1?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E" }; //$"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
+            // g.Tag = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
             g.AllowDrop = true;
             g.Child = new System.Windows.Forms.Panel { Name = g.Name , AutoSize = true };
             g.Background = System.Windows.Media.Brushes.AliceBlue;
@@ -62,7 +63,9 @@ namespace SilkDirectX11.ViewModels
         {
             if (VideoHost == null)
                 return;
-            _videoSourceTest = VideoHost.Tag.ToString();
+            CameraConnectStrings tag = (CameraConnectStrings)VideoHost.Tag;
+            string _videoSourceTest = tag.subStream;
+            //_videoSourceTest = VideoHost.Tag.ToString();
             //_videoSourceTest = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
             //    _videoSourceTest = $"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
             string a = $"Camera {test}";
@@ -82,8 +85,8 @@ namespace SilkDirectX11.ViewModels
                 panel.CreateControl();
                 // RenderTargetHwnd = VideoHost.Handle;
                 RenderTargetHwnd = panel.Handle;
-                RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
-                Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd /*VideoHost.Handle*/));
+              //  RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
+          //      Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd /*VideoHost.Handle*/));
             }
             else
             {
@@ -92,8 +95,8 @@ namespace SilkDirectX11.ViewModels
                 panel.CreateControl();
                // RenderTargetHwnd = VideoHost.Handle;
                RenderTargetHwnd = panel.Handle;
-                RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
-                Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd));
+              //  RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
+          //      Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd));
             }
         }
     }

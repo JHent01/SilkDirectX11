@@ -51,10 +51,17 @@ namespace RenderANDVideoReaderVIdeoDecoder
         {
             var pFrame = _pFrame;
             ffmpeg.av_frame_free(&pFrame);
+            var receivedFrame = _receivedFrame;
+            ffmpeg.av_frame_free(&receivedFrame);
+            ffmpeg.av_frame_unref(_receivedFrame);
+            ffmpeg.av_frame_unref(_pFrame);
+            var codec = _pCodecContext;
+            //ffmpeg.av_frame_free(&codec);
 
 
+            //ffmpeg.avcodec_close(_pCodecContext);
 
-            ffmpeg.avcodec_close(_pCodecContext);
+             ffmpeg.avcodec_free_context(&codec);
 
         }
 

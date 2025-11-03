@@ -1,7 +1,10 @@
-﻿using Microsoft.Xaml.Behaviors;
+﻿using MahApps.Metro.Controls;
+using Microsoft.Xaml.Behaviors;
 using RenderANDVideoReaderVIdeoDecoder;
+using SilkDirectX11.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -29,7 +32,7 @@ namespace SilkDirectX11.Behaviors
 
               
              AssociatedObject.PreviewDragEnter += ellipse_DragEnter;
-            AssociatedObject.AllowDrop = true;
+            //AssociatedObject.AllowDrop = true;
             AssociatedObject.Drop += AssociatedObject_Drop;
              
         }
@@ -89,7 +92,18 @@ namespace SilkDirectX11.Behaviors
 
             }
         }
-        
+        //private void Child_MouseDown(object? sender, EventArgs e)
+        //{
+        //    var Rite = AssociatedObject as Grid;
+        //    var panel = sender as Panel;
+        //    var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+
+        //    if (grid != null)
+        //    {
+        //        imageDragDrop.GridTake = grid;
+
+        //    }
+        //}
         private void AssociatedObject_Drop(object sender, System.Windows.DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(ImageDragDrop)))
@@ -141,7 +155,7 @@ namespace SilkDirectX11.Behaviors
                      Name= VideoHostSelect.Name,
                      
                 };
-                
+                 
                 Button button = new Button
                 { 
                     Content = "X",
@@ -171,12 +185,12 @@ namespace SilkDirectX11.Behaviors
                 // uIElement = VideoHost;
                 uIElement = VideoHost;
 
-                uIElement.AllowDrop = true;
+               // uIElement.AllowDrop = true;
 
                 button.Click += ButtonDeleteChildren;
 
                 uIElement2 = button;
-                uIElement2.AllowDrop = true;
+               // uIElement2.AllowDrop = true;
                  
                 grid.Name = VideoHost.Child.Name;//panel.Name;
                 
@@ -248,15 +262,38 @@ namespace SilkDirectX11.Behaviors
                    
 
                 }
-                string _videoSourceTest = VideoHost.Tag.ToString();
-                string a = VideoHost.Name;
+                CameraConnectStrings tag = (CameraConnectStrings)VideoHost.Tag;
+                //string _videoSourceTest = tag.subStream;
+                string nameCamera = VideoHost.Name;
                 nint RenderTargetHwnd = VideoHost.Child.Handle;
-                RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
-                Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd));
+
+                var mainFlow = Process.GetCurrentProcess();
+
+                Process process = new();
+               ProcessStartInfo start = new ProcessStartInfo("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe");
+                // process.StartInfo.FileName = "RenderANDVideoReaderVIdeoDecoder.exe";
+                //  start.Arguments = $"\"{tag.subStream}\"" , $"\"{nameCamera}\"", $"\"{RenderTargetHwnd}\"";
+                start.ArgumentList.Add(tag.subStream);
+                start.ArgumentList.Add(nameCamera);
+                start.ArgumentList.Add(RenderTargetHwnd.ToString());
+                start.ArgumentList.Add(mainFlow.Id.ToString());
+              //  start.CreateNoWindow = true;
+             //  start.WindowStyle = ProcessWindowStyle.Hidden;
+                process.StartInfo = start;
+                
+                process.Start();
+                //   Process.Start("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe" );
+                ////   start.Arguments = "";
+                //   Process.Start(start);
+                //  Program tests = new Program();
+
+                // Task.Factory.StartNew(() => tests.Start(tag.subStream, nameCamera, RenderTargetHwnd));
 
 
             }
         }
+
+       
 
         private void MouseDoubleClick(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
@@ -264,50 +301,176 @@ namespace SilkDirectX11.Behaviors
             var Rite = AssociatedObject as Grid;
             var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
             if (grid != null)
-            {
-                
-                var screen = Screen.FromHandle(panel.Handle);
+            {var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+                //if (wfh == null)
+                //    return;
+                ////тут чтото с размерами
+                ////возможно прорблема в виюПорт тот что в рендере
+                //// или в том что рендер не ресайзит вьюпорт при изменении размера панели 
+                //if (panel.Width!=Rite.ActualWidth)
+                //{ panel.Width = (int)Rite.ActualWidth;
+                //    panel.Height = (int)Rite.ActualHeight;
+                //    wfh.Width = Rite.ActualWidth;
+                //    wfh.Height = Rite.ActualHeight;
+                //}
+                //else //if (Rite.ColumnDefinitions.Count!=0  )
+                //{
+                //    panel.Width = (int)grid.ActualWidth;
+                //    panel.Height = (int)grid.ActualHeight;
+                //    wfh.Width = grid.Width;
+                //    wfh.Height = grid.Height;
+                //    //panel.Width = (int)(Rite.ActualWidth / Rite.ColumnDefinitions.Count);
+                //    //if (Rite.RowDefinitions.Count==0)
+                //    //    panel.Height = (int)(Rite.ActualHeight  );
+                //    //else
+                //    //    panel.Height = (int)(Rite.ActualHeight / Rite.RowDefinitions.Count);
+                //}
 
-                Window window = new Window
+                // var screen = Screen.FromHandle(panel.Handle);
+                var full = Rite.Parent as Grid;
+                var newWind = new WindowsFormsHost
                 {
-                    Title = "Video",
-                   
-                    WindowStartupLocation = WindowStartupLocation.Manual,
-                    Left = screen.Bounds.Left,
-                    Top = screen.Bounds.Top,
-                    WindowState = WindowState.Maximized,
-                    Content = new WindowsFormsHost
+                    Width = Rite.ActualWidth,
+                    Height = Rite.ActualHeight,
+                    Child = new Panel
                     {
-                        Child =  new Panel
-                        {
-                            DataContext = panel.DataContext,
-                            Name = panel.Name,
-                            AutoSize = true,
-                        },
-                        DataContext = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().DataContext,
-                        Tag = panel.Tag,
-                    }
+                        DataContext = panel.DataContext,
+                        Name = panel.Name,
+                        AutoSize = true,
+                    },
+                    DataContext = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().DataContext,
+                    Name = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Name,
+                    Tag = panel.Tag,
                 };
-
-                Program startVideo = new Program();
-
-                if (panel.Tag == null)
+                 full.Children.Add(new Grid()
+                //Grid nGrid = new Grid() 
                 {
-                    startVideo.Stop();
-                    return;
-                }
+                     Name = "FullScreenGrid",
+                     Width = Rite.ActualWidth,
+                    Height = Rite.ActualHeight,
+                    Children =
+                    {
+                        newWind
 
-                string _videoSourceTest = panel.Tag.ToString();
-                string a = window.Title;
-                var wfh = window.Content as WindowsFormsHost;
+                    }
+                     , Margin = new Thickness((full.ColumnDefinitions.First().Width).Value+5,0,0,0),
+
+                 });
+                //var newWfh = new WindowsFormsHost
+                //{Width= Rite.ActualWidth,
+                //    Height= Rite.ActualHeight,
+                //    Child = new Panel
+                //    {
+                //        DataContext = panel.DataContext,
+                //        Name = panel.Name,
+                //        AutoSize = true,
+                //    },
+                //    DataContext = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().DataContext,
+                //    Name = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Name,
+                //    Tag = panel.Tag,
+                //};
                 var panelNew = wfh.Child as Panel;
+                  CameraConnectStrings tag = (CameraConnectStrings)panel.Tag;
+                var mainFlow = Process.GetCurrentProcess();
+                   Process process = new();
+                  ProcessStartInfo start = new ProcessStartInfo("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe");
+                  start.ArgumentList.Add(tag.subStream);
+                start.ArgumentList.Add(wfh.Name);
+                start.ArgumentList.Add(newWind.Child.Handle.ToString());
+                start.ArgumentList.Add(mainFlow.Id.ToString());
+                process.StartInfo = start;
+                process.Start();
+                
 
-                startVideo.Start(panel.Tag.ToString(), window.Title, panelNew.Handle);
-                window.ShowDialog();
-                startVideo.Stop();
+
+
+                //Window window = new Window
+                //{
+                //    Title = "Video",
+                //    Width = Rite.ActualWidth,
+                //    Height = Rite.ActualHeight,
+                //    //WindowStartupLocation = WindowStartupLocation.Manual,
+                //    //   Left = Rite.ActualWidth,//.Bounds.Left,
+                //    // Top = Rite.ActualHeight,//screen.Bounds.Top,
+                //    //  WindowState = WindowState.Maximized,
+                //    Content = new WindowsFormsHost
+                //    {
+                //        Child = new Panel
+                //        {
+                //            DataContext = panel.DataContext,
+                //            Name = panel.Name,
+                //            AutoSize = true,
+                //        },
+                //        DataContext = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().DataContext,
+                //        Name = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Name,
+                //        Tag = panel.Tag,
+                //    }
+                //};
+
+                //  Program startVideo = new Program();
+
+                //if (panel.Tag == null)
+                //{
+                //    // startVideo.Stop();
+                //    //        startVideo.Destroy();
+                //    //   startVideo = null;
+                //    GC.Collect();
+                //    return;
+                //}
+
+                //string _videoSourceTest = panel.Tag.ToString();
+
+                //  var wfh = window.Content as WindowsFormsHost;
+                //  //string nameCamera = wfh.Name;
+                //  var panelNew = wfh.Child as Panel;
+                //  CameraConnectStrings tag = (CameraConnectStrings)panel.Tag;
+                //  //        startVideo.Start(tag.mainStream, wfh.Name, panelNew.Handle);
+                //  var mainFlow = Process.GetCurrentProcess();
+                //  Process process = new();
+                //  ProcessStartInfo start = new ProcessStartInfo("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe");
+                //  start.ArgumentList.Add(tag.subStream);
+                //  start.ArgumentList.Add(wfh.Name);
+                //  start.ArgumentList.Add(panelNew.Handle.ToString());
+                //  start.ArgumentList.Add(mainFlow.Id.ToString());
+                //  process.StartInfo = start;
+                //  process.Start();
+                //  window.ShowDialog();
+                //  process.CloseMainWindow();
+                //  process.Dispose();
+                //  process.Close();
+
+                //  //  startVideo.Stop();
+                //  WindowsFormsHost g = window.Content as WindowsFormsHost;
+                //  g.Child.Dispose();
+                // // g.Child = null;
+                //  g.Dispose();
+                ////;
+                //  //process.Start("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe");
+                //  // Process.Start(start);
+                //  // window.Content = null;
+                //  //          startVideo.Destroy();
+                //  //startVideo= null;
+                //  //window = null;
+                //  //wfh = null;
+                //  //panelNew = null;
+                //  //panel = null;
+                //  window.Close();
+                //process.Close();
+                //process.Dispose();
+                //colectGarbage();
+
             }
         }
+        private void colectGarbage()
+        {
+            var mem2 = GC.GetGCMemoryInfo();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            var mem= GC.GetGCMemoryInfo();
+             
 
+            GC.Collect();
+        }
         private void Swich()
         {
             var rowSet = Grid.GetRow(imageDragDrop.GridChange);
@@ -376,8 +539,16 @@ namespace SilkDirectX11.Behaviors
             var indexC = Grid.GetColumn((UIElement)stackP);
             var IndexR = Grid.GetRow((UIElement)stackP);
             var cellContent = Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == IndexR && Grid.GetColumn(c) == indexC);
-            Grid test = cellContent as Grid;
-            test.Children.Clear();
+            Grid grid = cellContent as Grid;
+           //var g = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child;
+           //  grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child = null;
+           // var k = g.Handle;
+           // grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child.DataContext=null;
+           // var wfh= grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+          
+          // wfh = null;
+           // g.ClientSize = new System.Drawing.Size(0,0);
+            grid.Children.Clear();
             Rite.Children.Remove(cellContent);
             List<int> list = new List<int>();
             for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)

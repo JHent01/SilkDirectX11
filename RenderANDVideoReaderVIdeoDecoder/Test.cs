@@ -41,7 +41,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
         private int _bufWidth;
         private int _bufHeight;
 
-        private unsafe SwsContext* _swsCtx;
+        //private unsafe SwsContext* _swsCtx;
         private int _frameWidth;
         private int _frameHeight;
         private AVPixelFormat _srcPixFmt = AVPixelFormat.AV_PIX_FMT_NONE;
@@ -151,10 +151,10 @@ namespace RenderANDVideoReaderVIdeoDecoder
             // Resize();
 
 
-            int w = _frameWidth;
-            int h = _frameHeight;
-            int uvW = (w + 1) >> 1;
-            int uvH = (h + 1) >> 1;
+            //int w = _frameWidth;
+            //int h = _frameHeight;
+            //int uvW = (w + 1) >> 1;
+            //int uvH = (h + 1) >> 1;
 
            
             _context.UpdateSubresource(_texY, 0, null, (nint)frame.data[0], (uint)frame.linesize[0], 0);
@@ -162,7 +162,7 @@ namespace RenderANDVideoReaderVIdeoDecoder
 
             _context.OMSetRenderTargets(_rtv);
 
-            var viewport = new Vortice.Mathematics.Viewport(0, 0, _width, _height, 0, 1);
+            var viewport = new Vortice.Mathematics.Viewport(0, 0, _width, _height);
             _context.RSSetViewport(viewport);
 
             _context.IASetInputLayout(_inputLayout);
@@ -190,14 +190,14 @@ namespace RenderANDVideoReaderVIdeoDecoder
               _d2dContext.DrawText(_overlayText , _textFormat, textRect, _textBrush);
             _d2dContext.EndDraw();
             _context.Flush();
+            Resize();
+            //GetClientRect(_wind, out RECT rc);
 
-            GetClientRect(_wind, out RECT rc);
+            //int newW = rc.Right - rc.Left;
+            //int newH = rc.Bottom - rc.Top;
 
-            int newW = rc.Right - rc.Left;
-            int newH = rc.Bottom - rc.Top;
-
-            if (newW != _bufWidth && newH != _bufHeight)
-                _swapChain.ResizeBuffers(0, (uint)newW, (uint)newH, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
+            //if (newW != _bufWidth && newH != _bufHeight)
+            //    _swapChain.ResizeBuffers(0, (uint)newW, (uint)newH, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
             _swapChain.Present(0, PresentFlags.None);
 
             //Resize();
@@ -263,7 +263,8 @@ namespace RenderANDVideoReaderVIdeoDecoder
 
             //_rtv?.Dispose();
             //_rtv = null;
-           
+            _bufHeight = newH;
+            _bufWidth = newW;
             _swapChain.ResizeBuffers(0, (uint)newW, (uint)newH, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
             //_swapChain.Present(0, PresentFlags.None);
             //CreateOrUpdateRTV();
@@ -432,6 +433,10 @@ float4 PSMain(VSOut input) : SV_Target
             psErr?.Dispose();
             vsBlob?.Dispose();
             psBlob?.Dispose();
+              vsBlob = null;
+              psBlob = null;
+              vsErr = null;
+              psErr = null;
         }
 
         
@@ -457,8 +462,8 @@ float4 PSMain(VSOut input) : SV_Target
                 FontWeight.SemiBold,
                 FontStyle.Normal,
                 FontStretch.Normal,
-                220
-               //_width/10
+                _width / 10
+            //_width/10
             );
             _textFormat.TextAlignment = TextAlignment.Leading;
             _textFormat.ParagraphAlignment = ParagraphAlignment.Near;
@@ -496,12 +501,33 @@ float4 PSMain(VSOut input) : SV_Target
         //    _d2dTarget?.Dispose();
         //    _d2dTarget = null;
         //}
-        //private void DisposeResources() 
-        //{
-        //    _srvY?.Dispose(); _srvY = null;
-        //    _srvUV?.Dispose(); _srvUV = null;
-        //    _texY?.Dispose(); _texY = null;
-        //    _texUV?.Dispose(); _texUV = null;
-        //}
+        public unsafe void DisposeResources()
+        {
+            _srvY?.Dispose();// _srvY = null;
+            _srvUV?.Dispose();// _srvUV = null;
+            _texY?.Dispose();// _texY = null;
+            _texUV?.Dispose();// _texUV = null;
+            _d2dFactory?.Dispose();// _d2dFactory = null;
+            _dwFactory?.Dispose();// _dwFactory = null;
+            _d2dDevice?.Dispose();// _d2dDevice = null;
+            _d2dContext?.Dispose(); //_d2dContext = null;
+            _textBrush?.Dispose(); //_textBrush = null;
+            _textFormat?.Dispose(); //_textFormat = null;
+            _vs?.Dispose(); //_vs = null;
+            _ps?.Dispose(); //_ps = null;
+            _inputLayout?.Dispose();// _inputLayout = null;
+            _vb?.Dispose(); //_vb = null;
+            _sampler?.Dispose(); //_sampler = null;
+            _context.Dispose(); //_context = null;
+            _swapChain.Dispose();// _swapChain = null;
+            _device.Dispose();// _device = null;
+            _factory.Dispose(); //_factory = null;
+            _d2dTarget.Dispose(); //_d2dTarget = null;
+            _rtv.Dispose();// _rtv = null;
+            _bgraBuffer = null;
+            _bgraStride = 0;
+            _wind = 0;
+            GC.Collect();
+        }
     }
 }
