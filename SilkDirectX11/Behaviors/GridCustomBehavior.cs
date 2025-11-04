@@ -26,7 +26,8 @@ using Point = System.Windows.Point;
 namespace SilkDirectX11.Behaviors
 {
     class GridCustomBehavior : Behavior<Grid>
-    {
+    { // static string patch = Path.Combine(GetSolutionParentDir(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
+
         static string patch = Path.Combine(GetSolutionParentDir(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
 
         ImageDragDrop imageDragDrop = new ImageDragDrop();
@@ -316,31 +317,7 @@ namespace SilkDirectX11.Behaviors
             if (grid != null)
             {
                 var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-                //if (wfh == null)
-                //    return;
-                ////тут чтото с размерами
-                ////возможно прорблема в виюПорт тот что в рендере
-                //// или в том что рендер не ресайзит вьюпорт при изменении размера панели 
-                //if (panel.Width!=Rite.ActualWidth)
-                //{ panel.Width = (int)Rite.ActualWidth;
-                //    panel.Height = (int)Rite.ActualHeight;
-                //    wfh.Width = Rite.ActualWidth;
-                //    wfh.Height = Rite.ActualHeight;
-                //}
-                //else //if (Rite.ColumnDefinitions.Count!=0  )
-                //{
-                //    panel.Width = (int)grid.ActualWidth;
-                //    panel.Height = (int)grid.ActualHeight;
-                //    wfh.Width = grid.Width;
-                //    wfh.Height = grid.Height;
-                //    //panel.Width = (int)(Rite.ActualWidth / Rite.ColumnDefinitions.Count);
-                //    //if (Rite.RowDefinitions.Count==0)
-                //    //    panel.Height = (int)(Rite.ActualHeight  );
-                //    //else
-                //    //    panel.Height = (int)(Rite.ActualHeight / Rite.RowDefinitions.Count);
-                //}
-
-                // var screen = Screen.FromHandle(panel.Handle);
+                 
                 Process process = new();
                 var full = Rite.Parent as Grid;
                 var newWind = new WindowsFormsHost
@@ -383,8 +360,7 @@ namespace SilkDirectX11.Behaviors
                     var panelNew = wfh.Child as Panel;
                     CameraConnectStrings tag = (CameraConnectStrings)panel.Tag;
                     var mainFlow = Process.GetCurrentProcess();
-                    // string patch = Path.Combine(GetSolutionParentDir(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
-                  
+                   
                     ProcessStartInfo start = new ProcessStartInfo(patch);
                     start.ArgumentList.Add(tag.mainStream);
                     start.ArgumentList.Add(wfh.Name);
