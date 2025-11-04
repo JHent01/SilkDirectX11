@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Media;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Button = System.Windows.Controls.Button;
 using Image = System.Windows.Controls.Image;
 using Panel = System.Windows.Forms.Panel;
@@ -26,7 +27,10 @@ namespace SilkDirectX11.Behaviors
 {
     class GridCustomBehavior : Behavior<Grid>
     {
+        static string patch = Path.Combine(GetSolutionParentDir(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
+
         ImageDragDrop imageDragDrop = new ImageDragDrop();
+        PixelPanelForZoom pixelPanelForZoom = new PixelPanelForZoom();
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -269,23 +273,20 @@ namespace SilkDirectX11.Behaviors
                 nint RenderTargetHwnd = VideoHost.Child.Handle;
 
                 var mainFlow = Process.GetCurrentProcess();
-                string patch = Path.Combine(GetSolutionParentDir(),  "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
+              //  string patch = Path.Combine(GetSolutionParentDir(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
                 Process process = new();
                ProcessStartInfo start = new ProcessStartInfo(patch);
-                // process.StartInfo.FileName = "RenderANDVideoReaderVIdeoDecoder.exe";
-                //  start.Arguments = $"\"{tag.subStream}\"" , $"\"{nameCamera}\"", $"\"{RenderTargetHwnd}\"";
+                
                 start.ArgumentList.Add(tag.subStream);
                 start.ArgumentList.Add(nameCamera);
                 start.ArgumentList.Add(RenderTargetHwnd.ToString());
                 start.ArgumentList.Add(mainFlow.Id.ToString());
-              //  start.CreateNoWindow = true;
-             //  start.WindowStyle = ProcessWindowStyle.Hidden;
+              
                 process.StartInfo = start;
                 process.Start();
                 grid.Tag = process.Id.ToString();
 
-                //   Process.Start("D:\\Work\\DirectX11\\Rend\\RenderANDVideoReaderVIdeoDecoder\\RenderANDVideoReaderVIdeoDecoder\\bin\\Debug\\net8.0\\RenderANDVideoReaderVIdeoDecoder.exe" );
-                ////   start.Arguments = "";
+                  ////   start.Arguments = "";
                 //   Process.Start(start);
                 //  Program tests = new Program();
 
@@ -313,7 +314,8 @@ namespace SilkDirectX11.Behaviors
             var Rite = AssociatedObject as Grid;
             var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
             if (grid != null)
-            {var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+            {
+                var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
                 //if (wfh == null)
                 //    return;
                 ////тут чтото с размерами
@@ -349,7 +351,8 @@ namespace SilkDirectX11.Behaviors
                     {
                         DataContext = panel.DataContext,
                         Name = panel.Name,
-                        AutoSize = true,
+                     //   AutoSize = true,
+                        Tag= panel.Tag
                         
                     },
                     DataContext = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().DataContext,
@@ -357,7 +360,8 @@ namespace SilkDirectX11.Behaviors
                    // Tag = Process.GetProcessById(),
                 };
                 newWind.Child.MouseDoubleClick += MouseDoubleClick;
-                
+               newWind.Child.MouseDown += MouseDownTakePxel;
+                newWind.Child.MouseUp += MouseUpTakePixel;
 
                 if (full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
                 {
@@ -374,15 +378,15 @@ namespace SilkDirectX11.Behaviors
                     }
                      ,
                         Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
-                        
+                       
                     });
                     var panelNew = wfh.Child as Panel;
                     CameraConnectStrings tag = (CameraConnectStrings)panel.Tag;
                     var mainFlow = Process.GetCurrentProcess();
-                    string patch = Path.Combine(GetSolutionParentDir(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
-
+                    // string patch = Path.Combine(GetSolutionParentDir(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
+                  
                     ProcessStartInfo start = new ProcessStartInfo(patch);
-                    start.ArgumentList.Add(tag.subStream);
+                    start.ArgumentList.Add(tag.mainStream);
                     start.ArgumentList.Add(wfh.Name);
                     start.ArgumentList.Add(newWind.Child.Handle.ToString());
                     start.ArgumentList.Add(mainFlow.Id.ToString());
@@ -394,6 +398,8 @@ namespace SilkDirectX11.Behaviors
                 {
                     var t = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag as string;
                      Process.GetProcessById(int.Parse(t)).Kill();
+                    var t2 = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Children.OfType<WindowsFormsHost>().FirstOrDefault().Tag;
+                    Process.GetProcessById(int.Parse(t2.ToString())).Kill();
                     full.Children.Remove(full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault());
                 }
                 //var newWfh = new WindowsFormsHost
@@ -491,16 +497,84 @@ namespace SilkDirectX11.Behaviors
 
             }
         }
-        private void colectGarbage()
+      
+        private void MouseUpTakePixel(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
-            var mem2 = GC.GetGCMemoryInfo();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            var mem= GC.GetGCMemoryInfo();
-             
+            var Rite = AssociatedObject as Grid;
+            var full = Rite.Parent as Grid;
 
-            GC.Collect();
+            pixelPanelForZoom.BottomRight = new Point(e.X, e.Y);
+            if (pixelPanelForZoom.TopLeft != pixelPanelForZoom.BottomRight&pixelPanelForZoom.TopLeft!=null)
+            {
+                if (pixelPanelForZoom.BottomRight.X < pixelPanelForZoom.TopLeft.X)
+                {
+                    if (pixelPanelForZoom.BottomRight.Y < pixelPanelForZoom.TopLeft.Y)
+                    { 
+                        
+                    }
+                }
+                Process process = new();
+                Grid grid=  full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+                int W = (int)(Rite.ActualWidth/2);
+                WindowsFormsHost wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+                wfh.Width = W;
+                wfh.Child.Width = W;
+                wfh.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                Panel panel = sender as Panel;
+                grid.ColumnDefinitions.Add(new ColumnDefinition());
+                 grid.Children.Add(new WindowsFormsHost
+                { 
+                    Width = Rite.ActualWidth / 2,
+                    Height = Rite.ActualHeight,
+                    Child = new Panel
+                    {
+                        DataContext = panel.DataContext,
+                        // Name = "ZoomPanel" + Guid.NewGuid().ToString("N"),UpdateZoomConstantBuffer(topLeft, buttomRight);  _context.PSSetConstantBuffers(0, new ID3D11Buffer[] { _zoomCB });   _rtv = _device.CreateRenderTargetView(backBuffer);
+                        AutoSize = true,
+                        Tag = panel.Tag
+                    },
+                    DataContext = panel.DataContext,
+                    Name = "ZoomHost",
+                    Margin = new Thickness(15,0,0,0),
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+                 });
+                var mainFlow = Process.GetCurrentProcess();
+                ProcessStartInfo start = new ProcessStartInfo(patch);
+                CameraConnectStrings tag = (CameraConnectStrings)grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child.Tag;
+                start.ArgumentList.Add(tag.mainStream);
+                start.ArgumentList.Add("");
+                start.ArgumentList.Add(grid.Children.OfType<WindowsFormsHost>().Where(s=>s.Name== "ZoomHost").FirstOrDefault().Child.Handle.ToString());
+                start.ArgumentList.Add(mainFlow.Id.ToString());
+                start.ArgumentList.Add(pixelPanelForZoom.TopLeft.X.ToString());
+                start.ArgumentList.Add(pixelPanelForZoom.TopLeft.Y.ToString());
+                start.ArgumentList.Add(pixelPanelForZoom.BottomRight.X.ToString());
+                start.ArgumentList.Add(pixelPanelForZoom.BottomRight.Y.ToString());
+
+
+                process.StartInfo = start;
+                process.Start();
+                grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Tag = process.Id.ToString();
+            }
         }
+
+        private void MouseDownTakePxel(object? sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            pixelPanelForZoom.TopLeft = new Point(e.X, e.Y);
+        }
+       
+       
+        //private void colectGarbage()
+        //{  private unsafe void UpdateZoomConstantBuffer(Point? topLeft, Point? bottomRight)
+//       
+//        }
+        //    var mem2 = GC.GetGCMemoryInfo();
+        //    GC.Collect();
+        //    GC.WaitForPendingFinalizers();
+        //    var mem= GC.GetGCMemoryInfo();
+
+
+        //    GC.Collect();
+        //}
         private void Swich()
         {
             var rowSet = Grid.GetRow(imageDragDrop.GridChange);
