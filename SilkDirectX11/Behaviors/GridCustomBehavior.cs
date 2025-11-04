@@ -399,7 +399,7 @@ namespace SilkDirectX11.Behaviors
                     var t = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag as string;
                      Process.GetProcessById(int.Parse(t)).Kill();
                     var t2 = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Children.OfType<WindowsFormsHost>().FirstOrDefault().Tag;
-                    Process.GetProcessById(int.Parse(t2.ToString())).Kill();
+                    if (t2!=null)Process.GetProcessById(int.Parse(t2.ToString())).Kill();
                     full.Children.Remove(full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault());
                 }
                 //var newWfh = new WindowsFormsHost
