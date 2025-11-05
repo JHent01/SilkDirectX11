@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,19 +18,21 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Media;
+using Vortice.Direct2D1;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Button = System.Windows.Controls.Button;
 using Image = System.Windows.Controls.Image;
 using Panel = System.Windows.Forms.Panel;
 using Point = System.Windows.Point;
+using Window = System.Windows.Window;
 
 namespace SilkDirectX11.Behaviors
 {
     class GridCustomBehavior : Behavior<Grid>
     { // static string patch = Path.Combine(GetSolutionParentDir(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
-
+        System.Windows.Window window = new();
         static string patch = Path.Combine(GetSolutionParentDir(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
-
+        bool flagForOverlay;
         ImageDragDrop imageDragDrop = new ImageDragDrop();
         PixelPanelForZoom pixelPanelForZoom = new PixelPanelForZoom();
         protected override void OnAttached()
@@ -40,7 +43,70 @@ namespace SilkDirectX11.Behaviors
              AssociatedObject.PreviewDragEnter += ellipse_DragEnter;
             //AssociatedObject.AllowDrop = true;
             AssociatedObject.Drop += AssociatedObject_Drop;
-             
+
+
+
+            Grid Rite = AssociatedObject as Grid;
+
+          
+            window.Background = System.Windows.Media.Brushes.Transparent;
+            window.WindowStyle = WindowStyle.None;
+            window.AllowsTransparency = true;
+            window.ShowInTaskbar = false;
+            Button buttonOverlay = new Button
+            {
+                Content = "X",
+                Width = 30,
+                Height = 30,
+
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+               
+            };
+            Border border = new Border
+            {
+               
+                Width = window.Width,
+                Height = window.Height,
+                
+
+            };
+            
+            buttonOverlay.Click += ButtonDeleteChildren;
+            
+            Grid gridOverlay = new Grid()
+            {
+                Visibility = Visibility.Collapsed,
+                Background = System.Windows.Media.Brushes.Black,
+                Opacity = 0.5,
+                Width = buttonOverlay.Width,
+                Height = buttonOverlay.Height,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+            };
+            Grid gridOll = new Grid()
+            {
+                Background = System.Windows.Media.Brushes.Transparent,
+                
+                Width = window.Width,
+                Height = window.Height,
+            };
+            gridOverlay.Children.Add(buttonOverlay);
+            gridOll.Children.Add(gridOverlay);
+            border.Child = gridOll;
+            
+            window.Content = border;
+ 
+            window.Width = Rite.ActualWidth / Rite.ColumnDefinitions.Count;
+            if (Rite.RowDefinitions.Count != 0) window.Height = Rite.ActualHeight / Rite.RowDefinitions.Count;
+            else window.Height = Rite.ActualHeight;
+            
+            window.Visibility = Visibility.Visible;
+           // window.Show();
+            
+            gridOverlay.MouseMove += WindowShow;
+
+            gridOverlay.MouseLeave += Leave;
         }
          
        
@@ -156,48 +222,30 @@ namespace SilkDirectX11.Behaviors
                 WindowsFormsHost VideoHost = new WindowsFormsHost 
                 {   DataContext=VideoHostSelect.DataContext,
                     Child= paneltest,
-                    Tag = VideoHostSelect.Tag,
+                    //Tag = VideoHostSelect.Tag,
                     Margin = new Thickness(5),
                      Name= VideoHostSelect.Name,
                      
                 };
                  
-                Button button = new Button
-                { 
-                    Content = "X",
-                    Width = 20,
-                    Height = 20,
+                //Button button = new Button
+                //{ 
+                //    Content = "X",
+                //    Width = 20,
+                //    Height = 20,
                      
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
-                    VerticalAlignment = VerticalAlignment.Top,
+                //    HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                //    VerticalAlignment = VerticalAlignment.Top,
 
-                    Opacity = 0.5,
-                };
+                //    Opacity = 0.5,
+                //};
                 var Rite = AssociatedObject as Grid;
-                //if (Rite.ColumnDefinitions.Count != 0)
-                //{
-                //    VideoHost.Height = VideoHostSelect.Height / Rite.ColumnDefinitions.Count;
-                //}
-                //else if (Rite.RowDefinitions.Count != 0)
-                //    VideoHost.Width = VideoHostSelect.Width / Rite.RowDefinitions.Count;
-
-
-
+                 
                 UIElement uIElement = new UIElement();
                 UIElement uIElement2 = new UIElement();
-
-
-                
-                // uIElement = VideoHost;
-                uIElement = VideoHost;
-
-               // uIElement.AllowDrop = true;
-
-                button.Click += ButtonDeleteChildren;
-
-                uIElement2 = button;
-               // uIElement2.AllowDrop = true;
                  
+                uIElement = VideoHost;
+  
                 grid.Name = VideoHost.Child.Name;//panel.Name;
                 
                 grid.Children.Add(uIElement2);
@@ -268,7 +316,7 @@ namespace SilkDirectX11.Behaviors
                    
 
                 }
-                CameraConnectStrings tag = (CameraConnectStrings)VideoHost.Tag;
+                CameraConnectStrings tag = (CameraConnectStrings)paneltest.Tag;
                 //string _videoSourceTest = tag.subStream;
                 string nameCamera = VideoHost.Name;
                 nint RenderTargetHwnd = VideoHost.Child.Handle;
@@ -286,8 +334,106 @@ namespace SilkDirectX11.Behaviors
                 process.StartInfo = start;
                 process.Start();
                 grid.Tag = process.Id.ToString();
+                VideoHost.Tag = window;
+                window.Show();
+                paneltest.MouseLeave += Leave;
+                paneltest.MouseMove += WindowShow;
+                
+                window.Owner = System.Windows.Application.Current.MainWindow;
 
-                  ////   start.Arguments = "";
+                //  System.Windows.Window window = new () ;
+                //  //window.Topmost = true;
+                //  window.Background = System.Windows.Media.Brushes.Transparent;
+                //   window.WindowStyle = WindowStyle.None;
+                //  window.AllowsTransparency = true;
+                //   window.ShowInTaskbar = false;
+                //   Button button1 = new Button
+                //   {
+                //       Content = "X",
+                //       Width = 30,
+                //       Height = 30,
+                //Grid child =  window.Content as Grid;
+                // Button  b = child.Children.OfType<Button>().FirstOrDefault();
+                // b.Name = paneltest.Name;
+                //       HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                //       VerticalAlignment = VerticalAlignment.Top,
+                //       Name = paneltest.Name,
+                //      // Opacity = 0.5,
+                //     //  IsHitTestVisible = true,
+                //   };
+                //  Border border = new Border
+                //  {
+                //     // Background = System.Windows.Media.Brushes.Transparent,
+                //      Width = window.Width,
+                //      Height = window.Height,
+                //     //  BorderBrush = System.Windows.Media.Brushes.Transparent,
+                //     //  BorderThickness = new Thickness(10),
+                //      // Opacity = 0.01,
+                //  //    IsHitTestVisible = false,
+
+                //  };
+                //  //   window.Opacity = 0.01;
+                //  button1.Click += ButtonDeleteChildren;
+                //  //UIElement uI = new UIElement();
+                // // uI = button1;
+
+                //  Grid grid2 = new Grid() 
+                //  {
+                //      Visibility = Visibility.Collapsed,
+                //      Background = System.Windows.Media.Brushes.Black,
+                //      Opacity=0.5,
+                //      Width = button1.Width,
+                //      Height = button1.Height,
+                //      HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                //      VerticalAlignment = VerticalAlignment.Top,
+                //  };
+                //  grid2.Children.Add(button1);
+                //  //  grid1.Children.Add(border);
+                //  // grid1.Children.Add(button1);
+                //  //   grid1.Children.Add(border);
+                //  border.Child = grid2;
+                //  //  grid1.Children.Add(button1);
+                //  // border.Child = uI;
+                //  //  window.Content = button1;
+                //  window.Content = border;
+
+
+                //  window.Owner = System.Windows.Application.Current.MainWindow;
+
+                //  window.Width = Rite.ActualWidth/Rite.ColumnDefinitions.Count;
+                //if     (Rite.RowDefinitions.Count!=0)  window.Height = Rite.ActualHeight/ Rite.RowDefinitions.Count;
+                //else   window.Height = Rite.ActualHeight;
+
+
+
+                //  window.Visibility = Visibility.Visible;
+
+                //  //paneltest.MouseEnter += (s, ev) =>
+                //  //{
+                //  //    WindowShow(s, ev, window);
+                //  //};
+
+
+                //  //paneltest.MouseMove += (s, ev) =>
+                //  //{
+                //  //    WindowShow(s, ev, window);
+                //  //};
+                //  //paneltest.MouseLeave += (s, ev) =>
+                //  //{
+                //  //    Leave(  window);
+                //  //};
+
+                //  grid2.MouseMove += WindowShow;
+
+                //  grid2.MouseLeave += Leave;
+                //paneltest.MouseLeave += (s, ev) =>
+                //{
+                //    WindowHide(s, ev, window);
+                //};
+                //  grid.SizeChanged += SizeWindowChange;
+
+
+                ////   start.Arguments = "";
                 //   Process.Start(start);
                 //  Program tests = new Program();
 
@@ -296,14 +442,56 @@ namespace SilkDirectX11.Behaviors
 
             }
         }
+       
+        private void Leave(object? sender, EventArgs e)
+        {   if (!flagForOverlay) return;
+            Border border = (Border)window.Content;
+            Grid grids = (Grid)border.Child;
+            Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
+            grid.Visibility = Visibility.Hidden;
+        }
 
+        private void WindowShow(object? sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            var panel = sender as Panel;
+            Border border = (Border)window.Content;
+            Grid grids = (Grid)border.Child;
+             Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
+            Button b = grid.Children.OfType<Button>().FirstOrDefault();
+            b.Name = panel.Name;
+
+            grid.Visibility = Visibility.Visible;
+            window.Height = panel.Height;
+            window.Width = panel.Width;
+            window.Left = panel.PointToScreen(new System.Drawing.Point()).X;
+            window.Top = panel.PointToScreen(new System.Drawing.Point()).Y;
+        }
+ 
+
+        private void Leave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            flagForOverlay = true;
+            Grid grd = sender as Grid;
+             grd.Visibility = Visibility.Hidden;
+             
+            
+        }
+
+        private void WindowShow(object s, System.Windows.Input.MouseEventArgs ev)
+        {  flagForOverlay = false;
+            Grid grid = s as Grid;
+
+            grid.Visibility = Visibility.Visible;
+        }
+         
 
         static string GetSolutionParentDir()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory); 
             while (dir != null)
             {
-                if (dir.GetFiles("*.sln").Any()) return dir.Parent!.FullName; 
+                if (dir.GetFiles("*.sln").Any()) 
+                    return dir.Parent!.FullName; 
                 
                 dir = dir.Parent; 
             } 
@@ -315,7 +503,7 @@ namespace SilkDirectX11.Behaviors
             var Rite = AssociatedObject as Grid;
             var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
             if (grid != null)
-            {
+            { Rite.Visibility = Visibility.Hidden;
                 var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
                  
                 Process process = new();
@@ -368,15 +556,36 @@ namespace SilkDirectX11.Behaviors
                     start.ArgumentList.Add(mainFlow.Id.ToString());
                     process.StartInfo = start;
                     process.Start();
+
+                    //System.Windows.Window window = new();
+                    //window.Topmost = true;
+                    //window.Background = System.Windows.Media.Brushes.Transparent;
+                    //window.WindowStyle = WindowStyle.None;
+                    //window.AllowsTransparency = true;
+                    //window.ShowInTaskbar = false;
+                     
+                     
+
+                    //window.Show();
+
+
                     full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag = process.Id.ToString();
                 }
                 else
                 {
+                    Rite.Visibility = Visibility.Visible;
                     var t = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag as string;
                      Process.GetProcessById(int.Parse(t)).Kill();
                     var t2 = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Children.OfType<WindowsFormsHost>().FirstOrDefault().Tag;
                     if (t2!=null)Process.GetProcessById(int.Parse(t2.ToString())).Kill();
                     full.Children.Remove(full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault());
+                    Border border = (Border)window.Content;
+                    Grid gridOverlay = border.Child as Grid;
+                   var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
+                    if (child != null)
+                    {
+                        gridOverlay.Children.Remove(child);
+                    }
                 }
                 //var newWfh = new WindowsFormsHost
                 //{Width= Rite.ActualWidth,
@@ -525,11 +734,43 @@ namespace SilkDirectX11.Behaviors
                 start.ArgumentList.Add(pixelPanelForZoom.TopLeft.Y.ToString());
                 start.ArgumentList.Add(pixelPanelForZoom.BottomRight.X.ToString());
                 start.ArgumentList.Add(pixelPanelForZoom.BottomRight.Y.ToString());
+                Border border = (Border)window.Content;
+                Grid gridOverlay = border.Child as Grid;
+                var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
+                if (child != null)
+                {
+                    gridOverlay.Children.Remove(child);
+                }
+                Canvas canvas = new Canvas()
+                {
+                    Width =window.Width,
+                    Height = window.Height, //pixelPanelForZoom.BottomRight.Y - pixelPanelForZoom.TopLeft.Y,
+                    Background = System.Windows.Media.Brushes.Transparent,
+                    
+                };
+                canvas.Children.Add(new System.Windows.Shapes.Rectangle
+                {
+                    Width = (pixelPanelForZoom.BottomRight.X - pixelPanelForZoom.TopLeft.X)/2,
+                    Height = pixelPanelForZoom.BottomRight.Y - pixelPanelForZoom.TopLeft.Y,
+                    Stroke = System.Windows.Media.Brushes.Red,
+                    StrokeThickness = 2,
+                    
+                });
+                gridOverlay.Children.Add(canvas);
+                System.Windows.Shapes.Rectangle rectangle = gridOverlay.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault();//.PointFromScreen(new Point(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y)) ;
+                 rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                rectangle.VerticalAlignment = VerticalAlignment.Top;
+                Canvas.SetLeft(rectangle, pixelPanelForZoom.TopLeft.X/2);
+                Canvas.SetTop(rectangle, pixelPanelForZoom.TopLeft.Y);
 
 
                 process.StartInfo = start;
                 process.Start();
                 grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Tag = process.Id.ToString();
+
+
+
+
             }
         }
 
@@ -539,18 +780,6 @@ namespace SilkDirectX11.Behaviors
         }
        
        
-        //private void colectGarbage()
-        //{  private unsafe void UpdateZoomConstantBuffer(Point? topLeft, Point? bottomRight)
-//       
-//        }
-        //    var mem2 = GC.GetGCMemoryInfo();
-        //    GC.Collect();
-        //    GC.WaitForPendingFinalizers();
-        //    var mem= GC.GetGCMemoryInfo();
-
-
-        //    GC.Collect();
-        //}
         private void Swich()
         {
             var rowSet = Grid.GetRow(imageDragDrop.GridChange);
@@ -615,9 +844,10 @@ namespace SilkDirectX11.Behaviors
             var Rite = AssociatedObject as Grid;
 
             Button button = sender as Button;
-            var stackP = VisualTreeHelper.GetParent(button);
-            var indexC = Grid.GetColumn((UIElement)stackP);
-            var IndexR = Grid.GetRow((UIElement)stackP);
+            var griddelet = Rite.Children.OfType<Grid>().Where(s=> s.Name == button.Name). FirstOrDefault();
+           // var stackP = VisualTreeHelper.GetParent(button);
+            var indexC = Grid.GetColumn(griddelet);
+            var IndexR = Grid.GetRow(griddelet);
             var cellContent = Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == IndexR && Grid.GetColumn(c) == indexC);
             Grid grid = cellContent as Grid;
             if (grid != null)
@@ -627,18 +857,16 @@ namespace SilkDirectX11.Behaviors
                 {
                      
                         Process.GetProcessById(int.Parse(tag)).Kill();
-                    
-                    
+                    Border border = (Border)window.Content;
+                    Grid grids = (Grid)border.Child;
+                    Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
+
+                    gridOverlay.Visibility = Visibility.Hidden;
+
+
                 }
             }
-           //var g = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child;
-           //  grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child = null;
-           // var k = g.Handle;
-           // grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child.DataContext=null;
-           // var wfh= grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-          
-          // wfh = null;
-           // g.ClientSize = new System.Drawing.Size(0,0);
+            
             grid.Children.Clear();
             Rite.Children.Remove(cellContent);
             List<int> list = new List<int>();

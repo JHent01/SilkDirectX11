@@ -13,7 +13,7 @@
         xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
          prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="MainView" Height="450" Width="800"  Background="Transparent" >
+        Title="MainView" Height="450" Width="800"  Background="Transparent"  >
     <Grid Background="Transparent"   >
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
