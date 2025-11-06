@@ -29,7 +29,14 @@
     <PackageReference Include="Prism.Unity" Version="9.0.537" />
     <PackageReference Include="Prism.Wpf" Version="9.0.537" />
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.10" />
   </ItemGroup>
+
+ 
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\RenderANDVideoReaderVIdeoDecoder\RenderANDVideoReaderVIdeoDecoder.csproj" />
 	</ItemGroup>

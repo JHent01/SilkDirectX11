@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Windows;
+using SilkDirectX11.SignalR;
 
 namespace SilkDirectX11
 {
@@ -25,6 +26,13 @@ namespace SilkDirectX11
             var w = Container.Resolve<MainView>();
 
             return w;
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            // Start embedded SignalR server
+            SignalRHost.StartIfNeeded();
         }
     }
 

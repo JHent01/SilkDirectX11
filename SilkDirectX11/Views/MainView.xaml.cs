@@ -49,6 +49,18 @@ namespace SilkDirectX11.Views
             //    }
             //  //  renderInstance?.Resize((int)e.NewSize.Width, (int)e.NewSize.Height);
             //}
+
+
+
+            //System.Windows.Shapes.Rectangle rectangle = sender as System.Windows.Shapes.Rectangle;
+            //var canvas = VisualTreeHelper.GetParent(rectangle) as Canvas;
+            //var x = rectangle.PointToScreen(new Point()).X;
+            //double left = Canvas.GetLeft(rectangle);
+            //var y = rectangle.PointFromScreen(new Point()).Y;
+            //double top = Canvas.GetTop(rectangle);
+            //double right = Canvas.GetRight(rectangle);
+            //double bottom = Canvas.GetBottom(rectangle);
+
         }
     }
 }
