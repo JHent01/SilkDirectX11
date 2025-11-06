@@ -29,9 +29,9 @@ using Window = System.Windows.Window;
 namespace SilkDirectX11.Behaviors
 {
     class GridCustomBehavior : Behavior<Grid>
-    { // static string patch = Path.Combine(GetSolutionParentDir(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
+    {   static string patch = Path.Combine(GetSolutionParentDir(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
         System.Windows.Window window = new();
-        static string patch = Path.Combine(GetSolutionParentDir(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
+       // static string patch = Path.Combine(GetSolutionParentDir(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
         bool flagForOverlay;
         ImageDragDrop imageDragDrop = new ImageDragDrop();
         PixelPanelForZoom pixelPanelForZoom = new PixelPanelForZoom();
@@ -44,11 +44,15 @@ namespace SilkDirectX11.Behaviors
             //AssociatedObject.AllowDrop = true;
             AssociatedObject.Drop += AssociatedObject_Drop;
 
+            InitWindow();
 
+        }
+        private void InitWindow()
+        {
 
             Grid Rite = AssociatedObject as Grid;
 
-          
+
             window.Background = System.Windows.Media.Brushes.Transparent;
             window.WindowStyle = WindowStyle.None;
             window.AllowsTransparency = true;
@@ -61,19 +65,19 @@ namespace SilkDirectX11.Behaviors
 
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
-               
+
             };
             Border border = new Border
             {
-               
+
                 Width = window.Width,
                 Height = window.Height,
-                
+
 
             };
-            
+
             buttonOverlay.Click += ButtonDeleteChildren;
-            
+
             Grid gridOverlay = new Grid()
             {
                 Visibility = Visibility.Collapsed,
@@ -87,28 +91,27 @@ namespace SilkDirectX11.Behaviors
             Grid gridOll = new Grid()
             {
                 Background = System.Windows.Media.Brushes.Transparent,
-                
+
                 Width = window.Width,
                 Height = window.Height,
             };
             gridOverlay.Children.Add(buttonOverlay);
             gridOll.Children.Add(gridOverlay);
             border.Child = gridOll;
-            
+
             window.Content = border;
- 
+
             window.Width = Rite.ActualWidth / Rite.ColumnDefinitions.Count;
             if (Rite.RowDefinitions.Count != 0) window.Height = Rite.ActualHeight / Rite.RowDefinitions.Count;
             else window.Height = Rite.ActualHeight;
-            
+
             window.Visibility = Visibility.Visible;
-           // window.Show();
-            
+            // window.Show();
+
             gridOverlay.MouseMove += WindowShow;
 
             gridOverlay.MouseLeave += Leave;
         }
-         
        
         private int GetRowGrid(Point point)
         {
@@ -501,6 +504,14 @@ namespace SilkDirectX11.Behaviors
         {
             var panel = sender as Panel;
             var Rite = AssociatedObject as Grid;
+            window.Width = Rite.ActualWidth;
+            window.Height = Rite.ActualHeight;
+
+            Grid grids = ( (Border)window.Content).Child as Grid;
+           
+            Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
+            gridOverlay.Visibility = Visibility.Hidden;
+
             var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
             if (grid != null)
             { Rite.Visibility = Visibility.Hidden;
@@ -524,6 +535,8 @@ namespace SilkDirectX11.Behaviors
                     Name = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Name,
                    // Tag = Process.GetProcessById(),
                 };
+
+
                 newWind.Child.MouseDoubleClick += MouseDoubleClick;
                newWind.Child.MouseDown += MouseDownTakePxel;
                 newWind.Child.MouseUp += MouseUpTakePixel;
@@ -563,24 +576,61 @@ namespace SilkDirectX11.Behaviors
                     //window.WindowStyle = WindowStyle.None;
                     //window.AllowsTransparency = true;
                     //window.ShowInTaskbar = false;
-                     
-                     
+
+
 
                     //window.Show();
-
+                  WindowsFormsHost host=  full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+                   
+                    full.SizeChanged += (s, ev) =>
+                    {
+                        var t = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+                        host.Width = wfh.ActualWidth;
+                        t.Width = wfh.ActualWidth;
+                        t.Height = wfh.ActualHeight;
+                        host.Height = wfh.ActualHeight;
+                        Panel cil = (Panel)host.Child;
+                        cil.Width = (int)wfh.ActualWidth;
+                        cil.Height = (int)wfh.ActualHeight;
+                        window.Width = wfh.ActualWidth;
+                        window.Height = wfh.ActualHeight;
+                        window.Left = wfh.PointToScreen(new  Point()).X;
+                        window.Top = wfh.PointToScreen(new  Point()).Y;
+                    };
 
                     full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag = process.Id.ToString();
                 }
                 else
                 {
+                    Grid gridOverlayCanvals = ((Border)window.Content).Child as Grid;
+                   // var child = gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault();
+
+                    if (gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault() != null)
+                    {
+                        Grid gridFullScreen = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+                        if (gridFullScreen.Children.Count > 1)
+                        {
+                            WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
+                            var tag = zoom.Tag as string;
+                            gridFullScreen.Children.Remove(zoom);
+                            gridFullScreen.ColumnDefinitions.RemoveAt(gridFullScreen.ColumnDefinitions.Count - 1);
+
+
+                            Process.GetProcessById(int.Parse(tag)).Kill();
+
+                        }
+                        var childOverlay = gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault();
+                        gridOverlayCanvals.Children.Remove(childOverlay);
+                    }
+                    
                     Rite.Visibility = Visibility.Visible;
                     var t = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag as string;
                      Process.GetProcessById(int.Parse(t)).Kill();
                     var t2 = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Children.OfType<WindowsFormsHost>().FirstOrDefault().Tag;
                     if (t2!=null)Process.GetProcessById(int.Parse(t2.ToString())).Kill();
                     full.Children.Remove(full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault());
-                    Border border = (Border)window.Content;
-                    Grid gridOverlay = border.Child as Grid;
+                   // Border border = (Border)window.Content;
+                   // Grid gridOverlay = border.Child as Grid;
                    var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
                     if (child != null)
                     {
@@ -685,95 +735,136 @@ namespace SilkDirectX11.Behaviors
       
         private void MouseUpTakePixel(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
-            var Rite = AssociatedObject as Grid;
-            var full = Rite.Parent as Grid;
+            
 
             pixelPanelForZoom.BottomRight = new Point(e.X, e.Y);
             if (pixelPanelForZoom.TopLeft != pixelPanelForZoom.BottomRight&pixelPanelForZoom.TopLeft!=null)
             {
                 if (pixelPanelForZoom.BottomRight.X < pixelPanelForZoom.TopLeft.X)
                 {
-                    if (pixelPanelForZoom.BottomRight.Y < pixelPanelForZoom.TopLeft.Y)
-                    { 
-                        
-                    }
+                    var bufferX = pixelPanelForZoom.TopLeft.X;
+                    pixelPanelForZoom.TopLeft.X = pixelPanelForZoom.BottomRight.X;
+                    pixelPanelForZoom.BottomRight.X = bufferX;
+                        if (pixelPanelForZoom.BottomRight.Y < pixelPanelForZoom.TopLeft.Y)
+                        { 
+                            var bufferY = pixelPanelForZoom.TopLeft.Y;
+                            pixelPanelForZoom.TopLeft.Y = pixelPanelForZoom.BottomRight.Y;
+                            pixelPanelForZoom.BottomRight.Y = bufferY;
+
+                        }
                 }
-                Process process = new();
-                Grid grid=  full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
-                int W = (int)(Rite.ActualWidth/2);
-                WindowsFormsHost wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-                wfh.Width = W;
-                wfh.Child.Width = W;
-                wfh.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                Panel panel = sender as Panel;
-                grid.ColumnDefinitions.Add(new ColumnDefinition());
-                 grid.Children.Add(new WindowsFormsHost
-                { 
-                    Width = Rite.ActualWidth / 2,
-                    Height = Rite.ActualHeight,
-                    Child = new Panel
-                    {
-                        DataContext = panel.DataContext,
-                        // Name = "ZoomPanel" + Guid.NewGuid().ToString("N"),UpdateZoomConstantBuffer(topLeft, buttomRight);  _context.PSSetConstantBuffers(0, new ID3D11Buffer[] { _zoomCB });   _rtv = _device.CreateRenderTargetView(backBuffer);
-                        AutoSize = true,
-                        Tag = panel.Tag
-                    },
-                    DataContext = panel.DataContext,
-                    Name = "ZoomHost",
-                    Margin = new Thickness(15,0,0,0),
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right
-                 });
-                var mainFlow = Process.GetCurrentProcess();
-                ProcessStartInfo start = new ProcessStartInfo(patch);
-                CameraConnectStrings tag = (CameraConnectStrings)grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child.Tag;
-                start.ArgumentList.Add(tag.mainStream);
-                start.ArgumentList.Add("");
-                start.ArgumentList.Add(grid.Children.OfType<WindowsFormsHost>().Where(s=>s.Name== "ZoomHost").FirstOrDefault().Child.Handle.ToString());
-                start.ArgumentList.Add(mainFlow.Id.ToString());
-                start.ArgumentList.Add(pixelPanelForZoom.TopLeft.X.ToString());
-                start.ArgumentList.Add(pixelPanelForZoom.TopLeft.Y.ToString());
-                start.ArgumentList.Add(pixelPanelForZoom.BottomRight.X.ToString());
-                start.ArgumentList.Add(pixelPanelForZoom.BottomRight.Y.ToString());
-                Border border = (Border)window.Content;
-                Grid gridOverlay = border.Child as Grid;
-                var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
-                if (child != null)
-                {
-                    gridOverlay.Children.Remove(child);
-                }
-                Canvas canvas = new Canvas()
-                {
-                    Width =window.Width,
-                    Height = window.Height, //pixelPanelForZoom.BottomRight.Y - pixelPanelForZoom.TopLeft.Y,
-                    Background = System.Windows.Media.Brushes.Transparent,
-                    
-                };
-                canvas.Children.Add(new System.Windows.Shapes.Rectangle
-                {
-                    Width = (pixelPanelForZoom.BottomRight.X - pixelPanelForZoom.TopLeft.X)/2,
-                    Height = pixelPanelForZoom.BottomRight.Y - pixelPanelForZoom.TopLeft.Y,
-                    Stroke = System.Windows.Media.Brushes.Red,
-                    StrokeThickness = 2,
-                    
-                });
-                gridOverlay.Children.Add(canvas);
-                System.Windows.Shapes.Rectangle rectangle = gridOverlay.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault();//.PointFromScreen(new Point(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y)) ;
-                 rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                rectangle.VerticalAlignment = VerticalAlignment.Top;
-                Canvas.SetLeft(rectangle, pixelPanelForZoom.TopLeft.X/2);
-                Canvas.SetTop(rectangle, pixelPanelForZoom.TopLeft.Y);
 
+                CreateWFHForZoom(sender);
 
-                process.StartInfo = start;
-                process.Start();
-                grid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Tag = process.Id.ToString();
-
-
-
+                CreateCanvalInOverlay();
 
             }
         }
 
+        private void CreateWFHForZoom(object? sender)
+        {
+            var Rite = AssociatedObject as Grid;
+            var full = Rite.Parent as Grid;
+
+            
+
+            Grid gridFullScreen = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+            // double W = (Rite.ActualWidth/2) ;
+
+            WindowsFormsHost wfh = gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+            wfh.Width = (Rite.ActualWidth / 2);
+            wfh.Child.Width = (int)(Rite.ActualWidth / 2);
+            wfh.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+          //  if (gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault()!=null)
+          if (gridFullScreen.Children.Count>1)
+            {
+                WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
+                var t = zoom.Tag as string;
+                gridFullScreen.Children.Remove(zoom);
+                gridFullScreen.ColumnDefinitions.RemoveAt(gridFullScreen.ColumnDefinitions.Count - 1);
+                
+               
+                Process.GetProcessById(int.Parse(t)).Kill();
+                
+            }
+            Panel panel = sender as Panel;
+
+            gridFullScreen.ColumnDefinitions.Add(new ColumnDefinition());
+            gridFullScreen.Children.Add(new WindowsFormsHost
+            {
+                Width = Rite.ActualWidth / 2,
+                Height = Rite.ActualHeight,
+                Child = new Panel
+                {
+                    DataContext = panel.DataContext,
+                    // Name = "ZoomPanel" + Guid.NewGuid().ToString("N"),UpdateZoomConstantBuffer(topLeft, buttomRight);  _context.PSSetConstantBuffers(0, new ID3D11Buffer[] { _zoomCB });   _rtv = _device.CreateRenderTargetView(backBuffer);
+                    AutoSize = true,
+                    Tag = panel.Tag
+                },
+                DataContext = panel.DataContext,
+                Name = "ZoomHost",
+                Margin = new Thickness(15, 0, 0, 0),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            });
+
+            CreateProcess(gridFullScreen);
+        }
+        private void CreateProcess(Grid gridFullScreen)
+        {
+            Process process = new();
+            var mainFlow = Process.GetCurrentProcess();
+            ProcessStartInfo start = new ProcessStartInfo(patch);
+            CameraConnectStrings tag = (CameraConnectStrings)gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child.Tag;
+            start.ArgumentList.Add(tag.mainStream);
+            start.ArgumentList.Add("");
+            start.ArgumentList.Add(gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault().Child.Handle.ToString());
+            start.ArgumentList.Add(mainFlow.Id.ToString());
+            start.ArgumentList.Add(pixelPanelForZoom.TopLeft.X.ToString());
+            start.ArgumentList.Add(pixelPanelForZoom.TopLeft.Y.ToString());
+            start.ArgumentList.Add(pixelPanelForZoom.BottomRight.X.ToString());
+            start.ArgumentList.Add(pixelPanelForZoom.BottomRight.Y.ToString());
+
+
+            //CreateCanvalInOverlay();
+
+
+            process.StartInfo = start;
+            process.Start();
+
+            gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault().Tag = process.Id.ToString();
+        }
+        private void CreateCanvalInOverlay()
+        {
+            Grid gridOverlay = ((Border)window.Content).Child as Grid;
+            var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
+            if (child != null)
+            {
+                gridOverlay.Children.Remove(child);
+            }
+            Canvas canvas = new Canvas()
+            {
+                Width = window.Width,
+                Height = window.Height, //pixelPanelForZoom.BottomRight.Y - pixelPanelForZoom.TopLeft.Y,
+                Background = System.Windows.Media.Brushes.Transparent,
+
+            };
+            canvas.Children.Add(new System.Windows.Shapes.Rectangle
+            {
+                Width = (pixelPanelForZoom.BottomRight.X - pixelPanelForZoom.TopLeft.X) / 2,
+                Height = pixelPanelForZoom.BottomRight.Y - pixelPanelForZoom.TopLeft.Y,
+                Stroke = System.Windows.Media.Brushes.Red,
+                StrokeThickness = 2,
+
+            });
+            gridOverlay.Children.Add(canvas);
+            System.Windows.Shapes.Rectangle rectangle = gridOverlay.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault();//.PointFromScreen(new Point(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y)) ;
+            rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+            rectangle.VerticalAlignment = VerticalAlignment.Top;
+            Canvas.SetLeft(rectangle, pixelPanelForZoom.TopLeft.X / 2);
+            Canvas.SetTop(rectangle, pixelPanelForZoom.TopLeft.Y);
+
+
+        }
         private void MouseDownTakePxel(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
             pixelPanelForZoom.TopLeft = new Point(e.X, e.Y);
