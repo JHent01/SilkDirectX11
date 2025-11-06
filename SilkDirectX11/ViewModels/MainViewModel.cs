@@ -45,13 +45,14 @@ namespace SilkDirectX11.ViewModels
 
         public ICommand StartCommand { get; set; }
         public DelegateCommand AddCameraCommand { get; private set; }
+
         private void AddCamera()
         {
 
             var g = new WindowsFormsHost();
             g.Name = $"VideoHost{test}";
-            g.Tag = new CameraConnectStrings { mainStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E", subStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream1?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E" }; //$"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
-            // g.Tag = new CameraConnectStrings { mainStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" , subStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" };
+          //  g.Tag = new CameraConnectStrings { mainStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E", subStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream1?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E" }; //$"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
+            g.Tag = new CameraConnectStrings { mainStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" , subStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" };
             g.AllowDrop = true;
             g.Child = new System.Windows.Forms.Panel { Name = g.Name , AutoSize = true };
             g.Background = System.Windows.Media.Brushes.AliceBlue;
@@ -60,44 +61,45 @@ namespace SilkDirectX11.ViewModels
             test++;
         }
         private unsafe async Task StartCameraStream()
-        {
-            if (VideoHost == null)
-                return;
-            CameraConnectStrings tag = (CameraConnectStrings)VideoHost.Tag;
-            string _videoSourceTest = tag.subStream;
-            //_videoSourceTest = VideoHost.Tag.ToString();
-            //_videoSourceTest = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
-            //    _videoSourceTest = $"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-            string a = $"Camera {test}";
+        { 
+        //{
+        //    if (VideoHost == null)
+        //        return;
+        //    CameraConnectStrings tag = (CameraConnectStrings)VideoHost.Tag;
+        //    string _videoSourceTest = tag.subStream;
+        //    //_videoSourceTest = VideoHost.Tag.ToString();
+        //    //_videoSourceTest = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
+        //    //    _videoSourceTest = $"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+        //    string a = $"Camera {test}";
 
-            var wind = System.Windows.Application.Current.MainWindow;
+        //    var wind = System.Windows.Application.Current.MainWindow;
 
-            var gr = wind.FindName("VideoCanvas1") as Grid;
-            VideoHost.Height = gr.ActualHeight;
-            VideoHost.Width = gr.ActualWidth;
-            //  Window tt = new Window();
-            //tt.Width = 800;
-            //tt.Height = 600;
-            //tt.Content = VideoHost;
-            if (gr.Children.Contains(VideoHost))
-            {
-                var panel = VideoHost.Child as System.Windows.Forms.Panel;
-                panel.CreateControl();
-                // RenderTargetHwnd = VideoHost.Handle;
-                RenderTargetHwnd = panel.Handle;
-              //  RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
-          //      Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd /*VideoHost.Handle*/));
-            }
-            else
-            {
-                gr.Children.Add(VideoHost);
-                var panel = VideoHost.Child as System.Windows.Forms.Panel;
-                panel.CreateControl();
-               // RenderTargetHwnd = VideoHost.Handle;
-               RenderTargetHwnd = panel.Handle;
-              //  RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
-          //      Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd));
-            }
+        //    var gr = wind.FindName("VideoCanvas1") as Grid;
+        //    VideoHost.Height = gr.ActualHeight;
+        //    VideoHost.Width = gr.ActualWidth;
+        //    //  Window tt = new Window();
+        //    //tt.Width = 800;
+        //    //tt.Height = 600;
+        //    //tt.Content = VideoHost;
+        //    if (gr.Children.Contains(VideoHost))
+        //    {
+        //        var panel = VideoHost.Child as System.Windows.Forms.Panel;
+        //        panel.CreateControl();
+        //        // RenderTargetHwnd = VideoHost.Handle;
+        //        RenderTargetHwnd = panel.Handle;
+        //      //  RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
+        //  //      Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd /*VideoHost.Handle*/));
+        //    }
+        //    else
+        //    {
+        //        gr.Children.Add(VideoHost);
+        //        var panel = VideoHost.Child as System.Windows.Forms.Panel;
+        //        panel.CreateControl();
+        //       // RenderTargetHwnd = VideoHost.Handle;
+        //       RenderTargetHwnd = panel.Handle;
+        //      //  RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
+        //  //      Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd));
+            
         }
     }
 }
