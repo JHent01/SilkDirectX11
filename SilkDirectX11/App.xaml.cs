@@ -1,12 +1,13 @@
-﻿using Prism;
+﻿using MahApps.Metro.Controls.Dialogs;
+using Prism;
 using Prism.Ioc;
 using Prism.Unity;
+using SilkDirectX11.SignalR;
 using SilkDirectX11.Views;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Windows;
-using SilkDirectX11.SignalR;
 
 namespace SilkDirectX11
 {
@@ -19,7 +20,7 @@ namespace SilkDirectX11
         {
             // containerRegistry.RegisterSingleton<TestWindCamera>();    
             containerRegistry.Register<MainView>();
-
+            containerRegistry.Register<IDialogCoordinator, DialogCoordinator>();
         }
         protected override Window CreateShell()
         {

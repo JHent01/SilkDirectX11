@@ -27,14 +27,16 @@ using Point = System.Windows.Point;
 using Window = System.Windows.Window;
 using SilkDirectX11.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
+using MahApps.Metro.Controls.Dialogs;
+using SilkDirectX11.ViewModels;
 
 namespace SilkDirectX11.Behaviors
 {
     class GridCustomBehavior : Behavior<Grid>
     {
-        static string patch = Path.Combine(GetSolutionParentPath(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
+        //static string patch = Path.Combine(GetSolutionParentPath(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
         System.Windows.Window window = new();
-        // static string patch = Path.Combine(GetSolutionParentPath(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
+         static string patch = Path.Combine(GetSolutionParentPath(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
         bool flagForOverlay;
         CameraDragDrop cameraDragDrop = new CameraDragDrop();
         PixelPanelForZoom pixelPanelForZoom = new PixelPanelForZoom();
@@ -52,6 +54,16 @@ namespace SilkDirectX11.Behaviors
             InitWindow();
 
         }
+        private async void Dialog(string title , string messege)
+        { Grid grid = AssociatedObject as Grid;
+            grid.Visibility = Visibility.Hidden;
+           
+            var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
+            var VM = metroWindow.DataContext as MainViewModel;
+            await VM.ShowMahapsDialog(title, messege);
+            
+            grid.Visibility = Visibility.Visible;
+        }
 
         private async Task EnsureSignalRAsync()
         {
@@ -66,7 +78,7 @@ namespace SilkDirectX11.Behaviors
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"SignalR connect error: {ex.Message}");
+                Console.WriteLine($"SignalR connect error: {ex.Message}");
             }
         }
         private void InitWindow()
@@ -205,6 +217,7 @@ namespace SilkDirectX11.Behaviors
         //
         //    }
         //}
+       
         private void AssociatedObject_Drop(object sender, System.Windows.DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(CameraDragDrop)))
@@ -282,6 +295,9 @@ namespace SilkDirectX11.Behaviors
                 grid.Name = VideoHost.Child.Name;//panel.Name;
 
                 grid.Children.Add(uIElement2);
+
+
+               
                 try
                 {
 
@@ -299,6 +315,31 @@ namespace SilkDirectX11.Behaviors
 
                 int colum = GetColumnGrid(e.GetPosition(Rite));
                 int row = GetRowGrid(e.GetPosition(Rite));
+
+                 List<string> arguments = new List<string>() { ((CameraConnectStrings)paneltest.Tag).subStream, VideoHost.Name, VideoHost.Child.Handle.ToString()/*, Process.GetCurrentProcess().Id.ToString()*/ };
+                var process = StartProcess(arguments);
+
+                grid.Tag = process.Id.ToString();
+                VideoHost.Tag = window;
+
+                window.Owner = System.Windows.Application.Current.MainWindow;
+                window.Show();
+                paneltest.MouseLeave += Leave;
+                paneltest.MouseMove += WindowShow;
+                Task.Delay(500).Wait();  
+                                        
+                if (process.HasExited)
+                {
+                    
+                    
+                     Dialog("ERROR","Ошибка подключения к камере");
+                    
+                    // dialog.ShowDialogExternally();// .ShowMetroDialogAsync(dialog);
+
+                    // System.Windows.MessageBox.Show("Process Stoped with ID: " + process.Id );
+
+                    return;
+                }
 
                 if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
                 {
@@ -353,27 +394,7 @@ namespace SilkDirectX11.Behaviors
 
                 //string nameCamera = VideoHost.Name;
                 //  nint RenderTargetHwnd = VideoHost.Child.Handle;
-                List<string> arguments = new List<string>() { ((CameraConnectStrings)paneltest.Tag).subStream, VideoHost.Name, VideoHost.Child.Handle.ToString(), Process.GetCurrentProcess().Id.ToString() };
-                var process = StartProcess(arguments);
-                // var mainFlow = Process.GetCurrentProcess();
-                //  string patch = Path.Combine(GetSolutionParentDir(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
-                // Process process = new();
-                //ProcessStartInfo start = new ProcessStartInfo(patch);
-
-                // start.ArgumentList.Add(tag.subStream);
-                // start.ArgumentList.Add(nameCamera);
-                // start.ArgumentList.Add(RenderTargetHwnd.ToString());
-                // start.ArgumentList.Add(mainFlow.Id.ToString());
-                //start.CreateNoWindow= true;
-                // process.StartInfo = start;
-                // process.Start();
-                grid.Tag = process.Id.ToString();
-                VideoHost.Tag = window;
-
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.Show();
-                paneltest.MouseLeave += Leave;
-                paneltest.MouseMove += WindowShow;
+                
 
 
 
@@ -576,7 +597,7 @@ namespace SilkDirectX11.Behaviors
                 newWind.Child.MouseUp += MouseUpTakePixel;
 
                 //((Panel)newWind.Child).MouseMove += Panel_MouseMove_SendPoint;-----------
-
+                Process process = null;
                 if (full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
                 {
                     full.Children.Add(new Grid()
@@ -589,20 +610,20 @@ namespace SilkDirectX11.Behaviors
                         Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
 
                     });
-                    //  var panelNew = wfh.Child as Panel;
-                    //CameraConnectStrings tag = (CameraConnectStrings)panel.Tag;
-                    //var mainFlow = Process.GetCurrentProcess();
-                    List<string> arguments = new List<string>() { ((CameraConnectStrings)panel.Tag).mainStream, wfh.Name, newWind.Child.Handle.ToString(), Process.GetCurrentProcess().Id.ToString() };
-                    var process = StartProcess(arguments);
-                    //ProcessStartInfo start = new ProcessStartInfo(patch);
-                    //start.ArgumentList.Add(tag.mainStream);
-                    //start.ArgumentList.Add(wfh.Name);
-                    //start.ArgumentList.Add(newWind.Child.Handle.ToString());
-                    //start.ArgumentList.Add(mainFlow.Id.ToString());
-                    //start.CreateNoWindow = true;
-                    //process.StartInfo = start;
+                  //  var g =grid.Tag;
 
-                    //process.Start();
+                    List<string> arguments = new List<string>() { ((CameraConnectStrings)panel.Tag).mainStream, wfh.Name, newWind.Child.Handle.ToString()/*, Process.GetCurrentProcess().Id.ToString() */};
+                      process = StartProcess(arguments);
+                    Task.Delay(500).Wait();
+                    if (process.HasExited)
+                    {
+                        System.Windows.MessageBox.Show("Process Stoped with ID: " + process.Id);
+
+                        gridOverlay.Visibility = Visibility.Visible;
+                        riteGrid.Visibility = Visibility.Visible;
+                        CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals);
+                        return;
+                    }
 
                     WindowsFormsHost host = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
 
@@ -630,6 +651,15 @@ namespace SilkDirectX11.Behaviors
                 }
                 else
                 {
+                    //if (process.HasExited)
+                    //{
+                    //    System.Windows.MessageBox.Show("Process Stoped with ID: " + process.Id);
+
+                    //    gridOverlay.Visibility = Visibility.Visible;
+                    //    riteGrid.Visibility = Visibility.Visible;
+                    //    CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals);
+                    //    return;
+                    //}
                     CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals);
                 }
                 // Grid gridOverlayCanvals = ((Border)window.Content).Child as Grid;
@@ -794,8 +824,14 @@ namespace SilkDirectX11.Behaviors
 
             Rite.Visibility = Visibility.Visible;
             var tag = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag as string;
-            Process.GetProcessById(int.Parse(tag)).Kill();
-
+            try
+            {
+                Process.GetProcessById(int.Parse(tag)).Kill();
+            }
+            catch 
+            {
+                 
+            }
             var tagChild = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Children.OfType<WindowsFormsHost>().FirstOrDefault().Tag;
             if (tagChild != null) Process.GetProcessById(int.Parse(tagChild.ToString())).Kill();
 
@@ -813,12 +849,13 @@ namespace SilkDirectX11.Behaviors
         {
             Process process = new();
             ProcessStartInfo start = new ProcessStartInfo(patch);
+            start.ArgumentList.Add(Process.GetCurrentProcess().Id.ToString());
             for (int i = 0; i < argument.Count; i++)
             {
                 start.ArgumentList.Add(argument[i]);
 
             }
-            //start.CreateNoWindow = true;
+            //start.CreateNoWindow = true;""2033296"" "29712"
             process.StartInfo = start;
 
             process.Start();
@@ -848,7 +885,8 @@ namespace SilkDirectX11.Behaviors
 
                     }
                 }
-                CreateWFHForZoom(sender);
+               if( CreateWFHForZoom(sender))
+
 
                 CreateCanvalInOverlay();
                 //if (pixelPanelForZoom.BottomRight.Y<pixelPanelForZoom.TopLeft.X||pixelPanelForZoom.BottomRight.X<pixelPanelForZoom.TopLeft.Y)
@@ -869,7 +907,7 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-        private void CreateWFHForZoom(object? sender)
+        private bool CreateWFHForZoom(object? sender)
         {
             var riteGrid = AssociatedObject as Grid;
             var full = riteGrid.Parent as Grid;
@@ -891,17 +929,22 @@ namespace SilkDirectX11.Behaviors
                 var t = zoom.Tag as string;
                 gridFullScreen.Children.Remove(zoom);
 
+                try
+                {
+                    Process.GetProcessById(int.Parse(t)).Kill();
+                }
+                catch (Exception ex)
+                {
+                    string exs = ex.Message;
 
-                Process.GetProcessById(int.Parse(t)).Kill();
-
+                }
             }
             else
             { //panel.Width = (int)(riteGrid.ActualWidth / 2);
                 pixelPanelForZoom.TopLeft.X = pixelPanelForZoom.TopLeft.X / 2;
                 pixelPanelForZoom.BottomRight.X = pixelPanelForZoom.BottomRight.X / 2;
             }
-            // тут подправиль хуйню что б при первом отображении не уезжал зум
-
+            
 
 
 
@@ -932,7 +975,7 @@ namespace SilkDirectX11.Behaviors
            (CameraConnectStrings)gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child.Tag).mainStream,
                 "",
                 gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault().Child.Handle.ToString(),
-                Process.GetCurrentProcess().Id.ToString(),
+              //  Process.GetCurrentProcess().Id.ToString(),
                 pixelPanelForZoom.TopLeft.X.ToString(),
                 pixelPanelForZoom.TopLeft.Y.ToString(),
                 pixelPanelForZoom.BottomRight.X.ToString(),
@@ -942,7 +985,23 @@ namespace SilkDirectX11.Behaviors
 
            };
             var process = StartProcess(arguments);
+            Task.Delay(500).Wait();
+            if (process.HasExited)
+            {
+                System.Windows.MessageBox.Show("Process Stoped with ID: " + process.Id);
+                Grid gridOverlay = ((Border)window.Content).Child as Grid;
+                gridOverlay.Visibility = Visibility.Visible;
+                riteGrid.Visibility = Visibility.Visible;
+                 
+                CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlay);
+                
+                 
+                 
+                return false;
+            }
+          
             gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault().Tag = process.Id.ToString();
+            return true;
 
         }
         //private void CreateProcess(Grid gridFullScreen)
@@ -1097,9 +1156,12 @@ namespace SilkDirectX11.Behaviors
                 var tag = grid.Tag as string;
                 if (!string.IsNullOrEmpty(tag))
                 {
-
-                    Process.GetProcessById(int.Parse(tag)).Kill();
-                    Border border = (Border)window.Content;
+                    try
+                    {
+                        Process.GetProcessById(int.Parse(tag)).Kill();
+                    }
+                    catch { }
+                        Border border = (Border)window.Content;
                     Grid grids = (Grid)border.Child;
                     Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
 
@@ -1203,6 +1265,8 @@ namespace SilkDirectX11.Behaviors
 
                 Canvas canvas = sender as Canvas;
                 System.Windows.Shapes.Rectangle rectangle = canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault();
+                Grid parent = VisualTreeHelper.GetParent(canvas)as Grid;
+               
                 Point currentPoint = e.GetPosition(canvas);
                 double deltaX = currentPoint.X - _startPoint.X;
                 double deltaY = currentPoint.Y - _startPoint.Y;
@@ -1213,6 +1277,14 @@ namespace SilkDirectX11.Behaviors
                 double newBottom = newTop + rectangle.Height; //Canvas.GetBottom(rectangle) + deltaY;
                 //double left = Canvas.GetLeft(rectangle);
                 //double top = Canvas.GetTop(rectangle);
+                if (newLeft < 0)
+                    newLeft = 0;
+                if (newTop < 0)
+                    newTop = 0;
+                if (newRight > canvas.ActualWidth)
+                    newLeft = canvas.ActualWidth - rectangle.Width;
+                if (newBottom > canvas.ActualHeight)
+                    newTop = canvas.ActualHeight - rectangle.Height;
 
                 Canvas.SetLeft(rectangle, newLeft);
                 Canvas.SetTop(rectangle, newTop);

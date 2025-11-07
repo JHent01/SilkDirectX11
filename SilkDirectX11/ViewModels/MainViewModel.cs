@@ -1,7 +1,9 @@
 ﻿using FFmpeg.AutoGen;
+using MahApps.Metro.Controls.Dialogs;
 using SilkDirectX11.Model;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
@@ -11,7 +13,8 @@ namespace SilkDirectX11.ViewModels
 {
     internal class MainViewModel : BindableBase
     {
-        public MainViewModel()
+        private IDialogCoordinator dialogCoordinator;
+        public MainViewModel(IDialogCoordinator instance)
         {
             _videoSourceTest = "rtsp://admin:123456@192.168.1.12:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
             StartCommand = new AsyncDelegateCommand(StartCameraStream);
@@ -22,9 +25,9 @@ namespace SilkDirectX11.ViewModels
 
             Directory.CreateDirectory("frames");
 
-
+            dialogCoordinator = instance;
             //EncodeImagesToH264();
-            
+
         }
         int test = 10;
         string _videoSourceTest;
@@ -42,17 +45,45 @@ namespace SilkDirectX11.ViewModels
         }
         public nint RenderTargetHwnd { get; set; }
 
+         
+        public async Task ShowMahapsDialog(string title,string messege)
+        { 
+             await dialogCoordinator.ShowMessageAsync(this, title, messege);
+            ShowDialog();
+        }
 
+        public async Task ShowDialog()
+        {  BaseMetroDialog dialog = new CustomDialog();
+            dialog.Title = "Custom Dialog";
+            dialog.Content = new Grid
+            {
+                 Children = 
+                {
+                    new System.Windows.Controls.Label { Content = "This is a custom dialog content." },
+                    new System.Windows.Controls.TextBox { Margin = new Thickness(0, 30, 0, 0) },
+                    new System.Windows.Controls.Button { Content = "OK", Width = 75, Height = 30, Margin = new Thickness(0, 10, 0, 0), HorizontalAlignment = System.Windows.HorizontalAlignment.Center , Command= },
+                    new System.Windows.Controls.Label { Content = "Additional Info", Margin = new Thickness(0, 50, 0, 0) },
+                    new System.Windows.Controls.TextBox { Margin = new Thickness(0, 80, 0, 0) } 
+
+                },
+                Margin = new Thickness(20)
+            };
+            await dialogCoordinator.ShowMetroDialogAsync(this, dialog);
+           //  var result = await dialogCoordinator.ShowMetroDialogAsync(this, dialog, MessageDialogStyle.AffirmativeAndNegative);
+
+        }
         public ICommand StartCommand { get; set; }
         public DelegateCommand AddCameraCommand { get; private set; }
 
         private void AddCamera()
         {
 
+
+
             var g = new WindowsFormsHost();
             g.Name = $"VideoHost{test}";
-          //  g.Tag = new CameraConnectStrings { mainStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E", subStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream1?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E" }; //$"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
-            g.Tag = new CameraConnectStrings { mainStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" , subStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" };
+             g.Tag = new CameraConnectStrings { mainStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E", subStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream1?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E" }; //$"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
+           // g.Tag = new CameraConnectStrings { mainStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" , subStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" };
             g.AllowDrop = true;
             g.Child = new System.Windows.Forms.Panel { Name = g.Name , AutoSize = true };
             g.Background = System.Windows.Media.Brushes.AliceBlue;
