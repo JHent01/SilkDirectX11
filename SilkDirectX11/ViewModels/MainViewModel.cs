@@ -61,7 +61,7 @@ namespace SilkDirectX11.ViewModels
                 {
                     new System.Windows.Controls.Label { Content = "This is a custom dialog content." },
                     new System.Windows.Controls.TextBox { Margin = new Thickness(0, 30, 0, 0) },
-                    new System.Windows.Controls.Button { Content = "OK", Width = 75, Height = 30, Margin = new Thickness(0, 10, 0, 0), HorizontalAlignment = System.Windows.HorizontalAlignment.Center , Command= },
+                    new System.Windows.Controls.Button { Content = "OK", Width = 75, Height = 30, Margin = new Thickness(0, 10, 0, 0), HorizontalAlignment = System.Windows.HorizontalAlignment.Center   },
                     new System.Windows.Controls.Label { Content = "Additional Info", Margin = new Thickness(0, 50, 0, 0) },
                     new System.Windows.Controls.TextBox { Margin = new Thickness(0, 80, 0, 0) } 
 

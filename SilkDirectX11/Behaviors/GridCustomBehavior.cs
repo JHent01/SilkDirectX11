@@ -32,7 +32,7 @@ using SilkDirectX11.ViewModels;
 
 namespace SilkDirectX11.Behaviors
 {
-    class GridCustomBehavior : Behavior<Grid>
+    class GridCustomBehavior : Behavior<Grid>// доделать норм интерфейс ползунки по повороту зума и тд
     {
         //static string patch = Path.Combine(GetSolutionParentPath(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
         System.Windows.Window window = new();
