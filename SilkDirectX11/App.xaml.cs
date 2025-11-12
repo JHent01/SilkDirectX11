@@ -2,13 +2,14 @@
 using Prism;
 using Prism.Ioc;
 using Prism.Unity;
+using SilkDirectX11.Interfaces;
 using SilkDirectX11.SignalR;
 using SilkDirectX11.Views;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Windows;
-
+using SilkDirectX11.Modules;
 namespace SilkDirectX11
 {
     /// <summary>
@@ -21,6 +22,9 @@ namespace SilkDirectX11
             // containerRegistry.RegisterSingleton<TestWindCamera>();    
             containerRegistry.Register<MainView>();
             containerRegistry.Register<IDialogCoordinator, DialogCoordinator>();
+            containerRegistry.Register<ICameraDAO, CameraDAO >();
+            containerRegistry.Register<ISettingsDAO, SettingsJsonDAO>();
+            containerRegistry.Register<AddCameraView>();
         }
         protected override Window CreateShell()
         {
