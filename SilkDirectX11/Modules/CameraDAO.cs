@@ -28,8 +28,13 @@ namespace SilkDirectX11.Modules
                    cameras.Add(new CameraStream
                     {
                         CameraName = cam.Name,
-                        ConnectStrings = cam.Tag as CameraConnectStrings
-                    });
+                        ConnectStrings = cam.Tag as CameraConnectStrings,
+                        CameraMainStream = (cam.Tag as CameraConnectStrings)?.mainStream,
+                        CameraSubStream = (cam.Tag as CameraConnectStrings)?.subStream,
+                        CameraID = (cam.Tag as CameraConnectStrings).CameraID ,
+
+
+                   });
                 }
                
                 var path = _settingsDAO.ReadSettings();

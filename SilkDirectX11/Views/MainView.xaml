@@ -7,6 +7,7 @@
          xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
          xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
          xmlns:prism="http://prismlibrary.com/"
+                   xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
                  xmlns:custom="clr-namespace:SilkDirectX11.Behaviors"
                    xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
@@ -16,13 +17,17 @@
          prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
         Title="MainView" Height="450" Width="800"  Background="Transparent"  >
-    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid Background="Transparent"   >
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-
+        
         <Grid ShowGridLines="True" AllowDrop="True" x:Name="Test" Grid.Row="1" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200" />
@@ -58,10 +63,16 @@
 
         </Grid>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8" >
             <Button Content="Add" Width="100" Margin="0,0,8,0" Command="{Binding AddCameraCommand}"/>
-            <Button Content="Start" Width="100" Margin="0,0,8,0" Command="{Binding StartCommand}" />
+            <Button Content="Settings Camers" Width="150" Margin="0,0,8,0" Command="{Binding CameraSettingsOpen}" />
+
+
+             
             <!--<Button Content="Stop" Width="100" Command="{Binding Stop}" />-->
         </StackPanel>
+        <Button    Command="{Binding SettingsOpenComman}"  HorizontalAlignment="Right" >
+            <iconPacks:BootstrapIcons Kind="Gear" Height="20" Width="20" /> 
+        </Button>
     </Grid>
 </mahx:MetroWindow>

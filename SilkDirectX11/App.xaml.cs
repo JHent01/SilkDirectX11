@@ -24,7 +24,7 @@ namespace SilkDirectX11
             containerRegistry.Register<IDialogCoordinator, DialogCoordinator>();
             containerRegistry.Register<ICameraDAO, CameraDAO >();
             containerRegistry.Register<ISettingsDAO, SettingsJsonDAO>();
-            containerRegistry.Register<AddCameraView>();
+           // containerRegistry.Register<AddCameraView>();
         }
         protected override Window CreateShell()
         {

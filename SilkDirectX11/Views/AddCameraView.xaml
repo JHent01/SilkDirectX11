@@ -1,15 +1,16 @@
-﻿<mahx:MetroWindow x:Class="SilkDirectX11.Views.AddCameraView"
+﻿<mahx:CustomDialog x:Class="SilkDirectX11.Views.AddCameraView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SilkDirectX11.Views"
         mc:Ignorable="d"
-                    xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-  xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
-  xmlns:prism="http://prismlibrary.com/"
-                  prism:ViewModelLocator.AutoWireViewModel="True"
-        Title="AddCameraVidew" Height="450" Width="800" Background="Transparent">
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+         Background="Transparent">
+    <!--Title="AddCameraVidew" Height="450" Width="800"-->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
@@ -34,6 +35,7 @@
 
         <Button Content="Save" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15" Width="100" Command="{Binding AddCameraCommand}" /> <!--CommandParameter=""-->
 
-        <!--<Button Content="Test" Click="Button_Click" Width="100" Height="100" />-->
+        
+        <Button Content="Cansel"  Command="{Binding CanselCommand}" Width="100" Height="30"  Grid.Column="2" Grid.Row="3"/>
     </Grid>
-</mahx:MetroWindow>
+</mahx:CustomDialog>

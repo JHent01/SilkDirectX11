@@ -18,6 +18,7 @@ namespace SilkDirectX11.ViewModels
         {
             _eventAggregator = eventAggregator;
            AddCameraCommand = new DelegateCommand(AddCameraExecute);
+            CanselCommand = new DelegateCommand(CanselExecute);
         }
         string _cameraName;
         public string CameraName
@@ -45,14 +46,21 @@ namespace SilkDirectX11.ViewModels
         //}
         public DelegateCommand AddCameraCommand { get; private set; }
         private void AddCameraExecute()
-        {
-            Process s = Process.GetCurrentProcess();
-            
-            
+        {  
+            //if (string.IsNullOrEmpty(CameraName) || string.IsNullOrEmpty(MainSreamURL)||string.IsNullOrEmpty(CameraName))
+            //{
+            //    System.Windows.MessageBox.Show("Camera Name and Main Stream URL are required.", "Input Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return;
+            //}
 
-            _eventAggregator.GetEvent<CameraEvent>().Publish(new Model.CameraStream { CameraName = CameraName, ConnectStrings  = new CameraConnectStrings { mainStream = MainSreamURL,subStream = SubStreamURL } });
+            _eventAggregator.GetEvent<CameraEvent>().Publish(new Model.CameraStream { CameraName = CameraName, ConnectStrings  = new CameraConnectStrings { mainStream = MainSreamURL,subStream = SubStreamURL, CameraID =   Guid.NewGuid() }  });
          
         }
-         
+        public DelegateCommand CanselCommand { get; private set; }
+        private void CanselExecute()
+        {
+            _eventAggregator.GetEvent<CloseAddCameraEvent>().Publish("Cansel");
+        }
+
     }
 }

@@ -4,6 +4,9 @@
              xmlns:local="clr-namespace:SilkDirectX11"
              xmlns:prism="http://prismlibrary.com/" 
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+            
+            xmlns:enums="clr-namespace:SilkDirectX11.Enums"
+            xmlns:convert="clr-namespace:SilkDirectX11.Converters"
             >
     <prism:PrismApplication.Resources>
         <ResourceDictionary>
@@ -14,7 +17,7 @@
 
 
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Dark.Blue.xaml" />
-
+                
             </ResourceDictionary.MergedDictionaries>
 
         </ResourceDictionary>

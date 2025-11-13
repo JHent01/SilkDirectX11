@@ -12,7 +12,7 @@ namespace SilkDirectX11.Modules
     {
        public void SaveSettings(PathSettingsJson pathSaveSettingscs)
         {
-            string json = System.Text.Json.JsonSerializer.Serialize(pathSaveSettingscs);
+            string json = System.Text.Json.JsonSerializer.Serialize(pathSaveSettingscs.SavePathSettings);
             string filePath =Path.Combine(Directory.GetCurrentDirectory(),  "settings.json");
             System.IO.File.WriteAllText(filePath, json);
 
@@ -23,12 +23,16 @@ namespace SilkDirectX11.Modules
             if (System.IO.File.Exists(filePath))
             {
                 string json = System.IO.File.ReadAllText(filePath);
-                PathSettingsJson settings = System.Text.Json.JsonSerializer.Deserialize<PathSettingsJson>(json);
+                PathSettingsJson settings = new PathSettingsJson();
+                   settings.SavePathSettings = System.Text.Json.JsonSerializer.Deserialize<string>(json);
                 return settings;
             }
             else
             {
-                return new PathSettingsJson();
+
+                string json = System.Text.Json.JsonSerializer.Serialize(Directory.GetCurrentDirectory());
+                System.IO.File.WriteAllText(filePath, json);
+                return new PathSettingsJson { SavePathSettings = json };
             }
 
 

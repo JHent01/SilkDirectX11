@@ -10,5 +10,6 @@ namespace SilkDirectX11.Model
     {
         public string mainStream;
         public string subStream;
+        public Guid CameraID;
     }
 }

@@ -36,21 +36,22 @@ namespace SilkDirectX11.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //this.OnClose();
-            //this.OnRequestClose();
-            //this.RequestCloseAsync();
-            //this.WaitForCloseAsync();
-            //this.Name = "ClosedByButton";
-            //this.OnClose(); this.OnRequestClose();
-            //var vm = this as BaseMetroDialog;
-            //if (vm != null)
-            //{
-            //    vm.RequestCloseAsync();
-            //    vm.WaitForCloseAsync();
-            //    vm.IsTabStop = true;
-            //    this.IsTabStop = true;
+            this.OnClose();
+            this.OnRequestClose();
+            this.RequestCloseAsync();
+            this.WaitForCloseAsync();
+            this.Name = "ClosedByButton";
+            this.OnClose(); this.OnRequestClose();
+            var vm = this as BaseMetroDialog;
+            if (vm != null)
+            {
+                vm.RequestCloseAsync();
+                vm.WaitForCloseAsync();
+                vm.IsTabStop = true;
+                this.IsTabStop = true;
 
-            //}
+            }
+
         }
     }
 }
