@@ -4,6 +4,7 @@ using MahApps.Metro.Controls.Dialogs;
 using SilkDirectX11.Events;
 using SilkDirectX11.Interfaces;
 using SilkDirectX11.Model;
+using SilkDirectX11.Modules;
 using SilkDirectX11.Views;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -27,7 +28,7 @@ namespace SilkDirectX11.ViewModels
 
 
         public IEventAggregator _eventAggregator;
-        public MainViewModel(IDialogCoordinator instance, ISettingsDAO dAO,ICameraDAO camera,IEventAggregator eventAggregator )
+        public MainViewModel(IDialogCoordinator instance, ISettingsDAO dAO,ICameraDAO camera,IEventAggregator eventAggregator , ICameraSettingsDAO cameraSettingsDAO)
         { 
             #region FFMPEG Init
             ffmpeg.RootPath = "Autogen";
@@ -39,13 +40,14 @@ namespace SilkDirectX11.ViewModels
             _eventAggregator = eventAggregator;
             _cameraDAO = camera;
             _dialogCoordinator = instance;
+            _cameraSettingsDAO = cameraSettingsDAO;
             #endregion
 
             #region Commands
             AddCameraCommand = new DelegateCommand(AddCamera);
             LoadedCommand = new DelegateCommand(LoadedExecute);
             CameraSettingsOpen = new DelegateCommand(async () => await CameraSettingsOpenExecute());
-
+            RemoveCameraCommand = new DelegateCommand(RemoveCamera);
             SettingsOpenComman = new DelegateCommand(OpenSettings);
             // StartCommand = new AsyncDelegateCommand(StartCameraStream);
             #endregion
@@ -57,6 +59,7 @@ namespace SilkDirectX11.ViewModels
             _eventAggregator.GetEvent<CloseAddCameraEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, dialog); });
             _eventAggregator.GetEvent<CloseSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, settingsDialog); });
             _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); });
+            
             #endregion
 
             //    async (camera) =>
@@ -92,7 +95,7 @@ namespace SilkDirectX11.ViewModels
             //});
 
         }
-
+        ICameraSettingsDAO _cameraSettingsDAO;
         public async  void AddCam(CameraStream camera)
         {
             if (camera == null)
@@ -129,8 +132,8 @@ namespace SilkDirectX11.ViewModels
         private IDialogCoordinator _dialogCoordinator;
         private ISettingsDAO _settingsDAO;
         private ICameraDAO _cameraDAO;
-        int test = 10;
-        //string _videoSourceTest;
+        
+     
         ObservableCollection<WindowsFormsHost> windowsFormsHosts = new ObservableCollection<WindowsFormsHost>();
         public ObservableCollection<WindowsFormsHost> WindowsFormsHosts
         {
@@ -147,7 +150,7 @@ namespace SilkDirectX11.ViewModels
             get => _videoHost;
             set => SetProperty(ref _videoHost, value);
         }
-     //   public nint RenderTargetHwnd { get; set; }
+      
 
          
         public async Task ShowMahapsDialog(string title,string messege)
@@ -158,32 +161,21 @@ namespace SilkDirectX11.ViewModels
 
         public  async Task ShowDialog()
         {
-            //CustomDialog dialog = new CustomDialog();
+            
            AddCameraView view = new AddCameraView();
-            //dialog = view;
+         
             dialog.Title = "Add Camers";
             var gridLenghtConvert = new GridLengthConverter();
 
-            // dialog.Content = view.Content;
-            // dialog.DataContext = view.DataContext;
+            
              dialog.DialogContentWidth = GridLength.Auto;
              dialog.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
-
-            //MetroDialogSettings metroDialogSettings = new MetroDialogSettings()
-            //{
-            //    AffirmativeButtonText = "Add",
-            //    NegativeButtonText = "Cancel",
-            //    AnimateShow = true,
-            //    AnimateHide = true,
-            //    OwnerCanCloseWithDialog = true,
-                
-
-            //};
+ 
             dialog.Content = view.Content;
             dialog.DataContext = view.DataContext;
             
 
-            //dialog.Height = 500;
+            
               dialog.Width = 800;
             await _dialogCoordinator.ShowMetroDialogAsync(this, dialog);
 
@@ -217,7 +209,7 @@ namespace SilkDirectX11.ViewModels
         {
             ShowDialog();
 
-//rtsp://admin:123456@192.168.1.11:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E
+            //rtsp://admin:123456@192.168.1.11:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E
            // var g = new WindowsFormsHost();
            // g.Name = $"VideoHost{test}";
            //  g.Tag = new CameraConnectStrings { mainStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E", subStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream1?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E" }; //$"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
@@ -245,12 +237,33 @@ namespace SilkDirectX11.ViewModels
                                                                                                                                                                                                                                                                                                           // g.Tag = new CameraConnectStrings { mainStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" , subStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" };
                 wfh.AllowDrop = true;
                 wfh.Child = new System.Windows.Forms.Panel { Name = wfh.Name, AutoSize = true };
-                //wfh.Background = System.Windows.Media.Brushes.AliceBlue;
+                
                 WindowsFormsHosts.Add(wfh);
 
             }
-                
-          
+            ListDictionarySettingsCamers.DictionarySettingsCamers = GetSettingsForDictionary(listCamers).ToDictionary(c => c.CameraId, c => c);
+
+        }
+        private List<CameraVisualSettings> GetSettingsForDictionary(ObservableCollection<CameraStream> listCamers)
+        {
+
+           List<CameraStream> cameraList = new List<CameraStream>();
+
+            foreach (var cam in listCamers)
+            {
+                cameraList.Add(cam);
+            }
+            List<CameraVisualSettings> cameraSettings = _cameraSettingsDAO.GetCameraSettings();
+            foreach (var cam in cameraSettings)
+            {
+                if (!cameraList.Any(c => c.CameraID == cam.CameraId))
+                {
+                    cameraSettings.Remove(cam);
+                }
+
+            }
+
+            return cameraSettings;
         }
         public DelegateCommand SettingsOpenComman { get; private set; }
        
@@ -273,12 +286,12 @@ namespace SilkDirectX11.ViewModels
             var gridLenghtConvert = new GridLengthConverter();
             CamersSettingsView camersSettingsView = new CamersSettingsView();
 
-            var cameraList = new ObservableCollection<IsSelectedViewModel<CameraStream>>();
-            foreach (var cam in listCameras)
-            {
-                cameraList.Add(new IsSelectedViewModel<CameraStream> ( cam));
-            }
-            (camersSettingsView.DataContext as CamersSettingsViewModel).CameraList = cameraList;
+            //var cameraList = new ObservableCollection<IsSelectedViewModel<CameraStream>>();
+            //foreach (var cam in listCameras)
+            //{
+            //    cameraList.Add(new IsSelectedViewModel<CameraStream> ( cam));
+            //}
+           // (camersSettingsView.DataContext as CamersSettingsViewModel).CameraList = cameraList;
 
             CameraSettingsDialog.DialogContentWidth = GridLength.Auto;
             CameraSettingsDialog.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
@@ -286,12 +299,21 @@ namespace SilkDirectX11.ViewModels
             CameraSettingsDialog.Content = camersSettingsView.Content;
             CameraSettingsDialog.DataContext = camersSettingsView.DataContext;
             CameraSettingsDialog.Width = camersSettingsView.Width;
+            CameraSettingsDialog.Height = camersSettingsView.Height;
 
             await _dialogCoordinator.ShowMetroDialogAsync(this, CameraSettingsDialog);
 
 
         }
-
+        public DelegateCommand RemoveCameraCommand { get; private set; }
+       private void  RemoveCamera()
+        {
+            if (VideoHost == null)
+                return;
+            WindowsFormsHosts.Remove(VideoHost);
+            listCameras.Remove((listCameras.FirstOrDefault(s=> s.CameraID == (VideoHost.Tag as CameraConnectStrings).CameraID)));
+            _cameraDAO.SaveCamera(WindowsFormsHosts);
+        }
 
 
         private unsafe async Task StartCameraStream()

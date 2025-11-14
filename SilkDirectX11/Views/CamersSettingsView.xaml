@@ -10,34 +10,46 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:enums="clr-namespace:SilkDirectX11.Enums"
         xmlns:convert="clr-namespace:SilkDirectX11.Converters"
+                  
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Width="700"  >
-    
-    
+        Height="500" Width="700"  >
+    <mahx:CustomDialog.Resources>
+        <ResourceDictionary >
+              
+            <convert:VisibilityConvert x:Key="VisibilityConvert"/>
+ 
+        </ResourceDictionary>
+    </mahx:CustomDialog.Resources>
+
     <Grid >
-         
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-
-        <ListBox Width="200" Margin="0,30,90,00" ItemsSource="{Binding CameraList}" SelectedItem="{Binding VideoHost}" Grid.Column="0" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="CheckBoxSelectAll" Content="Select All" Width="100" Height="25" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsCheckedAll}" Visibility="{Binding DataContext.VisibilityCheBox,  Converter={StaticResource VisibilityConvert}}" />
+        <ListBox x:Name="List" Width="200" Margin="0,30,90,00" ItemsSource="{Binding CameraList}" SelectedItem="{Binding IsSelectedViewModel}" Grid.Column="0" Grid.Row="1">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    
-                    
-                    <!--<Label Content="{Binding Item.CameraName}" />-->
-                    <CheckBox  Content="{Binding Item.CameraName}" IsChecked="{Binding IsSelected}" Margin="10,0,0,0"   />
-                    <!--IsChecked="{Binding IsSelected, Mode=TwoWay}"-->
-                    <!--Content="{Binding Item.CameraName}" IsChecked="{Binding IsSelected}"-->
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox    IsChecked="{Binding IsSelected}" Margin="10,0,0,0" Width="auto" HorizontalAlignment="Left"  Visibility="{Binding DataContext.VisibilityCheBox, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type mahx:CustomDialog}}, Converter={StaticResource VisibilityConvert}}"  />
+                        <Label Content="{Binding Item.CameraName}" />
+                       
 
+                        <!--IsChecked="{Binding IsSelected, Mode=TwoWay}"-->
+                        <!--Content="{Binding Item.CameraName}" IsChecked="{Binding IsSelected}"-->
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
          
        
 
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -71,18 +83,24 @@
             <ComboBox Grid.Row="8" Grid.Column="1" Width="120" Height="30" Margin="5" HorizontalAlignment="Left"
                       ItemsSource="{Binding Source={convert:ConvertEnum EnumType={x:Type enums:EnumRotation}}}"
                       SelectedItem="{Binding Rotation}" />
-                
-            <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SliderValue}" Width="200" Height="30" Margin="5"  />
-            <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SliderValue}" Width="200" Height="30" Margin="5"  />
-            <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SliderValue}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SliderValue}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SliderValue}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="5" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SliderValue}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="6" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SliderValue}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="7" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SliderValue}" Width="200" Height="30"  Margin="5" />
+
+            <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Brightness}" Width="200" Height="30" Margin="5"  />
+            <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Contrast}" Width="200" Height="30" Margin="5"  />
+            <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Hue}" Width="200" Height="30"  Margin="5" />
+            <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Saturation}" Width="200" Height="30"  Margin="5" />
+            <Slider Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding NoiseReduction}" Width="200" Height="30"  Margin="5" />
+            <Slider Grid.Row="5" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding EdgeEnhancement}" Width="200" Height="30"  Margin="5" />
+            <Slider Grid.Row="6" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding AnamorphicScaling}" Width="200" Height="30"  Margin="5" />
+            <Slider Grid.Row="7" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding StereoAdjustment}" Width="200" Height="30"  Margin="5" />
+
+            <Button  Grid.Row="9" Grid.Column="0" Content="Save" Margin="5" HorizontalAlignment="Right"  Width="100" Height="30" Command="{Binding SaveSettingsComand}"   Visibility="{Binding VisibilityButton, Converter={StaticResource VisibilityConvert}}"/>
+            <Button  Grid.Row="9" Grid.Column="1" Content="Close" Margin="5" HorizontalAlignment="Left"  Width="100" Height="30" Command="{Binding CloseComaand}"  Visibility="{Binding VisibilityButton, Converter={StaticResource VisibilityConvert}}" />
+            <Button Grid.Row="9" Grid.Column="1" Content="Test" Margin="5" HorizontalAlignment="Center" Width="100" Height="30" Command="{Binding CopyCommand}" />
             
-            <Button  Grid.Row="9" Grid.Column="0" Content="Save" Margin="5" HorizontalAlignment="Right"  Width="100" Height="30" Command="{Binding CloseComaand}" />
-            <Button  Grid.Row="9" Grid.Column="1" Content="Close" Margin="5" HorizontalAlignment="Left"  Width="100" Height="30" Command="{Binding CloseComaand}" />
         </Grid>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal"  Width="auto"  VerticalAlignment="Top"   >
+            <Button Grid.Row="0" Grid.Column="0" Content="ssss" Margin="5" HorizontalAlignment="Left" Width="70" Height="20" Visibility="{Binding VisibilityCheBox, Converter={StaticResource VisibilityConvert}}" Command="{Binding SaveCom}" />
+            <Button Grid.Column="0" Grid.Row="0" Content="ccc" Margin="5" HorizontalAlignment="Right" Width="70" Height="20"  Visibility="{Binding VisibilityCheBox, Converter={StaticResource VisibilityConvert}}" Command="{Binding canselCopy}" />
+        </StackPanel>
     </Grid>
 </mahx:CustomDialog>

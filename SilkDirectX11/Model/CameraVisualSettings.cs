@@ -8,15 +8,16 @@ namespace SilkDirectX11.Model
 {
     public class CameraVisualSettings
     {
-        public int Brightness { get; set; }
-        public int Contrast { get; set; }
-        public int Hue { get; set; }
-        public int Saturation { get; set; }
-        public int NoiseReduction { get; set; }
-        public int EdgeEnhancement { get; set; }
-        public int AnamorphicScaling { get; set; }
-        public int StereoAdjustment { get; set; }
+        public int Brightness { get; set; } = 0;
+        public int Contrast { get; set; } = 0;
+        public int Hue { get; set; } = 0;
+        public int Saturation { get; set; } = 0;
+        public int NoiseReduction { get; set; } = 0;
+        public int EdgeEnhancement { get; set; } = 0;
+        public int AnamorphicScaling { get; set; } = 0;
+        public int StereoAdjustment { get; set; } = 0;
         public string Rotation { get; set; } = "Defoult";
+        public Guid CameraId { get; set; }
     }
      
 }

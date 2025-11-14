@@ -317,7 +317,7 @@ namespace SilkDirectX11.Behaviors
                 int row = GetRowGrid(e.GetPosition(Rite));
 
                  List<string> arguments = new List<string>() { ((CameraConnectStrings)paneltest.Tag).subStream, VideoHost.Name, VideoHost.Child.Handle.ToString()/*, Process.GetCurrentProcess().Id.ToString()*/ };
-                var process = StartProcess(arguments);
+                var process = StartProcess(arguments,(paneltest.Tag as CameraConnectStrings).CameraID);
 
                 grid.Tag = process.Id.ToString();
                 VideoHost.Tag = window;
@@ -613,7 +613,7 @@ namespace SilkDirectX11.Behaviors
                   //  var g =grid.Tag;
 
                     List<string> arguments = new List<string>() { ((CameraConnectStrings)panel.Tag).mainStream, wfh.Name, newWind.Child.Handle.ToString()/*, Process.GetCurrentProcess().Id.ToString() */};
-                      process = StartProcess(arguments);
+                      process = StartProcess(arguments, ((CameraConnectStrings)panel.Tag).CameraID);
                     Task.Delay(500).Wait();
                     if (process.HasExited)
                     {
@@ -845,16 +845,31 @@ namespace SilkDirectX11.Behaviors
 
         }
 
-        private Process StartProcess(List<string> argument)
+        private Process StartProcess(List<string> argument,Guid IDCamera)
         {
             Process process = new();
             ProcessStartInfo start = new ProcessStartInfo(patch);
+            
+
+            var setttings = ListDictionarySettingsCamers.DictionarySettingsCamers[IDCamera];
+            start.ArgumentList.Add(setttings.Brightness.ToString());
+            start.ArgumentList.Add(setttings.Contrast.ToString());
+            start.ArgumentList.Add(setttings.Hue.ToString());
+            start.ArgumentList.Add(setttings.Saturation.ToString());
+            start.ArgumentList.Add(setttings.NoiseReduction.ToString());
+            start.ArgumentList.Add(setttings.EdgeEnhancement.ToString());
+            start.ArgumentList.Add(setttings.AnamorphicScaling.ToString());
+            start.ArgumentList.Add(setttings.StereoAdjustment.ToString());
+            start.ArgumentList.Add(setttings.Rotation);
+
             start.ArgumentList.Add(Process.GetCurrentProcess().Id.ToString());
             for (int i = 0; i < argument.Count; i++)
             {
                 start.ArgumentList.Add(argument[i]);
 
             }
+          
+
             //start.CreateNoWindow = true;""2033296"" "29712"
             process.StartInfo = start;
 
@@ -984,7 +999,7 @@ namespace SilkDirectX11.Behaviors
                 gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault().Child.Height.ToString()
 
            };
-            var process = StartProcess(arguments);
+            var process = StartProcess(arguments, ((CameraConnectStrings)panel.Tag).CameraID);
             Task.Delay(500).Wait();
             if (process.HasExited)
             {

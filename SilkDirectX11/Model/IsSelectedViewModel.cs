@@ -16,14 +16,20 @@ namespace SilkDirectX11.Model
         public bool IsSelected
         {
             get { return isSelected; }
-            set { SetProperty(ref isSelected, value); }
+            set { SetProperty(ref isSelected, value); SubscribeSelectionChanged(SelectionChanged); }// хуня такая
+                                                                                                    // надо будет сделать ивентчто бы потом отпрвлялся запрос на изменения для ихменения главного чека 
+
         }
         public IsSelectedViewModel(T item )
         {
             Item = item;
             
         }
-        
-       
+       event Action<bool>? SelectionChanged;
+        public void SubscribeSelectionChanged(Action<bool> action)
+        {
+            SelectionChanged += action;
+        }
+         
     }
 }

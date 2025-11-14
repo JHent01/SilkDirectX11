@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SilkDirectX11.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,7 @@ namespace SilkDirectX11.Views
         public CamersSettingsView()
         {
             InitializeComponent();
+          
         }
 
          
