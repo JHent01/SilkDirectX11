@@ -16,7 +16,7 @@
                   Dialog:DialogParticipation.Register="{Binding}"
          prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="MainView" Height="500" Width="800"  Background="Transparent"  >
+        Title="MainView" Height="500" Width="800"  Background="Transparent" x:Name="MainW" >
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
@@ -38,19 +38,26 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <ListBox x:Name="ListViewCameras" ItemsSource="{Binding WindowsFormsHosts}" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  SelectedItem="{Binding VideoHost}" >
-                <!--logListBox-->
+                 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
 
-                        <Label Content="{Binding Name}"  >
+                        <Label Content="{Binding Name}"     Width="150">
+                            <Label.Tag>
+                                <Binding RelativeSource="{RelativeSource AncestorType={x:Type mahx:MetroWindow}}" Path="DataContext"/>
+                            </Label.Tag>
                             <i:Interaction.Behaviors>
                                 <custom:ListViewCustomBehavior />
                             </i:Interaction.Behaviors>
                             <Label.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Remove" Command="{Binding  DataContext.RemoveCameraCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Удалить"
+                                   Command="{Binding PlacementTarget.Tag.RemoveCameraCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                   CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                   
                                 </ContextMenu>
                             </Label.ContextMenu>
+                          
                         </Label>
                         
                     </DataTemplate>
@@ -58,11 +65,10 @@
                 </ListBox.ItemTemplate>
                 
             </ListBox>
-            
-            <Grid  ShowGridLines="True"   Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"  SizeChanged="VideoCanvas1_SizeChanged"   >
-                
-                
 
+            <Grid  ShowGridLines="True"   Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"    >
+                <!--SizeChanged="VideoCanvas1_SizeChanged"-->
+ 
                 <i:Interaction.Behaviors>
                     <custom:GridCustomBehavior />
                 </i:Interaction.Behaviors>
@@ -74,10 +80,7 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8" >
             <Button Content="Add" Width="100" Margin="0,0,8,0" Command="{Binding AddCameraCommand}"/>
             <Button Content="Settings Camers" Width="150" Margin="0,0,8,0" Command="{Binding CameraSettingsOpen}" />
-
-
-             
-            <!--<Button Content="Stop" Width="100" Command="{Binding Stop}" />-->
+ 
         </StackPanel>
         <Button    Command="{Binding SettingsOpenComman}"  HorizontalAlignment="Right" >
             <iconPacks:BootstrapIcons Kind="Gear" Height="20" Width="20" /> 

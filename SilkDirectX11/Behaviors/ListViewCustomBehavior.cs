@@ -21,7 +21,8 @@ namespace SilkDirectX11.Behaviors
         }
         private void MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-
+            if (e.LeftButton != System.Windows.Input.MouseButtonState.Pressed)
+                return;
             System.Windows.Controls.Label name = sender as System.Windows.Controls.Label;
             var listBox = System.Windows.Application.Current.MainWindow.FindName("ListViewCameras") as System.Windows.Controls.ListBox;
             WindowsFormsHost child = listBox.ItemsSource.Cast<WindowsFormsHost>().FirstOrDefault(x => x.Name == name.Content);

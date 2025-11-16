@@ -24,7 +24,7 @@ namespace SilkDirectX11.ViewModels
             CanselCommand = new DelegateCommand(CanselExecute);
             SelectForderForCamers = new DelegateCommand(SelectForderForCamersExecute);
         }
-       IEventAggregator _eventAggregator;
+        IEventAggregator _eventAggregator;
         ISettingsDAO _settingsDAO;
         private string _savePathSettings  ;
         public string SavePathSettings

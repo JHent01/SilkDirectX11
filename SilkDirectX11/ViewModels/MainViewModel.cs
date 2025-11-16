@@ -21,14 +21,8 @@ namespace SilkDirectX11.ViewModels
 {
     internal class MainViewModel : BindableBase
     {
-        private BaseMetroDialog dialog = new CustomDialog();
-        private BaseMetroDialog settingsDialog = new CustomDialog();
-        private BaseMetroDialog CameraSettingsDialog = new CustomDialog();
-
-
-
-        public IEventAggregator _eventAggregator;
-        public MainViewModel(IDialogCoordinator instance, ISettingsDAO dAO,ICameraDAO camera,IEventAggregator eventAggregator , ICameraSettingsDAO cameraSettingsDAO)
+       
+        public MainViewModel(IDialogCoordinator instance, ICameraDAO camera,IEventAggregator eventAggregator , ICameraSettingsDAO cameraSettingsDAO)
         { 
             #region FFMPEG Init
             ffmpeg.RootPath = "Autogen";
@@ -36,101 +30,35 @@ namespace SilkDirectX11.ViewModels
             Directory.CreateDirectory("frames");
             #endregion
             #region init
-            _settingsDAO = dAO;
+            
             _eventAggregator = eventAggregator;
             _cameraDAO = camera;
             _dialogCoordinator = instance;
             _cameraSettingsDAO = cameraSettingsDAO;
             #endregion
-
             #region Commands
-            AddCameraCommand = new DelegateCommand(AddCamera);
+            AddCameraCommand = new DelegateCommand(async () => await AddCameraDialog());
             LoadedCommand = new DelegateCommand(LoadedExecute);
             CameraSettingsOpen = new DelegateCommand(async () => await CameraSettingsOpenExecute());
-            RemoveCameraCommand = new DelegateCommand(RemoveCamera);
+            RemoveCameraCommand = new DelegateCommand<WindowsFormsHost>(RemoveCamera);
             SettingsOpenComman = new DelegateCommand(OpenSettings);
             // StartCommand = new AsyncDelegateCommand(StartCameraStream);
             #endregion
-
-
-
             #region SubscribeEvents
-            _eventAggregator.GetEvent<CameraEvent>().Subscribe(AddCam);
+            _eventAggregator.GetEvent<CameraEvent>().Subscribe(AddCamExsample);
             _eventAggregator.GetEvent<CloseAddCameraEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, dialog); });
             _eventAggregator.GetEvent<CloseSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, settingsDialog); });
             _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); });
             
             #endregion
-
-            //    async (camera) =>
-            //{
-            //  //  if (camera == null)
-            //  //      return;
-            //  //  if (string.IsNullOrEmpty( camera.CameraName))
-            //  //  {
-            //  //      await _dialogCoordinator.ShowMessageAsync(this, "Error", "Camera name is required");
-            //  //      return;
-            //  //  }
-            //  //  var wfh = new WindowsFormsHost();
-            //  //  string buf = camera.CameraName.ToString().Replace(".", "_").Replace(";", "_");//Replace("", "_")
-            //  //  wfh.Name = buf;
-            //  //  wfh.Tag = camera.ConnectStrings; 
-            //  //  wfh.AllowDrop = true;
-            //  //  wfh.Child = new System.Windows.Forms.Panel { Name = wfh.Name, AutoSize = true };
-
-            //  //  WindowsFormsHosts.Add(wfh);
-
-            //  //  // _dialogCoordinator.HideMetroDialogAsync(this, dialog);
-
-            //  //  dialog.RequestCloseAsync();
-            //  //_dialogCoordinator.HideMetroDialogAsync(this, dialog);
-
-            //  //  //_cameraDAO.SaveCamera(WindowsFormsHosts);
-
-            //  //  await  _dialogCoordinator.ShowMessageAsync(this, "Success", "Camera added successfully");
-            //  //  dialog.RequestCloseAsync();
-            //  //  dialog = new CustomDialog();
-            //  //  dialog.RequestCloseAsync();
-
-            //});
-
+            
         }
+        private BaseMetroDialog dialog = new CustomDialog();
+        private BaseMetroDialog settingsDialog = new CustomDialog();
+        private BaseMetroDialog CameraSettingsDialog = new CustomDialog();
+        public IEventAggregator _eventAggregator;
         ICameraSettingsDAO _cameraSettingsDAO;
-        public async  void AddCam(CameraStream camera)
-        {
-            if (camera == null)
-                return;
-            if (string.IsNullOrEmpty(camera.CameraName)||string.IsNullOrEmpty(camera.ConnectStrings.mainStream)||string.IsNullOrEmpty(camera.ConnectStrings.subStream))
-            {
-                await _dialogCoordinator.ShowMessageAsync(this, "Error", "Camera name is required");
-                return;
-            }
-            var wfh = new WindowsFormsHost();
-            string buf = camera.CameraName.ToString().Replace(".", "_").Replace(";", "_");//Replace("", "_")
-            wfh.Name = buf;
-            wfh.Tag = camera.ConnectStrings;
-            wfh.AllowDrop = true;
-            wfh.Child = new System.Windows.Forms.Panel { Name = wfh.Name, AutoSize = true };
-
-            WindowsFormsHosts.Add(wfh);
-            listCameras.Add(camera);
-
-            _dialogCoordinator.HideMetroDialogAsync(this, dialog);
-             await _dialogCoordinator.ShowMessageAsync(this, "Success", "Camera added successfully");
-            _cameraDAO.SaveCamera(WindowsFormsHosts);
-
-            //BaseMetroDialog bb = dialog as BaseMetroDialog;
-            //bb.RequestCloseAsync();
-            //bb.WaitForCloseAsync    ();
-            //dialog.WaitForCloseAsync();
-
-            //dialog.RequestCloseAsync();
-            // dialog = new CustomDialog();
-            // dialog.RequestCloseAsync();
-        }
-
         private IDialogCoordinator _dialogCoordinator;
-        private ISettingsDAO _settingsDAO;
         private ICameraDAO _cameraDAO;
         
      
@@ -150,16 +78,16 @@ namespace SilkDirectX11.ViewModels
             get => _videoHost;
             set => SetProperty(ref _videoHost, value);
         }
-      
 
-         
+
+        #region Commands and Methods
         public async Task ShowMahapsDialog(string title,string messege)
         { 
              await _dialogCoordinator.ShowMessageAsync(this, title, messege);
-            //ShowDialog();
+             
         }
-
-        public  async Task ShowDialog()
+        public DelegateCommand AddCameraCommand { get; private set; }
+        public  async Task AddCameraDialog()
         {
             
            AddCameraView view = new AddCameraView();
@@ -179,47 +107,30 @@ namespace SilkDirectX11.ViewModels
               dialog.Width = 800;
             await _dialogCoordinator.ShowMetroDialogAsync(this, dialog);
 
-            // var wind = System.Windows.Application.Current.MainWindow;
-
-
-            // _dialogCoordinator.HideMetroDialogAsync(this,dialog);
-            //  dialog.ShowModalDialogExternally(wind);
-            //  dialog.WaitForCloseAsync();
-            // dialog.ShowDialogExternally(wind);
-
-
-            // BaseMetroDialog bb = dialog as BaseMetroDialog;
-            // _dialogCoordinator.ShowMetroDialogAsync(this, dialog);
-
-
-            //bb.ShowDialogExternally();
-            // dialog.RequestCloseAsync();
-            //    dialog.WaitForCloseAsync();
-
-            // dialog.RequestCloseAsync();
-            //return Task.CompletedTask;
-            // dialog = new CustomDialog();
-        }
-
-
-        public ICommand StartCommand { get; set; }
-        public DelegateCommand AddCameraCommand { get; private set; }
-
-        private void AddCamera()
+         }
+        public async void AddCamExsample(CameraStream camera)
         {
-            ShowDialog();
+            if (camera == null)
+                return;
+            if (string.IsNullOrEmpty(camera.CameraName) || string.IsNullOrEmpty(camera.ConnectStrings.mainStream) || string.IsNullOrEmpty(camera.ConnectStrings.subStream))
+            {
+                await _dialogCoordinator.ShowMessageAsync(this, "Error", "Camera name is required");
+                return;
+            }
+            var wfh = new WindowsFormsHost();
+            string buf = camera.CameraName.ToString().Replace(".", "_").Replace(";", "_");//Replace("", "_")
+            wfh.Name = buf;
+            wfh.Tag = camera.ConnectStrings;
+            wfh.AllowDrop = true;
+            wfh.Child = new System.Windows.Forms.Panel { Name = wfh.Name, AutoSize = true };
 
-            //rtsp://admin:123456@192.168.1.11:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E
-           // var g = new WindowsFormsHost();
-           // g.Name = $"VideoHost{test}";
-           //  g.Tag = new CameraConnectStrings { mainStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E", subStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream1?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E" }; //$"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
-           //// g.Tag = new CameraConnectStrings { mainStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" , subStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" };
-           // g.AllowDrop = true;
-           // g.Child = new System.Windows.Forms.Panel { Name = g.Name , AutoSize = true };
-           // g.Background = System.Windows.Media.Brushes.AliceBlue;
-           // WindowsFormsHosts.Add(g);
-           // if (test == 14) test = 15;
-           // test++;
+            WindowsFormsHosts.Add(wfh);
+            listCameras.Add(camera);
+
+            _dialogCoordinator.HideMetroDialogAsync(this, dialog);
+            await _dialogCoordinator.ShowMessageAsync(this, "Success", "Camera added successfully");
+            _cameraDAO.SaveCamera(WindowsFormsHosts);
+
         }
         public DelegateCommand LoadedCommand { get; private set; }
        private ObservableCollection<CameraStream> listCameras = new ObservableCollection<CameraStream>();
@@ -266,7 +177,6 @@ namespace SilkDirectX11.ViewModels
             return cameraSettings;
         }
         public DelegateCommand SettingsOpenComman { get; private set; }
-       
         private async void OpenSettings()
         {
             SettingsView view = new SettingsView();
@@ -285,14 +195,7 @@ namespace SilkDirectX11.ViewModels
             CameraSettingsDialog.Title = "Camera Settings";
             var gridLenghtConvert = new GridLengthConverter();
             CamersSettingsView camersSettingsView = new CamersSettingsView();
-
-            //var cameraList = new ObservableCollection<IsSelectedViewModel<CameraStream>>();
-            //foreach (var cam in listCameras)
-            //{
-            //    cameraList.Add(new IsSelectedViewModel<CameraStream> ( cam));
-            //}
-           // (camersSettingsView.DataContext as CamersSettingsViewModel).CameraList = cameraList;
-
+             
             CameraSettingsDialog.DialogContentWidth = GridLength.Auto;
             CameraSettingsDialog.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
            
@@ -305,57 +208,52 @@ namespace SilkDirectX11.ViewModels
 
 
         }
-        public DelegateCommand RemoveCameraCommand { get; private set; }
-       private void  RemoveCamera()
+        public DelegateCommand<WindowsFormsHost> RemoveCameraCommand { get; private set; }
+        private void RemoveCamera(WindowsFormsHost host)
         {
-            if (VideoHost == null)
+            if (host == null)
                 return;
-            WindowsFormsHosts.Remove(VideoHost);
-            listCameras.Remove((listCameras.FirstOrDefault(s=> s.CameraID == (VideoHost.Tag as CameraConnectStrings).CameraID)));
+            WindowsFormsHosts.Remove(host);
+
+            if (host.Tag is CameraConnectStrings tag)
+            {
+                var toRemove = listCameras.FirstOrDefault(s => s.CameraID == tag.CameraID);
+                if (toRemove != null)
+                {
+                    listCameras.Remove(toRemove);
+                }
+            }
             _cameraDAO.SaveCamera(WindowsFormsHosts);
         }
+        #endregion
 
-
-        private unsafe async Task StartCameraStream()
-        { 
+        //private void AddCamera()
         //{
-        //    if (VideoHost == null)
-        //        return;
-        //    CameraConnectStrings tag = (CameraConnectStrings)VideoHost.Tag;
-        //    string _videoSourceTest = tag.subStream;
-        //    //_videoSourceTest = VideoHost.Tag.ToString();
-        //    //_videoSourceTest = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
-        //    //    _videoSourceTest = $"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-        //    string a = $"Camera {test}";
+        //    AddCameraDialog();
 
-        //    var wind = System.Windows.Application.Current.MainWindow;
+        //rtsp://admin:123456@192.168.1.11:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E
+        // var g = new WindowsFormsHost();
+        // g.Name = $"VideoHost{test}";
+        //  g.Tag = new CameraConnectStrings { mainStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E", subStream = $"rtsp://admin:123456@192.168.1.{test}:554/stream1?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E" }; //$"rtsp://admin:123456@192.168.1.{test}:554/stream0?username=admin&password=E10ADC3949BA59ABBE56E057F20F883E";
+        //// g.Tag = new CameraConnectStrings { mainStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" , subStream = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" };
+        // g.AllowDrop = true;
+        // g.Child = new System.Windows.Forms.Panel { Name = g.Name , AutoSize = true };
+        // g.Background = System.Windows.Media.Brushes.AliceBlue;
+        // WindowsFormsHosts.Add(g);
+        // if (test == 14) test = 15;
+        // test++;
+        //}
 
-        //    var gr = wind.FindName("VideoCanvas1") as Grid;
-        //    VideoHost.Height = gr.ActualHeight;
-        //    VideoHost.Width = gr.ActualWidth;
-        //    //  Window tt = new Window();
-        //    //tt.Width = 800;
-        //    //tt.Height = 600;
-        //    //tt.Content = VideoHost;
-        //    if (gr.Children.Contains(VideoHost))
-        //    {
-        //        var panel = VideoHost.Child as System.Windows.Forms.Panel;
-        //        panel.CreateControl();
-        //        // RenderTargetHwnd = VideoHost.Handle;
-        //        RenderTargetHwnd = panel.Handle;
-        //      //  RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
-        //  //      Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd /*VideoHost.Handle*/));
-        //    }
-        //    else
-        //    {
-        //        gr.Children.Add(VideoHost);
-        //        var panel = VideoHost.Child as System.Windows.Forms.Panel;
-        //        panel.CreateControl();
-        //       // RenderTargetHwnd = VideoHost.Handle;
-        //       RenderTargetHwnd = panel.Handle;
-        //      //  RenderANDVideoReaderVIdeoDecoder.Program tests = new RenderANDVideoReaderVIdeoDecoder.Program();
-        //  //      Task.Factory.StartNew(() => tests.Start(_videoSourceTest, a, RenderTargetHwnd));
-            
-        }
+        // public DelegateCommand RemoveCameraCommand { get; private set; }
+        //private void  RemoveCamera()
+        // {
+        //     if (VideoHost == null)
+        //         return;
+        //     WindowsFormsHosts.Remove(VideoHost);
+        //     listCameras.Remove((listCameras.FirstOrDefault(s=> s.CameraID == (VideoHost.Tag as CameraConnectStrings).CameraID)));
+        //     _cameraDAO.SaveCamera(WindowsFormsHosts);
+        // }
+
+
     }
 }

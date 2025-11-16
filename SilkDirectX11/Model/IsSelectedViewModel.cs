@@ -1,35 +1,47 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SilkDirectX11.Model
 {
+    // План (псевдокод):
+    // - Добавить публичный ивент Action<bool> IsSelectedChanged
+    // - В сеттере IsSelected при фактическом изменении значения вызывать OnIsSelectedChanged(newValue)
+    // - Реализовать protected virtual void OnIsSelectedChanged(bool) для вызова ивента
+    // - Убрать приватный ивент и Subscribe-метод, т.к. достаточно стандартной подписки на публичный ивент
+
     public class IsSelectedViewModel<T> : BindableBase
-    {private T item;
-        public T Item 
-        { get { return item; }
-            set { SetProperty(ref item , value); }
+    {
+        private T item;
+        public T Item
+        {
+            get => item;
+            set => SetProperty(ref item, value);
         }
-        private bool isSelected =false;
+
+        private bool isSelected = false;
         public bool IsSelected
         {
-            get { return isSelected; }
-            set { SetProperty(ref isSelected, value); SubscribeSelectionChanged(SelectionChanged); }// хуня такая
-                                                                                                    // надо будет сделать ивентчто бы потом отпрвлялся запрос на изменения для ихменения главного чека 
-
+            get => isSelected;
+            set
+            {
+                if (isSelected != value)
+                {
+                    SetProperty(ref isSelected, value);
+                    OnIsSelectedChanged(value);
+                }
+            }
         }
-        public IsSelectedViewModel(T item )
+
+        public IsSelectedViewModel(T item)
         {
             Item = item;
-            
         }
-       event Action<bool>? SelectionChanged;
-        public void SubscribeSelectionChanged(Action<bool> action)
+
+       
+        public event Action<bool>? IsSelectedChanged;
+
+        protected virtual void OnIsSelectedChanged(bool newValue)
         {
-            SelectionChanged += action;
+            IsSelectedChanged?.Invoke(newValue);
         }
-         
     }
 }

@@ -1,4 +1,8 @@
-﻿using SilkDirectX11.Events;
+﻿using Newtonsoft.Json.Linq;
+using Prism.Mvvm;
+using SilkDirectX11.Enums;
+using SilkDirectX11.Events;
+using SilkDirectX11.Interfaces;
 using SilkDirectX11.Model;
 using System;
 using System.Collections.Generic;
@@ -7,9 +11,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.Integration;
-using Prism.Mvvm;
-using SilkDirectX11.Interfaces;
-using SilkDirectX11.Enums;
 
 namespace SilkDirectX11.ViewModels
 {
@@ -19,19 +20,20 @@ namespace SilkDirectX11.ViewModels
         {
             _cameraSettingsDAO = camSettingsDAO;
             _eventAggregator = eventAggregator;
-            CloseComaand = new DelegateCommand(Close);
-            SaveSettingsComand = new DelegateCommand(SaveSettings);
+            CloseComaand = new DelegateCommand(() => { _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Publish("Close"); });
+            SaveSettingsSingleComand = new DelegateCommand(SaveSettings);
             _cameraDAO = cameraDAO;
             CameraVisualSettingsList = Loaded();
-            CopyCommand = new DelegateCommand(Copy);
-            SaveCom = new DelegateCommand(SaveComExecute);
-            canselCopy = new DelegateCommand(CanselCopyExecute);
+            CopyCommand = new DelegateCommand(() => { VisibilityCheBox = true; }); 
+            SaveCommand = new DelegateCommand(SaveComExecute);
+            CanselCopy = new DelegateCommand(( )=> { VisibilityCheBox = false; });
 
         }
         IEventAggregator _eventAggregator;
         ICameraSettingsDAO _cameraSettingsDAO;
         ICameraDAO _cameraDAO;
-
+        bool flag = true;
+        #region Properties
         ObservableCollection<IsSelectedViewModel<CameraStream>> cameraList = new ObservableCollection<IsSelectedViewModel<CameraStream>>();
         public ObservableCollection<IsSelectedViewModel<CameraStream>> CameraList
         {
@@ -42,14 +44,13 @@ namespace SilkDirectX11.ViewModels
 
             }
         }
+        
         private EnumRotation rotation = EnumRotation.Defoult;
         public EnumRotation Rotation
         {
             get => rotation;
             set => SetProperty(ref rotation, value);
         }
-
-
         private int brightness;
         public int Brightness
         {
@@ -98,89 +99,37 @@ namespace SilkDirectX11.ViewModels
             get => anamorphicScaling;
             set => SetProperty(ref anamorphicScaling, value);
         }
-
-        public DelegateCommand CloseComaand { get; private set; }
-        private void Close()
+        private bool visibilityCheBox = false;
+        public bool VisibilityCheBox
         {
-            _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Publish("Close");
-
-        }
-        private IsSelectedViewModel<CameraStream> isSelectedViewModel;
-        public IsSelectedViewModel<CameraStream> IsSelectedViewModel
-        {
-            get => isSelectedViewModel;
+            get => visibilityCheBox;
             set
             {
-                SetProperty(ref isSelectedViewModel, value);
-                SelectedCamera();
-
+                SetProperty(ref visibilityCheBox, value);
+                VisibilityButton = !value;
             }
         }
+        private bool visibilityButton = true;
+        public bool VisibilityButton
+        {
+            get => visibilityButton;
+            set => SetProperty(ref visibilityButton, value);
+        }
+        private bool isCheckedAll;
+        public bool IsCheckedAll
+        {
+            get => isCheckedAll;
+            set => SetProperty(ref isCheckedAll, value, UpdateIsCheckedAll);
 
-
-
+        }
         List<CameraVisualSettings> cameraVisualSettings;
         public List<CameraVisualSettings> CameraVisualSettingsList
         {
             get => cameraVisualSettings;
             set => SetProperty(ref cameraVisualSettings, value);
         }
-        public DelegateCommand SaveSettingsComand { get; private set; }
-        private void SaveSettings()
-        {
-            CameraVisualSettings cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
-
-            var settings = new CameraVisualSettings
-            {
-                CameraId = cameraVisualSettings.CameraId,
-                Rotation = this.Rotation.ToString(),
-                Brightness = this.Brightness,
-                Contrast = this.Contrast,
-                Saturation = this.Saturation,
-                Hue = this.Hue,
-                NoiseReduction = this.NoiseReduction,
-                StereoAdjustment = this.StereoAdjustment,
-                EdgeEnhancement = this.EdgeEnhancement,
-                AnamorphicScaling = this.AnamorphicScaling
-            };
-            if (CameraVisualSettingsList.Any(c => c.CameraId == settings.CameraId))
-            {
-                var existingSettings = CameraVisualSettingsList.First(c => c.CameraId == settings.CameraId);
-                CameraVisualSettingsList.Remove(existingSettings);
-            }
-            CameraVisualSettingsList.Add(settings);
-            _cameraSettingsDAO.SaveCameraSettings(CameraVisualSettingsList);
-            ListDictionarySettingsCamers.DictionarySettingsCamers = CameraVisualSettingsList.ToDictionary(c => c.CameraId, c => c);
-            //var selectedCameras = CameraList.Where(c => c.IsSelected).Select(c => c.Item).ToList();
-
-            //foreach (var cam in selectedCameras)
-            //{
-            //    var settings = new CameraVisualSettings
-            //    {
-            //        CameraId = cam.CameraID,
-            //        Rotation = this.Rotation.ToString(),
-            //        Brightness = this.Brightness,
-            //        Contrast = this.Contrast,
-            //        Saturation = this.Saturation,
-            //        Hue = this.Hue,
-            //        NoiseReduction = this.NoiseReduction,
-            //        StereoAdjustment = this.StereoAdjustment,
-            //        EdgeEnhancement = this.EdgeEnhancement,
-            //        AnamorphicScaling = this.AnamorphicScaling
-            //    };
-            //    if (CameraVisualSettingsList.Any(c => c.CameraId == cam.CameraID))
-            //    {
-            //        var existingSettings = CameraVisualSettingsList.First(c => c.CameraId == cam.CameraID);
-            //        CameraVisualSettingsList.Remove(existingSettings);
-            //    }
-            //    CameraVisualSettingsList.Add(settings);
-
-            //}
-            //_cameraSettingsDAO.SaveCameraSettings(CameraVisualSettingsList);
-            //ListDictionarySettingsCamers.DictionarySettingsCamers = CameraVisualSettingsList.ToDictionary(c => c.CameraId, c => c);
-            //  _eventAggregator.GetEvent<SaveCameraSettingsEvent>().Publish(settings);
-
-        }
+        #endregion
+        #region Metods
         private List<CameraVisualSettings> Loaded()
         {
 
@@ -189,6 +138,10 @@ namespace SilkDirectX11.ViewModels
             foreach (var cam in listCamers)
             {
                 var item = new IsSelectedViewModel<CameraStream>(cam);
+                item.IsSelectedChanged += OnIsSelectedChanged;
+
+
+
                 cameraList.Add(item);
             }
             List<CameraVisualSettings> cameraSettings = _cameraSettingsDAO.GetCameraSettings();
@@ -203,8 +156,6 @@ namespace SilkDirectX11.ViewModels
 
             return cameraSettings;
         }
-
-        public DelegateCommand SelectedCameraComand { get; private set; }
         private void SelectedCamera()
         {
 
@@ -239,67 +190,102 @@ namespace SilkDirectX11.ViewModels
         }
         public void UpdateIsCheckedAll()
         {
-            if (CameraList.All(c => c.IsSelected))
+            if (flag)
             {
-                IsCheckedAll = true;
+                flag = false;
+                bool flags = IsCheckedAll;
+                var t = CameraList.Where(c => c.IsSelected != flags).Select(c => c).ToList();
+                foreach (var cam in t)
+                {
+                    cam.IsSelected = flags;
+                }
+                flag = true;
             }
-            else if (CameraList.All(c => !c.IsSelected))
-            {
-                IsCheckedAll = false;
-            }
-            
+            //if (CameraList.All(c => c.IsSelected))
+            //{
+            //    IsCheckedAll = true;
+            //}
+            //else if (CameraList.All(c => !c.IsSelected))
+            //{
+            //    IsCheckedAll = false;
+            //}
+
         }
-        private bool visibilityCheBox = false;
-        public bool VisibilityCheBox
+        private void OnIsSelectedChanged(bool obj)
         {
-            get => visibilityCheBox;
+            if (flag)
+            {
+
+                if (obj)
+                {
+                    if (CameraList.All(c => c.IsSelected))
+                    {
+                        IsCheckedAll = true;
+                    }
+                    else
+                    {
+                        IsCheckedAll = false;
+                    }
+
+                }
+                else
+                {
+                    flag = false;
+                    IsCheckedAll = false;
+                    //if (CameraList.All(c => c.IsSelected))
+                    //{
+                    //    IsCheckedAll = false;
+                    //}
+                    //else
+                    //{
+                    //    IsCheckedAll = false;
+                    //}
+                }
+                flag = true;
+            }
+        }
+        #endregion
+        #region Commands
+        private IsSelectedViewModel<CameraStream> isSelectedViewModel;
+        public IsSelectedViewModel<CameraStream> IsSelectedViewModel
+        {
+            get => isSelectedViewModel;
             set
             {
-                SetProperty(ref visibilityCheBox, value); 
-                VisibilityButton = !value;
+                SetProperty(ref isSelectedViewModel, value);
+                SelectedCamera();
+
             }
         }
-        private bool visibilityButton= true;
-        public bool VisibilityButton
+        public DelegateCommand SaveSettingsSingleComand { get; private set; }
+        private void SaveSettings()
         {
-            get => visibilityButton;
-            set => SetProperty(ref visibilityButton, value);
-        }
-        public DelegateCommand CopyCommand { get; private set; }
-        private void Copy()
-        {
-            VisibilityCheBox = true;
+            CameraVisualSettings cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
 
-
-        }
-        bool flag = true;
-        private bool isCheckedAll;
-        public bool IsCheckedAll
-        {
-            get => isCheckedAll;
-            set
+            var settings = new CameraVisualSettings
             {
-                SetProperty(ref isCheckedAll, value, UpdateIsCheckedAll);
-                
-
-                //var t = CameraList.Where(c => c.IsSelected != value ).Select(c=>c).ToList();
-                //foreach (var cam in t)
-                //{
-                //    cam.IsSelected = isCheckedAll;
-                //}
-
-
-                //foreach (var cam in CameraList)
-                //{
-                //    cam.IsSelected = isCheckedAll;
-                //}
+                CameraId = cameraVisualSettings.CameraId,
+                Rotation = this.Rotation.ToString(),
+                Brightness = this.Brightness,
+                Contrast = this.Contrast,
+                Saturation = this.Saturation,
+                Hue = this.Hue,
+                NoiseReduction = this.NoiseReduction,
+                StereoAdjustment = this.StereoAdjustment,
+                EdgeEnhancement = this.EdgeEnhancement,
+                AnamorphicScaling = this.AnamorphicScaling
+            };
+            if (CameraVisualSettingsList.Any(c => c.CameraId == settings.CameraId))
+            {
+                var existingSettings = CameraVisualSettingsList.First(c => c.CameraId == settings.CameraId);
+                CameraVisualSettingsList.Remove(existingSettings);
             }
+            CameraVisualSettingsList.Add(settings);
+            _cameraSettingsDAO.SaveCameraSettings(CameraVisualSettingsList);
+            ListDictionarySettingsCamers.DictionarySettingsCamers = CameraVisualSettingsList.ToDictionary(c => c.CameraId, c => c);
+           
         }
-        
-
-
-
-        public DelegateCommand SaveCom { get; private set; }
+        public DelegateCommand SaveCommand { get; private set; }
         private void SaveComExecute()
         {
             var selectedCameras = CameraList.Where(c => c.IsSelected).Select(c => c.Item).ToList();
@@ -330,35 +316,19 @@ namespace SilkDirectX11.ViewModels
             _cameraSettingsDAO.SaveCameraSettings(CameraVisualSettingsList);
             ListDictionarySettingsCamers.DictionarySettingsCamers = CameraVisualSettingsList.ToDictionary(c => c.CameraId, c => c);
             visibilityCheBox = false;
-
-            //CameraVisualSettings cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
-
-            //var settings = new CameraVisualSettings
-            //{
-            //    CameraId = cameraVisualSettings.CameraId,
-            //    Rotation = this.Rotation.ToString(),
-            //    Brightness = this.Brightness,
-            //    Contrast = this.Contrast,
-            //    Saturation = this.Saturation,
-            //    Hue = this.Hue,
-            //    NoiseReduction = this.NoiseReduction,
-            //    StereoAdjustment = this.StereoAdjustment,
-            //    EdgeEnhancement = this.EdgeEnhancement,
-            //    AnamorphicScaling = this.AnamorphicScaling
-            //};
-            //if (CameraVisualSettingsList.Any(c => c.CameraId == settings.CameraId))
-            //{
-            //    var existingSettings = CameraVisualSettingsList.First(c => c.CameraId == settings.CameraId);
-            //    CameraVisualSettingsList.Remove(existingSettings);
-            //}
-            //CameraVisualSettingsList.Add(settings);
-            //ListDictionarySettingsCamers.DictionarySettingsCamers = CameraVisualSettingsList.ToDictionary(c => c.CameraId, c => c);
-            //VisibilityCheBox = false;
+             
         }
-        public DelegateCommand canselCopy { get; private set; }
-        private void CanselCopyExecute()
-        {
-            VisibilityCheBox = false;
-        }
+        public DelegateCommand CanselCopy { get; private set; }
+        public DelegateCommand CloseComaand { get; private set; }
+        public DelegateCommand CopyCommand { get; private set; }
+        #endregion
+
+        //  public DelegateCommand SelectedCameraComand { get; private set; }
+        //private void CanselCopyExecute( )
+        //{
+
+
+        //    VisibilityCheBox = false;
+        //}
     }
 }

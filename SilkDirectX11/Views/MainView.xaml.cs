@@ -21,13 +21,13 @@ namespace SilkDirectX11.Views
     /// </summary>
     public partial class MainView
     {
-       // private IRenderInstance renderInstance;
+       
         public MainView()
         {
             InitializeComponent();
         }
-        private void VideoCanvas1_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
+        //private void VideoCanvas1_SizeChanged(object sender, SizeChangedEventArgs e)
+        //{
             //var grid = sender as Grid;
 
             //if (grid.Children.Count < 2) return;
@@ -62,6 +62,6 @@ namespace SilkDirectX11.Views
             //double right = Canvas.GetRight(rectangle);
             //double bottom = Canvas.GetBottom(rectangle);
 
-        }
+       // }
     }
 }
