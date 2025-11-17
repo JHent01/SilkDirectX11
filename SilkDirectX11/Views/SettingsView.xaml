@@ -25,8 +25,15 @@
         <Label Content="Select Forder " Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
         <TextBox x:Name="Path" Text="{Binding SavePathSettings}"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" MinWidth="200"  Width="auto" Grid.Row="1" Grid.Column="1" IsReadOnly="True"/>
         <Button Content="Browse" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" Width="100" Command="{Binding SelectForderForCamers}"   />
-        <Button Content="Save" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10" Width="100" Command="{Binding SaveSettingsCommand}" />
-        <Button Content="Cansel" Command="{Binding CanselCommand}" Width="100"   Margin="10"  Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"/> 
+        <Grid Grid.Column="1" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <Button Content="Save" Grid.Column="0"   HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10" Width="100" Command="{Binding SaveSettingsCommand}" />
+            <Button Content="Cansel" Command="{Binding CanselCommand}" Width="100"   Margin="10"  Grid.Column="1"   HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
 
+        </Grid>
+        
     </Grid>
 </mahx:CustomDialog>
