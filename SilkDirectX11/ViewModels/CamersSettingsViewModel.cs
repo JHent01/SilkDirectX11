@@ -26,7 +26,7 @@ namespace SilkDirectX11.ViewModels
             CameraVisualSettingsList = Loaded();
             CopyCommand = new DelegateCommand(() => { VisibilityCheBox = true; }); 
             SaveCommand = new DelegateCommand(SaveComExecute);
-            CanselCopy = new DelegateCommand(( )=> { VisibilityCheBox = false; });
+            CanselCopy = new DelegateCommand(() => { VisibilityCheBox = false; });//( )=> { VisibilityCheBox = false; }
 
         }
         IEventAggregator _eventAggregator;
@@ -44,7 +44,7 @@ namespace SilkDirectX11.ViewModels
 
             }
         }
-        
+         
         private EnumRotation rotation = EnumRotation.Defoult;
         public EnumRotation Rotation
         {
@@ -145,13 +145,18 @@ namespace SilkDirectX11.ViewModels
                 cameraList.Add(item);
             }
             List<CameraVisualSettings> cameraSettings = _cameraSettingsDAO.GetCameraSettings();
+            List<CameraVisualSettings> cameraSettingsToRemove = new List<CameraVisualSettings>();
             foreach (var cam in cameraSettings)
             {
                 if (!cameraList.Any(c => c.Item.CameraID == cam.CameraId))
                 {
-                    cameraSettings.Remove(cam);
+                    cameraSettingsToRemove.Add(cam);
                 }
 
+            }
+            foreach (var cam in cameraSettingsToRemove)
+            {
+                cameraSettings.Remove(cam);
             }
 
             return cameraSettings;
@@ -218,28 +223,15 @@ namespace SilkDirectX11.ViewModels
 
                 if (obj)
                 {
-                    if (CameraList.All(c => c.IsSelected))
-                    {
-                        IsCheckedAll = true;
-                    }
-                    else
-                    {
-                        IsCheckedAll = false;
-                    }
+                    IsCheckedAll = CameraList.All(c => c.IsSelected);
+                    
 
                 }
                 else
                 {
                     flag = false;
                     IsCheckedAll = false;
-                    //if (CameraList.All(c => c.IsSelected))
-                    //{
-                    //    IsCheckedAll = false;
-                    //}
-                    //else
-                    //{
-                    //    IsCheckedAll = false;
-                    //}
+                     
                 }
                 flag = true;
             }
@@ -260,21 +252,42 @@ namespace SilkDirectX11.ViewModels
         public DelegateCommand SaveSettingsSingleComand { get; private set; }
         private void SaveSettings()
         {
+            CameraVisualSettings settings = null;
             CameraVisualSettings cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
-
-            var settings = new CameraVisualSettings
+            if (cameraVisualSettings == null)
             {
-                CameraId = cameraVisualSettings.CameraId,
-                Rotation = this.Rotation.ToString(),
-                Brightness = this.Brightness,
-                Contrast = this.Contrast,
-                Saturation = this.Saturation,
-                Hue = this.Hue,
-                NoiseReduction = this.NoiseReduction,
-                StereoAdjustment = this.StereoAdjustment,
-                EdgeEnhancement = this.EdgeEnhancement,
-                AnamorphicScaling = this.AnamorphicScaling
-            };
+                var cameraNewVisualSettings = cameraList.FirstOrDefault(c => c.Item.CameraID == IsSelectedViewModel.Item.CameraID);
+                settings = new CameraVisualSettings
+                {
+                    CameraId = cameraNewVisualSettings.Item.CameraID,
+                    Rotation = this.Rotation.ToString(),
+                    Brightness = this.Brightness,
+                    Contrast = this.Contrast,
+                    Saturation = this.Saturation,
+                    Hue = this.Hue,
+                    NoiseReduction = this.NoiseReduction,
+                    StereoAdjustment = this.StereoAdjustment,
+                    EdgeEnhancement = this.EdgeEnhancement,
+                    AnamorphicScaling = this.AnamorphicScaling
+                };
+
+            }
+            else
+            {
+                settings = new CameraVisualSettings
+                {
+                    CameraId = cameraVisualSettings.CameraId,
+                    Rotation = this.Rotation.ToString(),
+                    Brightness = this.Brightness,
+                    Contrast = this.Contrast,
+                    Saturation = this.Saturation,
+                    Hue = this.Hue,
+                    NoiseReduction = this.NoiseReduction,
+                    StereoAdjustment = this.StereoAdjustment,
+                    EdgeEnhancement = this.EdgeEnhancement,
+                    AnamorphicScaling = this.AnamorphicScaling
+                };
+            }
             if (CameraVisualSettingsList.Any(c => c.CameraId == settings.CameraId))
             {
                 var existingSettings = CameraVisualSettingsList.First(c => c.CameraId == settings.CameraId);
@@ -315,7 +328,7 @@ namespace SilkDirectX11.ViewModels
             }
             _cameraSettingsDAO.SaveCameraSettings(CameraVisualSettingsList);
             ListDictionarySettingsCamers.DictionarySettingsCamers = CameraVisualSettingsList.ToDictionary(c => c.CameraId, c => c);
-            visibilityCheBox = false;
+            VisibilityCheBox = false;
              
         }
         public DelegateCommand CanselCopy { get; private set; }

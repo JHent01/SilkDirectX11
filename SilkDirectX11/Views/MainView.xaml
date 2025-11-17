@@ -7,13 +7,14 @@
          xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
          xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
          xmlns:prism="http://prismlibrary.com/"
-                   xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-                   xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-                 xmlns:custom="clr-namespace:SilkDirectX11.Behaviors"
-                   xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
-        xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
-                  xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
-                  Dialog:DialogParticipation.Register="{Binding}"
+            xmlns:convert="clr-namespace:SilkDirectX11.Converters"
+            xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+            xmlns:custom="clr-namespace:SilkDirectX11.Behaviors"
+            xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+            xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+            xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+            Dialog:DialogParticipation.Register="{Binding}"
          prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
         Title="MainView" Height="500" Width="800"  Background="Transparent" x:Name="MainW" >
@@ -22,6 +23,12 @@
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
+    <mahx:MetroWindow.Resources>
+        <ResourceDictionary >
+            <convert:VisibilityConvert x:Key="VisibilityConvert"/>
+        </ResourceDictionary>
+    </mahx:MetroWindow.Resources>
+
     <Grid Background="Transparent"   >
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -66,7 +73,7 @@
                 
             </ListBox>
 
-            <Grid  ShowGridLines="True"   Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"    >
+            <Grid  ShowGridLines="True"   Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"   Visibility="{Binding MainVisibility, Converter={StaticResource VisibilityConvert}}"  >
                 <!--SizeChanged="VideoCanvas1_SizeChanged"-->
  
                 <i:Interaction.Behaviors>

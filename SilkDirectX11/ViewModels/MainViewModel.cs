@@ -46,15 +46,15 @@ namespace SilkDirectX11.ViewModels
             #endregion
             #region SubscribeEvents
             _eventAggregator.GetEvent<CameraEvent>().Subscribe(AddCamExsample);
-            _eventAggregator.GetEvent<CloseAddCameraEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, dialog); });
-            _eventAggregator.GetEvent<CloseSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, settingsDialog); });
-            _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); });
+            _eventAggregator.GetEvent<CloseAddCameraEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, AddCameraDialogs); MainVisibility = true; });
+            _eventAggregator.GetEvent<CloseSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, SettingsDialog); MainVisibility = true; });
+            _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); MainVisibility = true; });
             
             #endregion
             
         }
-        private BaseMetroDialog dialog = new CustomDialog();
-        private BaseMetroDialog settingsDialog = new CustomDialog();
+        private BaseMetroDialog AddCameraDialogs = new CustomDialog();
+        private BaseMetroDialog SettingsDialog = new CustomDialog();
         private BaseMetroDialog CameraSettingsDialog = new CustomDialog();
         public IEventAggregator _eventAggregator;
         ICameraSettingsDAO _cameraSettingsDAO;
@@ -78,7 +78,12 @@ namespace SilkDirectX11.ViewModels
             get => _videoHost;
             set => SetProperty(ref _videoHost, value);
         }
-
+        private bool _mainVisibility = true;
+        public bool MainVisibility
+        {
+            get => _mainVisibility;
+            set => SetProperty(ref _mainVisibility, value);
+        }
 
         #region Commands and Methods
         public async Task ShowMahapsDialog(string title,string messege)
@@ -89,23 +94,23 @@ namespace SilkDirectX11.ViewModels
         public DelegateCommand AddCameraCommand { get; private set; }
         public  async Task AddCameraDialog()
         {
-            
-           AddCameraView view = new AddCameraView();
+            MainVisibility = false;
+            AddCameraView view = new AddCameraView();
          
-            dialog.Title = "Add Camers";
+            AddCameraDialogs.Title = "Add Camers";
             var gridLenghtConvert = new GridLengthConverter();
 
             
-             dialog.DialogContentWidth = GridLength.Auto;
-             dialog.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
+             AddCameraDialogs.DialogContentWidth = GridLength.Auto;
+             AddCameraDialogs.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
  
-            dialog.Content = view.Content;
-            dialog.DataContext = view.DataContext;
+            AddCameraDialogs.Content = view.Content;
+            AddCameraDialogs.DataContext = view.DataContext;
             
 
             
-              dialog.Width = 800;
-            await _dialogCoordinator.ShowMetroDialogAsync(this, dialog);
+              AddCameraDialogs.Width = 800;
+            await _dialogCoordinator.ShowMetroDialogAsync(this, AddCameraDialogs);
 
          }
         public async void AddCamExsample(CameraStream camera)
@@ -127,7 +132,7 @@ namespace SilkDirectX11.ViewModels
             WindowsFormsHosts.Add(wfh);
             listCameras.Add(camera);
 
-            _dialogCoordinator.HideMetroDialogAsync(this, dialog);
+            _dialogCoordinator.HideMetroDialogAsync(this, AddCameraDialogs);
             await _dialogCoordinator.ShowMessageAsync(this, "Success", "Camera added successfully");
             _cameraDAO.SaveCamera(WindowsFormsHosts);
 
@@ -165,33 +170,39 @@ namespace SilkDirectX11.ViewModels
                 cameraList.Add(cam);
             }
             List<CameraVisualSettings> cameraSettings = _cameraSettingsDAO.GetCameraSettings();
+            List<CameraVisualSettings> cameraSettingsToRemove = new List<CameraVisualSettings>();
             foreach (var cam in cameraSettings)
             {
                 if (!cameraList.Any(c => c.CameraID == cam.CameraId))
                 {
-                    cameraSettings.Remove(cam);
+                    cameraSettingsToRemove.Add(cam);
                 }
 
             }
-
+            foreach (var cam in cameraSettingsToRemove)
+            {
+                cameraSettings.Remove(cam);
+            }
             return cameraSettings;
         }
         public DelegateCommand SettingsOpenComman { get; private set; }
         private async void OpenSettings()
         {
+            MainVisibility = false;
             SettingsView view = new SettingsView();
-            settingsDialog.Title = "Settings";
+            SettingsDialog.Title = "Settings";
             var gridLenghtConvert = new GridLengthConverter();
-            settingsDialog.DialogContentWidth = GridLength.Auto;
-            settingsDialog.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
-            settingsDialog.Content = view.Content;
-            settingsDialog.DataContext = view.DataContext;
-            settingsDialog.Width = 600;
-            await _dialogCoordinator.ShowMetroDialogAsync(this, settingsDialog);
+            SettingsDialog.DialogContentWidth = GridLength.Auto;
+            SettingsDialog.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
+            SettingsDialog.Content = view.Content;
+            SettingsDialog.DataContext = view.DataContext;
+            SettingsDialog.Width = 600;
+            await _dialogCoordinator.ShowMetroDialogAsync(this, SettingsDialog);
         }
         public DelegateCommand CameraSettingsOpen { get; private set; }
         private async Task CameraSettingsOpenExecute()
         {
+            MainVisibility = false;
             CameraSettingsDialog.Title = "Camera Settings";
             var gridLenghtConvert = new GridLengthConverter();
             CamersSettingsView camersSettingsView = new CamersSettingsView();

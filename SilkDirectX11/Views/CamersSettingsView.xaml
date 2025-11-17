@@ -27,7 +27,7 @@
             <RowDefinition Height="35" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="CheckBoxSelectAll" Content="Select All" Width="100" Height="25" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsCheckedAll}" Visibility="{Binding DataContext.VisibilityCheBox,  Converter={StaticResource VisibilityConvert}}" />
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="CheckBoxSelectAll" Content="Select All" Width="100" Height="25" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsCheckedAll}" Visibility="{Binding DataContext.VisibilityCheBox, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type mahx:CustomDialog}}, Converter={StaticResource VisibilityConvert}}" />
         <ListBox x:Name="List" Width="200" Margin="0,30,90,00" ItemsSource="{Binding CameraList}" SelectedItem="{Binding IsSelectedViewModel}" Grid.Column="0" Grid.Row="1">
             <ListBox.ItemTemplate>
                 <DataTemplate>

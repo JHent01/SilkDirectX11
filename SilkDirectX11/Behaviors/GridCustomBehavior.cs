@@ -849,20 +849,33 @@ namespace SilkDirectX11.Behaviors
         {
             Process process = new();
             ProcessStartInfo start = new ProcessStartInfo(patch);
-            
 
-            var setttings = ListDictionarySettingsCamers.DictionarySettingsCamers[IDCamera];
-            start.ArgumentList.Add(setttings.Brightness.ToString());
-            start.ArgumentList.Add(setttings.Contrast.ToString());
-            start.ArgumentList.Add(setttings.Hue.ToString());
-            start.ArgumentList.Add(setttings.Saturation.ToString());
-            start.ArgumentList.Add(setttings.NoiseReduction.ToString());
-            start.ArgumentList.Add(setttings.EdgeEnhancement.ToString());
-            start.ArgumentList.Add(setttings.AnamorphicScaling.ToString());
-            start.ArgumentList.Add(setttings.StereoAdjustment.ToString());
-            start.ArgumentList.Add(setttings.Rotation);
-
-            start.ArgumentList.Add(Process.GetCurrentProcess().Id.ToString());
+            if (ListDictionarySettingsCamers.DictionarySettingsCamers.TryGetValue(IDCamera, out var t))
+            {
+                var setttings = ListDictionarySettingsCamers.DictionarySettingsCamers[IDCamera];
+                start.ArgumentList.Add(setttings.Brightness.ToString());
+                start.ArgumentList.Add(setttings.Contrast.ToString());
+                start.ArgumentList.Add(setttings.Hue.ToString());
+                start.ArgumentList.Add(setttings.Saturation.ToString());
+                start.ArgumentList.Add(setttings.NoiseReduction.ToString());
+                start.ArgumentList.Add(setttings.EdgeEnhancement.ToString());
+                start.ArgumentList.Add(setttings.AnamorphicScaling.ToString());
+                start.ArgumentList.Add(setttings.StereoAdjustment.ToString());
+                start.ArgumentList.Add(setttings.Rotation);
+            }
+            else
+            {
+                start.ArgumentList.Add("0");
+                start.ArgumentList.Add("0");
+                start.ArgumentList.Add("0");
+                start.ArgumentList.Add("0");
+                start.ArgumentList.Add("0");
+                start.ArgumentList.Add("0");
+                start.ArgumentList.Add("0");
+                start.ArgumentList.Add("0");
+                start.ArgumentList.Add("");
+            }
+                start.ArgumentList.Add(Process.GetCurrentProcess().Id.ToString());
             for (int i = 0; i < argument.Count; i++)
             {
                 start.ArgumentList.Add(argument[i]);

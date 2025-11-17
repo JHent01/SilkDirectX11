@@ -2,11 +2,7 @@
 
 namespace SilkDirectX11.Model
 {
-    // План (псевдокод):
-    // - Добавить публичный ивент Action<bool> IsSelectedChanged
-    // - В сеттере IsSelected при фактическом изменении значения вызывать OnIsSelectedChanged(newValue)
-    // - Реализовать protected virtual void OnIsSelectedChanged(bool) для вызова ивента
-    // - Убрать приватный ивент и Subscribe-метод, т.к. достаточно стандартной подписки на публичный ивент
+     
 
     public class IsSelectedViewModel<T> : BindableBase
     {
