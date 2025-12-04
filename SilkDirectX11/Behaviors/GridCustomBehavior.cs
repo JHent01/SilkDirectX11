@@ -320,7 +320,7 @@ namespace SilkDirectX11.Behaviors
                 var process = StartProcess(arguments,(paneltest.Tag as CameraConnectStrings).CameraID);
 
                 grid.Tag = process.Id.ToString();
-                VideoHost.Tag = window;
+                VideoHost.Tag = VideoHost.Child.Handle.ToString();// window; меняю это 
 
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.Show();
@@ -566,8 +566,11 @@ namespace SilkDirectX11.Behaviors
             gridOverlay.Visibility = Visibility.Hidden;
 
             var grid = riteGrid.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
+           
             if (grid != null)
             {
+                var processTag = grid.Tag as string;
+
                 riteGrid.Visibility = Visibility.Hidden;
                 var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
 
@@ -575,6 +578,7 @@ namespace SilkDirectX11.Behaviors
                 var full = riteGrid.Parent as Grid;
                 var newWind = new WindowsFormsHost
                 {
+                    Tag =  wfh.Tag ,
                     Width = riteGrid.ActualWidth,
                     Height = riteGrid.ActualHeight,
                     Child = new Panel
@@ -608,22 +612,24 @@ namespace SilkDirectX11.Behaviors
                         Height = riteGrid.ActualHeight,
                         Children = { newWind },
                         Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
-
+                        Tag = processTag
                     });
                   //  var g =grid.Tag;
 
-                    List<string> arguments = new List<string>() { ((CameraConnectStrings)panel.Tag).mainStream, wfh.Name, newWind.Child.Handle.ToString()/*, Process.GetCurrentProcess().Id.ToString() */};
-                      process = StartProcess(arguments, ((CameraConnectStrings)panel.Tag).CameraID);
-                    Task.Delay(500).Wait();
-                    if (process.HasExited)
-                    {
-                        System.Windows.MessageBox.Show("Process Stoped with ID: " + process.Id);
+                    //List<string> arguments = new List<string>() { ((CameraConnectStrings)panel.Tag).mainStream, wfh.Name, newWind.Child.Handle.ToString()/*, Process.GetCurrentProcess().Id.ToString() */};
+                    //  process = StartProcess(arguments, ((CameraConnectStrings)panel.Tag).CameraID);
+                    SendChandeConekting(newWind.Child.Handle, ((CameraConnectStrings)panel.Tag).mainStream,   int.Parse( processTag));
 
-                        gridOverlay.Visibility = Visibility.Visible;
-                        riteGrid.Visibility = Visibility.Visible;
-                        CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals);
-                        return;
-                    }
+                    //Task.Delay(500).Wait();
+                    //if (process.HasExited)
+                    //{
+                    //    System.Windows.MessageBox.Show("Process Stoped with ID: " + process.Id);
+
+                    //    gridOverlay.Visibility = Visibility.Visible;
+                    //    riteGrid.Visibility = Visibility.Visible;
+                    //    CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals);
+                    //    return;
+                    //}
 
                     WindowsFormsHost host = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
 
@@ -646,8 +652,8 @@ namespace SilkDirectX11.Behaviors
                         window.Left = wfh.PointToScreen(new Point()).X;
                         window.Top = wfh.PointToScreen(new Point()).Y;
                     };
-
-                    full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag = process.Id.ToString();
+                    //??
+                   // full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault().Tag = processTag;
                 }
                 else
                 {
@@ -806,12 +812,15 @@ namespace SilkDirectX11.Behaviors
                 {
                     WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
                     var tagZoom = zoom.Tag as string;
+                    Panel panel = zoom.Child as Panel;
                     gridFullScreen.Children.Remove(zoom);
 
 
                     try
                     {
-                        Process.GetProcessById(int.Parse(tagZoom)).Kill();
+                         
+                        SendChandeConekting(int.Parse(tagZoom), ((CameraConnectStrings)panel.Tag).subStream, (int)gridFullScreen.Tag);
+                       // Process.GetProcessById(int.Parse(tagZoom)).Kill();
                     }
                     catch (Exception ex)
                     {//возможно потом логика вывода ошибок 
@@ -952,7 +961,7 @@ namespace SilkDirectX11.Behaviors
             wfh.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             wfh.Width = (riteGrid.ActualWidth / 2);
             Panel panel = sender as Panel;
-            if (gridFullScreen.Children.Count > 1)
+            if (gridFullScreen.Children.Count > 1)//0000000000000000000000000000000000000000000000000000000
             {
                 WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
                 var t = zoom.Tag as string;
@@ -1259,6 +1268,32 @@ namespace SilkDirectX11.Behaviors
                 Debug.WriteLine($" error: {ex.Message}");
             }
         }
+
+        private async void SendWindowForZoom(bool usZoom, int window,int ID)
+        {
+            if (_connection == null) return;
+            try
+            {
+                await _connection.InvokeAsync("swapCain", usZoom, window,ID); 
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($" error: {ex.Message}");
+            }
+        }
+        private async void SendChandeConekting(nint wind, string url, /*int width, int height,*/int ID)
+        {
+            if (_connection == null) return;
+            try
+            {
+                await _connection.InvokeAsync("conecting", wind, url,/* width, height,*/ID);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($" error: {ex.Message}");
+            }
+        }
+
         //private async void Panel_MouseMove_SendPoint(object sender, System.Windows.Input.MouseEventArgs e)
         //{
         //    if (_connection == null) return;
