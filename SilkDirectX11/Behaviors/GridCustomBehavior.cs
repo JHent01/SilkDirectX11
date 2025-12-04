@@ -881,12 +881,13 @@ namespace SilkDirectX11.Behaviors
                 start.ArgumentList.Add(argument[i]);
 
             }
-          
 
+            //start.CreateNoWindow = true;
             //start.CreateNoWindow = true;""2033296"" "29712"
             process.StartInfo = start;
-
+           
             process.Start();
+
             return process;
         }
         private void MouseUpTakePixel(object? sender, System.Windows.Forms.MouseEventArgs e)

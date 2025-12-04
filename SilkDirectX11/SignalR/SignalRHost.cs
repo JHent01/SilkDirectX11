@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -26,10 +27,6 @@ namespace SilkDirectX11.SignalR
                 _host = Host.CreateDefaultBuilder()
                     .ConfigureWebHostDefaults(web =>
                     {
-                        web.UseKestrel(opts =>
-                        {
-                            opts.AddServerHeader = false;
-                        });
                         web.UseUrls($"http://localhost:{port}");
                         web.ConfigureServices(services =>
                         {
@@ -37,12 +34,6 @@ namespace SilkDirectX11.SignalR
                         });
                         web.Configure(app =>
                         {
-                            var env = app.ApplicationServices.GetRequiredService<IHostEnvironment>();
-                            if (env.IsDevelopment())
-                            {
-                                app.UseDeveloperExceptionPage();
-                            }
-
                             app.UseRouting();
                             app.UseEndpoints(MapEndpoints);
                         });
