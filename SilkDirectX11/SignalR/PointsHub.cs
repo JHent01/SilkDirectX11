@@ -14,9 +14,13 @@ namespace SilkDirectX11.SignalR
         {
             return Clients.All.SendAsync("swapCain", usSwapCain, wind,w,h,ID); 
         }
-        public Task SendSetCon(int wind, string url, /*int width, int height,*/int ID)
+        public Task SendSetCon(bool Use ,int ID)
         {
-            return Clients.All.SendAsync("conecting", wind, url, /*width, height,*/ID); 
+            return Clients.All.SendAsync("conecting", Use ,ID); 
+        }
+        public Task SenNewSize(int width,int height , int ID)
+        {
+            return Clients.All.SendAsync("NewSize", width, height, ID);
         }
     }//Microsoft.AspNetCore.SignalR.HubException: "Failed to invoke 'conecting' due to an error on the server. HubException: Method does not exist."
 
