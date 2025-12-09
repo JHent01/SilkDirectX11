@@ -1,4 +1,5 @@
-﻿using MahApps.Metro.Controls;
+﻿using LibraryForSignalR;
+using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
@@ -491,7 +492,8 @@ namespace SilkDirectX11.Behaviors
                             Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
                             Tag = processTag
                         });
-                        SendChandeConekting(false, int.Parse(processTag)); 
+                        SetConnect setConnect = new SetConnect(false, int.Parse(processTag));
+                        SendChandeConekting(setConnect); 
                         WindowsFormsHost host = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
                      
                         wfh.Child.MouseUp += MouseUpTakePixel;
@@ -572,7 +574,8 @@ namespace SilkDirectX11.Behaviors
                      
                     try
                     { 
-                          SendWindowForZoom(false,0,1,1, int.Parse(gridFullScreen.Tag.ToString()));
+                        OpenZoom openZoom = new OpenZoom(false, 0, 1, 1, int.Parse(gridFullScreen.Tag.ToString()));
+                        SendWindowForZoom(openZoom);
                     }
                     catch (Exception ex)
                     {//возможно потом логика вывода ошибок 
@@ -605,7 +608,8 @@ namespace SilkDirectX11.Behaviors
             
             parent.Children.Add(wfh);
             parent.Margin = new Thickness(5);
-            SendChandeConekting(true, int.Parse(processTag));
+            SetConnect setConnect = new SetConnect(true, int.Parse(processTag));
+            SendChandeConekting(setConnect);
 
             var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
             if (child != null)
@@ -761,8 +765,18 @@ namespace SilkDirectX11.Behaviors
             int wind = int.Parse(ZoomHost.Child.Handle.ToString());
             int w = ZoomHost.Child.Width;
             int  h = ZoomHost.Child.Height;
-            Rectangle_MouseMove_SendPoint(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y, pixelPanelForZoom.BottomRight.X, pixelPanelForZoom.BottomRight.Y);
-            SendWindowForZoom(true, wind,  w, h, int.Parse(proc));
+            PointsForZoom pointsForZoom = new PointsForZoom(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y, pixelPanelForZoom.BottomRight.X, pixelPanelForZoom.BottomRight.Y);
+            //{
+            //    xTL = pixelPanelForZoom.TopLeft.X,
+            //    yTL = pixelPanelForZoom.TopLeft.Y,
+            //    xBR = pixelPanelForZoom.BottomRight.X,
+            //    yBR = pixelPanelForZoom.BottomRight.Y
+            //};
+           // proc.ToString() ,
+            Rectangle_MouseMove_SendPoint(pointsForZoom);//(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y, pixelPanelForZoom.BottomRight.X, pixelPanelForZoom.BottomRight.Y);
+            OpenZoom openZoom = new OpenZoom(true, wind, w,h, int.Parse(proc));
+            
+            SendWindowForZoom(openZoom);
 
             ZoomHost.Tag = proc;//process.Id.ToString();
             return true;
@@ -957,12 +971,12 @@ namespace SilkDirectX11.Behaviors
 
         }
 
-        private async void Rectangle_MouseMove_SendPoint(double xTL,double yTL,double xBR,double yBR) 
+        private async void Rectangle_MouseMove_SendPoint(/*string groupId,*/PointsForZoom pointsForZoom) 
         {
             if (_connection == null) return;
             try
             {
-                await _connection.InvokeAsync("SendPoint", xTL,yTL, xBR, yBR); 
+                await _connection.InvokeAsync("point", pointsForZoom); //SendPointToGroup
             }
             catch (Exception ex)
             {
@@ -970,37 +984,37 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-        private async void SendWindowForZoom(bool usZoom, int window, int w, int h, int ID)
+        private async void SendWindowForZoom(OpenZoom openZoom)// bool usZoom, int window, int w, int h, int ID
         {
             if (_connection == null) return;
             try
             {
-                await _connection.InvokeAsync("SendZoom", usZoom, window, w, h, ID); 
+                await _connection.InvokeAsync("SendZoom", openZoom); 
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($" error: {ex.Message}");
             }
         }
-        private async void SendChandeConekting(bool Use, int ID)
+        private async void SendChandeConekting(SetConnect setConnect)//bool Use, int ID
         {
             if (_connection == null) return;
             try
             {
-                await _connection.InvokeAsync("SendSetCon", Use,  /* width, height,*/ID);
+                await _connection.InvokeAsync("SendSetCon", setConnect);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($" error: {ex.Message}");
             }
         }
-        private async void SendSetSize(int width, int height, int ID)
+        private async void SendSetSize(SetSize setSize)
         {
             if (_connection == null) return;
             try
             {
 
-                await _connection.InvokeAsync("SenNewSize", width, height, ID);
+                await _connection.InvokeAsync("SenNewSize", setSize);
                      }
             catch (Exception ex)
             {
@@ -1053,7 +1067,9 @@ namespace SilkDirectX11.Behaviors
                 Canvas.SetLeft(rectangle, newLeft);
                 Canvas.SetTop(rectangle, newTop);
                 _startPoint = currentPoint;
-                Rectangle_MouseMove_SendPoint(newLeft, newTop, newRight, newBottom);
+                PointsForZoom pointsForZoom = new PointsForZoom(newLeft, newTop, newRight, newBottom);
+
+                Rectangle_MouseMove_SendPoint(pointsForZoom);
             }
         }
     }

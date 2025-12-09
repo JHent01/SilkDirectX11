@@ -42,4 +42,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\RenderANDVideoReaderVIdeoDecoder\RenderANDVideoReaderVIdeoDecoder.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="LibraryForSignalR">
+	    <HintPath>..\..\..\..\DllForSignal\LibraryForSignalR\bin\Debug\LibraryForSignalR.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
 </Project>
