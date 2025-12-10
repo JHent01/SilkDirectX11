@@ -372,7 +372,7 @@ namespace SilkDirectX11.Behaviors
                  
                 wfh.Width = grid.ActualWidth;
                 wfh.Height = grid.ActualHeight;
-                //SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
+               
             }
         }
 
@@ -382,6 +382,8 @@ namespace SilkDirectX11.Behaviors
             if (host != null)
             {
                 Grid grid = host.Parent as Grid;
+                SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
+                SendSetSize(setSize);
                 //SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height,int.Parse(grid.Tag.ToString()));
                 //host.Child.Width = (int)e.NewSize.Width;
                 //host.Child.Height = (int)e.NewSize.Height;
@@ -657,9 +659,9 @@ namespace SilkDirectX11.Behaviors
             }
 
             //start.CreateNoWindow = true;
-           
+            
             process.StartInfo = start;
-           
+            
             process.Start();
 
             return process;
@@ -773,7 +775,7 @@ namespace SilkDirectX11.Behaviors
             //    yBR = pixelPanelForZoom.BottomRight.Y
             //};
            // proc.ToString() ,
-            Rectangle_MouseMove_SendPoint(pointsForZoom);//(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y, pixelPanelForZoom.BottomRight.X, pixelPanelForZoom.BottomRight.Y);
+            Rectangle_MouseMove_SendPoint(proc.ToString(),pointsForZoom);//(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y, pixelPanelForZoom.BottomRight.X, pixelPanelForZoom.BottomRight.Y);
             OpenZoom openZoom = new OpenZoom(true, wind, w,h, int.Parse(proc));
             
             SendWindowForZoom(openZoom);
@@ -785,6 +787,10 @@ namespace SilkDirectX11.Behaviors
         
         private void CreateCanvalInOverlay()
         {
+            var riteGrid = AssociatedObject as Grid;
+            var full = riteGrid.Parent as Grid;
+            Grid gridFullScreen = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+
             Grid gridOverlay = ((Border)window.Content).Child as Grid;
             var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
            
@@ -799,6 +805,7 @@ namespace SilkDirectX11.Behaviors
                 Width = window.Width,
                 Height = window.Height, 
                 Background = System.Windows.Media.Brushes.Transparent,
+                Tag = gridFullScreen.Tag
 
             };
             canvas.Children.Add(new System.Windows.Shapes.Rectangle
@@ -971,12 +978,12 @@ namespace SilkDirectX11.Behaviors
 
         }
 
-        private async void Rectangle_MouseMove_SendPoint(/*string groupId,*/PointsForZoom pointsForZoom) 
+        private async void Rectangle_MouseMove_SendPoint(string groupId, PointsForZoom pointsForZoom) 
         {
             if (_connection == null) return;
             try
             {
-                await _connection.InvokeAsync("point", pointsForZoom); //SendPointToGroup
+                await _connection.InvokeAsync("SendPointToGroup", groupId, pointsForZoom); //SendPointToGroup
             }
             catch (Exception ex)
             {
@@ -989,7 +996,7 @@ namespace SilkDirectX11.Behaviors
             if (_connection == null) return;
             try
             {
-                await _connection.InvokeAsync("SendZoom", openZoom); 
+                await _connection.InvokeAsync("SendZoomToGroup", openZoom); 
             }
             catch (Exception ex)
             {
@@ -1001,7 +1008,7 @@ namespace SilkDirectX11.Behaviors
             if (_connection == null) return;
             try
             {
-                await _connection.InvokeAsync("SendSetCon", setConnect);
+                await _connection.InvokeAsync("SendSetConToGroup", setConnect);
             }
             catch (Exception ex)
             {
@@ -1069,7 +1076,7 @@ namespace SilkDirectX11.Behaviors
                 _startPoint = currentPoint;
                 PointsForZoom pointsForZoom = new PointsForZoom(newLeft, newTop, newRight, newBottom);
 
-                Rectangle_MouseMove_SendPoint(pointsForZoom);
+                Rectangle_MouseMove_SendPoint(canvas.Tag.ToString(),pointsForZoom);
             }
         }
     }
