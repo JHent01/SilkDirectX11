@@ -245,7 +245,8 @@ namespace SilkDirectX11.Behaviors
                 };
                 panel.MouseDown += Child_MouseDown;
                 panel.MouseUp += MouseUps;
-                panel.MouseDoubleClick += MouseDoubleClick;
+                panel.MouseClick += MouseRiteClick;
+               // panel.MouseDoubleClick += MouseDoubleClick;
 
                 WindowsFormsHost VideoHost = new WindowsFormsHost
                 {
@@ -447,9 +448,10 @@ namespace SilkDirectX11.Behaviors
             }
             throw new InvalidOperationException("Solution folder not found");
         }
-        private void MouseDoubleClick(object? sender, System.Windows.Forms.MouseEventArgs e)
+        private void MouseRiteClick(object? sender, System.Windows.Forms.MouseEventArgs e)
           
         { 
+            if ( e.Button != System.Windows.Forms.MouseButtons.Right ) return;
             var panel = sender as BetterPanelTest;
             var riteGrid = AssociatedObject as Grid;
             window.Width = riteGrid.ActualWidth;
@@ -466,7 +468,8 @@ namespace SilkDirectX11.Behaviors
             {
                 var processTag = grid.Tag as string;
 
-                riteGrid.Visibility = Visibility.Hidden;
+                //riteGrid.Visibility = Visibility.Hidden;
+                
                 var full = riteGrid.Parent as Grid;
                 var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
                 if (wfh != null)
@@ -480,35 +483,55 @@ namespace SilkDirectX11.Behaviors
                    
                     window.Left = riteGrid.PointToScreen(new Point()).X;
                     window.Top = riteGrid.PointToScreen(new Point()).Y;
-                  
-
-                    if (full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
+                    if (riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
                     {
-                        full.Children.Add(new Grid()
-
+                        riteGrid.Children.Add(new Grid()
                         {
                             Name = "FullScreenGrid",
                             Width = riteGrid.ActualWidth,
                             Height = riteGrid.ActualHeight,
                             Children = { wfh },//newWind
-                            Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
+
+                            //Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
                             Tag = processTag
                         });
                         SetConnect setConnect = new SetConnect(false, int.Parse(processTag));
-                        SendChandeConekting(setConnect); 
-                        WindowsFormsHost host = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-                     
+                        SendChandeConekting(setConnect);
                         wfh.Child.MouseUp += MouseUpTakePixel;
                         wfh.Child.MouseDown += MouseDownTakePxel;
                         pixelPanelForZoom.TopLeft.X = 0;
-                    
-                        full.SizeChanged += Full_SizeChanged;
-                         
+
+                        riteGrid.SizeChanged += Full_SizeChanged;
                     }
-                    else
-                    {// -
-                        CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals, grid, processTag);
-                    }
+
+                    //if (full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
+                    //{
+                    //    full.Children.Add(new Grid()
+
+                    //    {
+                    //        Name = "FullScreenGrid",
+                    //        Width = riteGrid.ActualWidth,
+                    //        Height = riteGrid.ActualHeight,
+                    //        Children = { wfh },//newWind
+
+                    //        Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
+                    //        Tag = processTag
+                    //    });
+                    //    SetConnect setConnect = new SetConnect(false, int.Parse(processTag));
+                    //    SendChandeConekting(setConnect); 
+                    //    WindowsFormsHost host = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+
+                    //    wfh.Child.MouseUp += MouseUpTakePixel;
+                    //    wfh.Child.MouseDown += MouseDownTakePxel;
+                    //    pixelPanelForZoom.TopLeft.X = 0;
+
+                    //    full.SizeChanged += Full_SizeChanged;
+
+                    //}
+                    //else
+                    //{// -
+                    //    CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals, grid, processTag);
+                    //}
 
                 }
                 else
@@ -521,13 +544,14 @@ namespace SilkDirectX11.Behaviors
 
         private void Full_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Grid full = sender as Grid;
-            WindowsFormsHost host = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-            
-            Grid riteGrid = AssociatedObject as Grid;
+            Grid riteGrid = sender as Grid;
+            //WindowsFormsHost host = riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+            if (riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() != null)//мотом тут донастроить 
+            {
+                WindowsFormsHost host = riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
 
-                Grid fullScreenGrid = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
-                host.Width = riteGrid.ActualWidth;
+                Grid fullScreenGrid = riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+
                 if (fullScreenGrid != null)
                 {
                     WindowsFormsHost zoomHost = fullScreenGrid.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
@@ -543,8 +567,9 @@ namespace SilkDirectX11.Behaviors
                         host.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
                     }
                 }
+                host.Width = riteGrid.ActualWidth;
                 host.Height = riteGrid.ActualHeight;
-            BetterPanelTest chil = (BetterPanelTest)host.Child;
+                BetterPanelTest chil = (BetterPanelTest)host.Child;
                 chil.Width = (int)riteGrid.ActualWidth;
                 chil.Height = (int)riteGrid.ActualHeight;
                 window.Width = riteGrid.ActualWidth;
@@ -556,18 +581,18 @@ namespace SilkDirectX11.Behaviors
                 }
                 catch
                 { }
-            
+            }
         }
 
         private void CloseZoomPanel(Grid gridOverlay, Grid Rite, Grid full, Grid gridOverlayCanvals,Grid parent, string processTag)//тут тоже поправить так что бы wfh менял своего перента и размеры 
         {
 
-            Grid gridFullScreen = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+            Grid gridFullScreen = Rite.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
 
             if (gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault() != null)
             {
                
-                if (gridFullScreen.Children.Count > 1)
+                if (gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault()!=null/*gridFullScreen.Children.Count > 1*/)
                 {
                     WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
                     //var tagZoom = zoom.Tag as string;
@@ -592,7 +617,7 @@ namespace SilkDirectX11.Behaviors
             wfh.Child.MouseUp -= MouseUpTakePixel;
             wfh.Child.MouseDown -= MouseDownTakePxel;
             var tag = gridFullScreen.Tag as string;
-            full.SizeChanged -= Full_SizeChanged;
+            gridFullScreen.SizeChanged -= Full_SizeChanged;
             pixelPanelForZoom.TopLeft.X = 0;
             // string tagChild = wfh.Tag.ToString();
 
@@ -600,7 +625,7 @@ namespace SilkDirectX11.Behaviors
 
 
             gridFullScreen.Children.Clear();
-            full.Children.Remove(gridFullScreen);
+            Rite.Children.Remove(gridFullScreen);
             
             wfh.Width = parent.ActualWidth;
             wfh.Height = parent.ActualHeight;
@@ -621,7 +646,7 @@ namespace SilkDirectX11.Behaviors
 
         }
 
-        private Process StartProcess(List<string> argument,Guid IDCamera)//надо передавать сразу два потока маин и саб, потом просто  делать подмену 
+        private Process StartProcess(List<string> argument,Guid IDCamera)
         {
             Process process = new();
             ProcessStartInfo start = new ProcessStartInfo(patch);
@@ -703,11 +728,11 @@ namespace SilkDirectX11.Behaviors
         private bool CreateWFHForZoom(object? sender)
         {
             var riteGrid = AssociatedObject as Grid;
-            var full = riteGrid.Parent as Grid;
+            //var full = riteGrid.Parent as Grid;
 
 
 
-            Grid gridFullScreen = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+            Grid gridFullScreen = riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
 
 
             WindowsFormsHost wfh = gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault();
@@ -716,10 +741,10 @@ namespace SilkDirectX11.Behaviors
             wfh.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             wfh.Width = (riteGrid.ActualWidth / 2);
             BetterPanelTest panel = sender as BetterPanelTest;
-            if (gridFullScreen.Children.Count > 1)//0000000000000000000000000000000000000000000000000000000
+            if (gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault()!=null/*gridFullScreen.Children.Count > 1*/)//0000000000000000000000000000000000000000000000000000000
             {
                 WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
-                var t = zoom.Tag as string;
+              //  var t = zoom.Tag as string;
                 gridFullScreen.Children.Remove(zoom);
 
                 //try
@@ -755,7 +780,7 @@ namespace SilkDirectX11.Behaviors
                 },
                 DataContext = panel.DataContext,
                 Name = "ZoomHost",
-                Margin = new Thickness(15, 0, 0, 0),
+                Margin = new Thickness(25, 5, 0, 0),
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right
             });
             window.Width = riteGrid.ActualWidth / 2;
@@ -788,8 +813,8 @@ namespace SilkDirectX11.Behaviors
         private void CreateCanvalInOverlay()
         {
             var riteGrid = AssociatedObject as Grid;
-            var full = riteGrid.Parent as Grid;
-            Grid gridFullScreen = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+            //var full = riteGrid.Parent as Grid;
+            Grid gridFullScreen = riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
 
             Grid gridOverlay = ((Border)window.Content).Child as Grid;
             var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
