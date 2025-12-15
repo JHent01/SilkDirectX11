@@ -241,12 +241,12 @@ namespace SilkDirectX11.Behaviors
                     Name = "Test" + Guid.NewGuid().ToString("N"),
                     //AutoSize = true,
                     Tag = VideoHostSelect.Tag,
-                      BackColor = System.Drawing.Color.Green
+                      //BackColor = System.Drawing.Color.Green
                 };
                 panel.MouseDown += Child_MouseDown;
                 panel.MouseUp += MouseUps;
                 panel.MouseClick += MouseRiteClick;
-               // panel.MouseDoubleClick += MouseDoubleClick;
+                // panel.MouseDoubleClick += MouseDoubleClick;
 
                 WindowsFormsHost VideoHost = new WindowsFormsHost
                 {
@@ -255,8 +255,8 @@ namespace SilkDirectX11.Behaviors
                     //Tag = VideoHostSelect.Tag,
                     Margin = new Thickness(5),
                     Name = VideoHostSelect.Name,
-                   
-                     
+
+                    //Background = System.Windows.Media.Brushes.Green
                 };
 
                  
@@ -474,6 +474,8 @@ namespace SilkDirectX11.Behaviors
                 var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
                 if (wfh != null)
                 {
+                    AssociatedObject.Drop -= AssociatedObject_Drop;
+                    //panel.MouseUp -= MouseUps;//----------
                     grid.Children.Remove(wfh);
                      
                     wfh.Width = riteGrid.ActualWidth;
@@ -536,7 +538,8 @@ namespace SilkDirectX11.Behaviors
                 }
                 else
                 {
-                     
+                    AssociatedObject.Drop += AssociatedObject_Drop;
+                    //panel.MouseUp += MouseUps;//------
                     CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals, grid, processTag);
                 }
             }
