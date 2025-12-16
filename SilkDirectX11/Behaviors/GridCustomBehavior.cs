@@ -191,6 +191,7 @@ namespace SilkDirectX11.Behaviors
 
         private void MouseUps(object s, System.Windows.Forms.MouseEventArgs args)
         {
+            if (args.Button != System.Windows.Forms.MouseButtons.Left) return;
             if (cameraDragDrop.GridTake != null & cameraDragDrop.GridChange != null)
                 DragDrop.DoDragDrop(cameraDragDrop.GridTake, cameraDragDrop, System.Windows.DragDropEffects.Move);
 
@@ -198,6 +199,7 @@ namespace SilkDirectX11.Behaviors
 
         private void Child_MouseDown(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
+            if (e.Button != System.Windows.Forms.MouseButtons.Left) return;
             var Rite = AssociatedObject as Grid;
             var panel = sender as BetterPanelTest;
             var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
@@ -239,7 +241,9 @@ namespace SilkDirectX11.Behaviors
                 {
                     DataContext = VideoHostSelect.Child.DataContext,
                     Name = "Test" + Guid.NewGuid().ToString("N"),
-                    //AutoSize = true,
+                     AutoSize = false,
+                    //Anchor = AnchorStyles.Bottom,
+                    Dock = DockStyle.Fill,
                     Tag = VideoHostSelect.Tag,
                       //BackColor = System.Drawing.Color.Green
                 };
@@ -370,10 +374,13 @@ namespace SilkDirectX11.Behaviors
             WindowsFormsHost wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
             if (wfh != null)
             {
-                 
-                wfh.Width = grid.ActualWidth;
-                wfh.Height = grid.ActualHeight;
-               
+                //SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
+                //wfh.Child.Size = new System.Drawing.Size((int)e.NewSize.Width, (int)e.NewSize.Height);
+                wfh.Width = e.NewSize.Width;
+                wfh.Height = e.NewSize.Height;
+                //wfh.Child.Width = (int)grid.ActualWidth;
+                //wfh.Child.Height = (int)grid.ActualWidth;
+                //SendSetSize(setSize);
             }
         }
 
@@ -383,12 +390,13 @@ namespace SilkDirectX11.Behaviors
             if (host != null)
             {
                 Grid grid = host.Parent as Grid;
+
                 SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
-                SendSetSize(setSize);
                 //SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height,int.Parse(grid.Tag.ToString()));
+                SendSetSize(setSize);
                 //host.Child.Width = (int)e.NewSize.Width;
                 //host.Child.Height = (int)e.NewSize.Height;
-                host.Margin =new Thickness(5);
+               // host.Margin = new Thickness(5);
             }
         }
 
