@@ -9,7 +9,7 @@ namespace SilkDirectX11.Model
 {
     public class CameraDragDrop
     {
-        public Grid GridChange { get; set; }
-        public Grid GridTake { get; set; }
+        public System.Windows.Forms.Panel GridChange { get; set; }
+        public System.Windows.Forms.Panel GridTake { get; set; }
     }
 }
