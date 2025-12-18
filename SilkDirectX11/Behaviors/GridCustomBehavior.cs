@@ -1,4 +1,5 @@
-﻿using LibraryForSignalR;
+﻿using CppSharp.AST;
+using LibraryForSignalR;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -188,8 +189,8 @@ namespace SilkDirectX11.Behaviors
 
             if (cellChil2 != null)
             {
-                Grid send = new();
-                send.Children.Add(new WindowsFormsHost() { Child = cellChil2 });
+               // Grid send = new();
+               // send.Children.Add(new WindowsFormsHost() { Child = cellChil2 });
                 cameraDragDrop.GridChange = cellChil2;
 
             }
@@ -202,7 +203,13 @@ namespace SilkDirectX11.Behaviors
             if (args.Button != System.Windows.Forms.MouseButtons.Left) return;
             if (cameraDragDrop.GridTake != null & cameraDragDrop.GridChange != null)
             {
-                var host = new WindowsFormsHost { Child = cameraDragDrop.GridTake };
+                //var gr = AssociatedObject as Grid;
+                //var Rite = gr.Children.OfType<WindowsFormsHost>().First().Child as System.Windows.Forms.TableLayoutPanel;
+                //((TagsForPanel)cameraDragDrop.GridTake.Tag).savePosition.X = Rite.GetCellPosition(cameraDragDrop.GridTake).Row;
+                //((TagsForPanel)cameraDragDrop.GridTake.Tag).savePosition.Y = Rite.GetCellPosition(cameraDragDrop.GridTake).Column;
+                //Rite.Controls.Remove(cameraDragDrop.GridTake);
+
+                var host = new WindowsFormsHost {   };
                 DragDrop.DoDragDrop(host, cameraDragDrop, System.Windows.DragDropEffects.Move);
             }
         }
@@ -213,8 +220,8 @@ namespace SilkDirectX11.Behaviors
             var pan = sender as Panel;
             if (pan != null)
             {
-                Grid send = new();
-                send.Children.Add(new WindowsFormsHost() { Child = pan });
+                //Grid send = new();
+               // send.Children.Add(new WindowsFormsHost() { Child = pan });
                 cameraDragDrop.GridTake = pan;
             }
             //var gr = AssociatedObject as Grid;
@@ -241,18 +248,27 @@ namespace SilkDirectX11.Behaviors
                 Point point = e.GetPosition(gr);
                 int row = GetRowGrid(point);
                 int colum = GetColumnGrid(point);
-
+                Debug.WriteLine($"Row {row} Colum {colum}");
                 var cellChil = Rite.Controls.OfType<Panel>().Where(c => Rite.GetCellPosition(c).Row == row && Rite.GetCellPosition(c).Column == colum).FirstOrDefault();
                 if (cellChil == null)
                 {
+                   // Rite.Controls.Add(cameraDragDrop.GridTake);
+                    cameraDragDrop.GridTake.Width = Rite.Width / Rite.ColumnCount;
+                    cameraDragDrop.GridTake.Height = Rite.Height / (Rite.RowCount + 1);
                     Rite.SetCellPosition(cameraDragDrop.GridTake/*.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel*/, new TableLayoutPanelCellPosition(colum, row));
                     //Grid.SetRow(cameraDragDrop.GridTake, row);
                     //Grid.SetColumn(cameraDragDrop.GridTake, colum);
+                    
                 }
                 else
                 {
                     Swich(Rite);
                 }
+                //foreach (System.Windows.Forms.Control ctrl in Rite.Controls)
+                //{
+                //    ctrl.Width = (int)(Rite.Width / Rite.ColumnCount);
+                //    ctrl.Height = (int)(Rite.Height / (Rite.RowCount + 1));
+                //}
 
             }
             else if (e.Data.GetDataPresent(typeof(WindowsFormsHost)))
@@ -266,7 +282,7 @@ namespace SilkDirectX11.Behaviors
                     Name = "Test" + Guid.NewGuid().ToString("N"),
                      AutoSize = false,
                     //Anchor = AnchorStyles.Bottom,
-                    //Dock = DockStyle.Fill,
+                     Dock = DockStyle.Fill,
                     Tag = new TagsForPanel() { cameraConnectStrings = VideoHostSelect.Tag as CameraConnectStrings }  ,
                     
                       //BackColor = System.Drawing.Color.Green
@@ -289,7 +305,10 @@ namespace SilkDirectX11.Behaviors
 
                  
                 var Rite1 = AssociatedObject as Grid;
+                var wh = Rite1.Children.OfType<WindowsFormsHost>().First();
+                    
                 var Rite = Rite1.Children.OfType<WindowsFormsHost>().First().Child as System.Windows.Forms.TableLayoutPanel;
+                
                 Rite.Width = (int)Rite1.ActualWidth;
                 Rite.Height = (int)Rite1.ActualHeight;
 
@@ -303,7 +322,7 @@ namespace SilkDirectX11.Behaviors
                 // grid.Children.Add(uIElement2);
 
                 //------------
-                //panel.SizeChanged += SizeChengePanel;
+                panel.SizeChanged += SizeChengePanel;
                 //VideoHost.SizeChanged += VideoHost_SizeChanged;
                 //grid.Margin = new Thickness(5);
                         Rite1.SizeChanged += Grid_SizeChanged;
@@ -350,14 +369,14 @@ namespace SilkDirectX11.Behaviors
                     Rite.SetCellPosition(panel, new TableLayoutPanelCellPosition(Rite.ColumnCount, 0));
                     Rite.Controls.Add(panel);
                     Rite.ColumnCount++;
-                    Rite.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+                    Rite.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize, width: 100f / Rite.ColumnCount));
                 }
                 else if (Rite.RowCount == 0) // вставляется третья фотка 
                 {
                     Rite.RowCount++; ;//.Add(new RowDefinition());
                                       //Grid.SetRow(panel, Rite.RowCount);
                                       //Grid.SetRow(panel, Rite.RowCount);
-                    Rite.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    Rite.RowStyles.Add(new RowStyle(SizeType.AutoSize, height: 100f / Rite.RowCount));
                     //Rite.RowDefinitions.Add(new RowDefinition());
                     Rite.SetCellPosition(panel, new TableLayoutPanelCellPosition(0, Rite.RowCount));
                     Rite.Controls.Add(panel);
@@ -388,8 +407,8 @@ namespace SilkDirectX11.Behaviors
                         {
                             Rite.ColumnCount++;
                             Rite.RowCount++;
-                            Rite.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));//, 100f / Rite.ColumnCount
-                            Rite.RowStyles.Add(new RowStyle(SizeType.AutoSize));//, 100f / Rite.RowCount
+                            Rite.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize, width: 100f / Rite.ColumnCount));//, 100f / Rite.ColumnCount
+                            Rite.RowStyles.Add(new RowStyle(SizeType.AutoSize, height: 100f / Rite.RowCount));//, 100f / Rite.RowCount
                             Rite.SetCellPosition(panel, new TableLayoutPanelCellPosition(0, Rite.RowCount));
                             Rite.Controls.Add(panel);
                             //Rite.RowDefinitions.Add(new RowDefinition());
@@ -406,6 +425,8 @@ namespace SilkDirectX11.Behaviors
                     ctrl.Width = (int)(Rite.Width / Rite.ColumnCount);
                     ctrl.Height = (int)(Rite.Height / (Rite.RowCount + 1));
                 }
+
+
                 //if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
                 //{
                 //    Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
@@ -461,22 +482,22 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-        //private void SizeChengePanel(object? sender, EventArgs e)
-        //{
-        //    Panel host = sender as Panel;
-        //    if (host != null)
-        //    {
-        //        Debug.WriteLine("Size Changed");
-        //        //WindowsFormsHost grid = host.Parent as WindowsFormsHost;
+        private void SizeChengePanel(object? sender, EventArgs e)
+        {
+            Panel host = sender as Panel;
+            if (host != null)
+            {
+                Debug.WriteLine($"Size Changed{host. Name} ");
+                //WindowsFormsHost grid = host.Parent as WindowsFormsHost;
 
-        //        //SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
-        //        ////SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height,int.Parse(grid.Tag.ToString()));
-        //        //SendSetSize(setSize);
-        //        //host.Child.Width = (int)e.NewSize.Width;
-        //        //host.Child.Height = (int)e.NewSize.Height;
-        //        // host.Margin = new Thickness(5);
-        //    }
-        //}
+                //SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
+                ////SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height,int.Parse(grid.Tag.ToString()));
+                //SendSetSize(setSize);
+                //host.Child.Width = (int)e.NewSize.Width;
+                //host.Child.Height = (int)e.NewSize.Height;
+                // host.Margin = new Thickness(5);
+            }
+        }
 
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -496,13 +517,18 @@ namespace SilkDirectX11.Behaviors
                 //wfh.Child.Height = (int)grid.ActualWidth;
                // SendSetSize(setSize);
                 TableLayoutPanel tablePanel = (wfh.Child as TableLayoutPanel);
-                foreach (Panel panel in tablePanel.Controls)
-                {
-                    panel.Width = (int)(e.NewSize.Width / tablePanel.ColumnCount);
-                    panel.Height = (int)(e.NewSize.Height / (tablePanel.RowCount == 0 ? 1 : tablePanel.RowCount));
-                    SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(((TagsForPanel)panel.Tag).processID.ToString()));
-                    SendSetSize(setSize);
-                }
+                //tablePanel.AutoSize = true;--
+                //tablePanel.ColumnStyles.Clear();
+                //tablePanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize, width: (int)e.NewSize.Width / tablePanel.ColumnCount));
+                //tablePanel.RowStyles.Clear();
+                //tablePanel.RowStyles.Add(new RowStyle(SizeType.AutoSize, height: (int)e.NewSize.Height / (tablePanel.RowCount+1)));--
+                //foreach (Panel panel in tablePanel.Controls)
+                //{
+                //    panel.Width = (int)(e.NewSize.Width / tablePanel.ColumnCount);
+                //    panel.Height = (int)(e.NewSize.Height / (tablePanel.RowCount == 0 ? 1 : tablePanel.RowCount));
+                //    SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(((TagsForPanel)panel.Tag).processID.ToString()));
+                //    SendSetSize(setSize);
+                //}
             }
         }
 
@@ -578,6 +604,9 @@ namespace SilkDirectX11.Behaviors
             }
             throw new InvalidOperationException("Solution folder not found");
         }
+
+
+        bool ForTestCheck = true;
         private void MouseRiteClick(object? sender, System.Windows.Forms.MouseEventArgs e)
           
         { 
@@ -595,13 +624,13 @@ namespace SilkDirectX11.Behaviors
             //TableLayoutPanel windfh = gridOverlay.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as TableLayoutPanel;
             //var grid = windfh.Controls.OfType<Panel>().Where(c => c.Name == panel.Name).FirstOrDefault();//????? nahyi
            
-            if (((TagsForPanel)panel.Tag).savePosition.X == 0)//grid!= null)
+            if (ForTestCheck)//grid!= null)
             {
                 //var processTag = grid.Tag as string;
 
                 //riteGrid.Visibility = Visibility.Hidden;
                 
-                var full = riteGrid.Parent as Grid;
+               // var full = riteGrid.Parent as Grid;
                  
                 //var wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
                // if (wfh != null)
@@ -610,20 +639,20 @@ namespace SilkDirectX11.Behaviors
                 //panel.MouseUp -= MouseUps;//----------
                 // grid.Children.Remove(wfh);
 
-                panel.Width = (int)riteGrid.ActualWidth;
-                panel.Height =(int) riteGrid.ActualHeight;
+               
                 panel.MouseLeave -= Leave;
                 panel.MouseMove -= WindowShow;
                 //wfh.Width = riteGrid.ActualWidth;
                 //wfh.Height = riteGrid.ActualHeight;
                 //wfh.Child.MouseLeave -= Leave;
                 //wfh.Child.MouseMove -= WindowShow;
-                
-                
+                ForTestCheck= false;
 
-                    window.Left = riteGrid.PointToScreen(new Point()).X;
+
+
+                window.Left = riteGrid.PointToScreen(new Point()).X;
                     window.Top = riteGrid.PointToScreen(new Point()).Y;
-                ((TagsForPanel)panel.Tag).savePosition = new Point(e.X, e.Y);
+                
                 //  if (((TagsForPanel)panel.Tag).savePosition== null)
                 //if (riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
                 // {
@@ -637,55 +666,66 @@ namespace SilkDirectX11.Behaviors
                 //    //Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
                 //    Tag = processTag
                 //});
+
+
                  SetConnect setConnect = new SetConnect(false, int.Parse(((TagsForPanel)panel.Tag).processID));
                  SendChandeConekting(setConnect);
                         panel.MouseUp += MouseUpTakePixel;
                         panel.MouseDown += MouseDownTakePxel;
+                    //panel.Focus();
                 //wfh.Child.MouseUp += MouseUpTakePixel;
                 //wfh.Child.MouseDown += MouseDownTakePxel;
                 pixelPanelForZoom.TopLeft.X = 0;
-
+               
                         riteGrid.SizeChanged += Full_SizeChanged;
-                   // }
+                var tabPanel = riteGrid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as TableLayoutPanel;
 
-                    //if (full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
-                    //{
-                    //    full.Children.Add(new Grid()
+                int row = tabPanel.GetCellPosition(panel).Row;
+                int colum = tabPanel.GetCellPosition(panel).Column;
+                ((TagsForPanel)panel.Tag).savePosition = new Point(row, colum);
+                tabPanel.SetCellPosition(panel, new TableLayoutPanelCellPosition(0, 0));
 
-                    //    {
-                    //        Name = "FullScreenGrid",
-                    //        Width = riteGrid.ActualWidth,
-                    //        Height = riteGrid.ActualHeight,
-                    //        Children = { wfh },//newWind
+                panel.Size = new System.Drawing.Size((int)riteGrid.ActualWidth, (int)riteGrid.ActualHeight);
+                // tabPanel.Controls.Remove(panel);
+                //tabPanel.Controls.Add(panel);
+                // }
 
-                    //        Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
-                    //        Tag = processTag
-                    //    });
-                    //    SetConnect setConnect = new SetConnect(false, int.Parse(processTag));
-                    //    SendChandeConekting(setConnect); 
-                    //    WindowsFormsHost host = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+                //if (full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
+                //{
+                //    full.Children.Add(new Grid()
 
-                    //    wfh.Child.MouseUp += MouseUpTakePixel;
-                    //    wfh.Child.MouseDown += MouseDownTakePxel;
-                    //    pixelPanelForZoom.TopLeft.X = 0;
+                //    {
+                //        Name = "FullScreenGrid",
+                //        Width = riteGrid.ActualWidth,
+                //        Height = riteGrid.ActualHeight,
+                //        Children = { wfh },//newWind
 
-                    //    full.SizeChanged += Full_SizeChanged;
+                //        Margin = new Thickness((full.ColumnDefinitions.First().Width).Value + 5, 0, 0, 0),
+                //        Tag = processTag
+                //    });
+                //    SetConnect setConnect = new SetConnect(false, int.Parse(processTag));
+                //    SendChandeConekting(setConnect); 
+                //    WindowsFormsHost host = full.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault();
 
-                    //}
-                    //else
-                    //{// -
-                    //    CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals, grid, processTag);
-                    //}
+                //    wfh.Child.MouseUp += MouseUpTakePixel;
+                //    wfh.Child.MouseDown += MouseDownTakePxel;
+                //    pixelPanelForZoom.TopLeft.X = 0;
 
-                }
+                //    full.SizeChanged += Full_SizeChanged;
+
+                //}
+                //else
+                //{// -
+                //    CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals, grid, processTag);
+                //}
+
+            }
                 else
                 {
-                    var processTag = ((TagsForPanel)panel.Tag).processID;
-                    var full = riteGrid.Parent as Grid;
-                    var grid = new Grid();
-                    AssociatedObject.Drop += AssociatedObject_Drop;
-                    //panel.MouseUp += MouseUps;//------
-                    CloseZoomPanel(gridOverlay, riteGrid, full, gridOverlayCanvals, grid, processTag,panel);
+                ForTestCheck = true;
+
+                var tabPanel = riteGrid.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as TableLayoutPanel;
+                CloseZoomPanel(gridOverlay, riteGrid, tabPanel, gridOverlayCanvals, /*grid, processTag,*/panel);
                 }
             }
         //}
@@ -732,10 +772,28 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-        private void CloseZoomPanel(Grid gridOverlay, Grid Rite, Grid full, Grid gridOverlayCanvals,Grid parent, string processTag , Panel mainpanel)//тут тоже поправить так что бы wfh менял своего перента и размеры 
+        private void CloseZoomPanel(Grid gridOverlay, Grid Rite, TableLayoutPanel tableLayoutPanel, Grid gridOverlayCanvals,/*Grid parent, string processTag ,*/ Panel mainpanel)//тут тоже поправить так что бы wfh менял своего перента и размеры 
         {
-            mainpanel.Width = (int)(Rite.ActualWidth / Rite.ColumnDefinitions.Count);// тут не тто беру 
-            mainpanel.Height = (int)(Rite.ActualHeight / (Rite.RowDefinitions.Count == 0 ? 1 : Rite.RowDefinitions.Count));
+            //mainpanel.Width = (int)(Rite.ActualWidth / Rite.ColumnDefinitions.Count);// тут не тто беру 
+            //mainpanel.Height = (int)(Rite.ActualHeight / (Rite.RowDefinitions.Count == 0 ? 1 : Rite.RowDefinitions.Count));
+            gridOverlay.Visibility = Visibility.Visible;
+            //.Child.Focus();
+            //tabPanel.Controls.Remove(panel);
+            mainpanel.Size = new System.Drawing.Size((int)(Rite.ActualWidth / tableLayoutPanel.ColumnCount), (int)(Rite.ActualHeight / (tableLayoutPanel.RowCount + 1)));
+            //mainpanel.Width = (int)(Rite.ActualWidth / tableLayoutPanel.ColumnCount);
+            //mainpanel.Height = (int)(Rite.ActualHeight / (tableLayoutPanel.RowCount + 1 /*.Count == 0 ? 1 : tabPanel.RowDefinitions.Count+1*/));
+            tableLayoutPanel.SetCellPosition(mainpanel, new TableLayoutPanelCellPosition((int)((TagsForPanel)mainpanel.Tag).savePosition.Y, (int)((TagsForPanel)mainpanel.Tag).savePosition.X));
+            //tabPanel.Controls.Add(panel);
+            ((TagsForPanel)mainpanel.Tag).savePosition = new Point(0, 0);
+
+           
+            
+            var grid = new Grid();
+            AssociatedObject.Drop += AssociatedObject_Drop;
+            //panel.MouseUp += MouseUps;//------
+           
+
+
             mainpanel.MouseLeave += Leave;
             mainpanel.MouseMove += WindowShow;
             SetConnect setConnect1 = new SetConnect(true, int.Parse(((TagsForPanel)mainpanel.Tag).processID));
@@ -749,62 +807,62 @@ namespace SilkDirectX11.Behaviors
             pixelPanelForZoom.TopLeft.X = 0;
             return;
 
-            Grid gridFullScreen = Rite.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+            //Grid gridFullScreen = Rite.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
 
-            if (gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault() != null)
-            {
+            //if (gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault() != null)
+            //{
                
-                if (gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault()!=null/*gridFullScreen.Children.Count > 1*/)
-                {
-                    WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
-                    //var tagZoom = zoom.Tag as string;
-                    BetterPanelTest panel = zoom.Child as BetterPanelTest;
-                    gridFullScreen.Children.Remove(zoom);
+            //    if (gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault()!=null/*gridFullScreen.Children.Count > 1*/)
+            //    {
+            //        WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
+            //        //var tagZoom = zoom.Tag as string;
+            //        BetterPanelTest panel = zoom.Child as BetterPanelTest;
+            //        gridFullScreen.Children.Remove(zoom);
                      
-                    try
-                    { 
-                        OpenZoom openZoom = new OpenZoom(false, 0, 1, 1, int.Parse(gridFullScreen.Tag.ToString()));
-                        SendWindowForZoom(openZoom);
-                    }
-                    catch (Exception ex)
-                    {//возможно потом логика вывода ошибок 
-                        string exs = ex.Message;
-                    }
-                }
-                var childOverlay = gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault();
-                gridOverlayCanvals.Children.Remove(childOverlay);
-            }
-            var wfh = gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-            Rite.Visibility = Visibility.Visible;
-            wfh.Child.MouseUp -= MouseUpTakePixel;
-            wfh.Child.MouseDown -= MouseDownTakePxel;
-            var tag = gridFullScreen.Tag as string;
-            gridFullScreen.SizeChanged -= Full_SizeChanged;
-            pixelPanelForZoom.TopLeft.X = 0;
-            // string tagChild = wfh.Tag.ToString();
+            //        try
+            //        { 
+            //            OpenZoom openZoom = new OpenZoom(false, 0, 1, 1, int.Parse(gridFullScreen.Tag.ToString()));
+            //            SendWindowForZoom(openZoom);
+            //        }
+            //        catch (Exception ex)
+            //        {//возможно потом логика вывода ошибок 
+            //            string exs = ex.Message;
+            //        }
+            //    }
+            //    var childOverlay = gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault();
+            //    gridOverlayCanvals.Children.Remove(childOverlay);
+            //}
+            //var wfh = gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+            //Rite.Visibility = Visibility.Visible;
+            //wfh.Child.MouseUp -= MouseUpTakePixel;
+            //wfh.Child.MouseDown -= MouseDownTakePxel;
+            //var tag = gridFullScreen.Tag as string;
+            //gridFullScreen.SizeChanged -= Full_SizeChanged;
+            //pixelPanelForZoom.TopLeft.X = 0;
+            //// string tagChild = wfh.Tag.ToString();
 
 
 
 
-            gridFullScreen.Children.Clear();
-            Rite.Children.Remove(gridFullScreen);
+            //gridFullScreen.Children.Clear();
+            //Rite.Children.Remove(gridFullScreen);
             
-            wfh.Width = parent.ActualWidth;
-            wfh.Height = parent.ActualHeight;
-            wfh.Child.MouseLeave += Leave;
-            wfh.Child.MouseMove += WindowShow;
+            //wfh.Width = parent.ActualWidth;
+            //wfh.Height = parent.ActualHeight;
+            //wfh.Child.MouseLeave += Leave;
+            //wfh.Child.MouseMove += WindowShow;
              
             
-            parent.Children.Add(wfh);
-            parent.Margin = new Thickness(5);
-            SetConnect setConnect = new SetConnect(true, int.Parse(processTag));
-            SendChandeConekting(setConnect);
+            //parent.Children.Add(wfh);
+            //parent.Margin = new Thickness(5);
+            //SetConnect setConnect = new SetConnect(true, int.Parse(processTag));
+            //SendChandeConekting(setConnect);
 
-            var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
-            if (child != null)
-            {
-                gridOverlay.Children.Remove(child);
-            }
+            //var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
+            //if (child != null)
+            //{
+            //    gridOverlay.Children.Remove(child);
+            //}
 
         }
 
@@ -1034,13 +1092,18 @@ namespace SilkDirectX11.Behaviors
             var rowSet = Rite.GetCellPosition(cameraDragDrop.GridChange).Row;//.Children.OfType<WindowsFormsHost>().FirstOrDefault() .Child as Panel
             var columSet = Rite.GetCellPosition(cameraDragDrop.GridChange).Column;//.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel
             var flipS = Rite.GetCellPosition(cameraDragDrop.GridTake/*.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel*/).Row;
-            var flipC = Rite.GetCellPosition(cameraDragDrop.GridTake/*.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel*/).Column;
-
-
-            Rite.SetCellPosition(cameraDragDrop.GridTake/*.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel*/, new TableLayoutPanelCellPosition(rowSet, columSet));
+             var flipC = Rite.GetCellPosition(cameraDragDrop.GridTake/*.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel*/).Column;
+           // var flipS = ((TagsForPanel)cameraDragDrop.GridTake.Tag).savePosition.Y;
+           // var flipC = ((TagsForPanel)cameraDragDrop.GridTake.Tag).savePosition.X;
+           // Rite.Controls.Add(cameraDragDrop.GridTake);
+            cameraDragDrop.GridTake.Width = Rite.Width/ Rite.ColumnCount;
+            cameraDragDrop.GridTake.Height = Rite.Height/ (Rite.RowCount + 1);
+            cameraDragDrop.GridChange.Width = cameraDragDrop.GridTake.Width;
+            cameraDragDrop.GridChange.Height = cameraDragDrop.GridTake.Height;
+            Rite.SetCellPosition(cameraDragDrop.GridTake/*.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel*/, new TableLayoutPanelCellPosition(columSet, rowSet));
             //Grid.SetRow(cameraDragDrop.GridTake, rowSet);
             //Grid.SetColumn(cameraDragDrop.GridTake, columSet);
-            Rite.SetCellPosition(cameraDragDrop.GridChange/*.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel*/, new TableLayoutPanelCellPosition(flipS, flipC));
+            Rite.SetCellPosition(cameraDragDrop.GridChange/*.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel*/, new TableLayoutPanelCellPosition((int)flipC, (int)flipS));
             //Grid.SetRow(cameraDragDrop.GridChange, flipS);
             //Grid.SetColumn(cameraDragDrop.GridChange, flipC);
 

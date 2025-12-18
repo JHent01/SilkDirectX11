@@ -10,11 +10,12 @@ namespace SilkDirectX11.Model
     {
         public BetterPanelTest()
         {
-            this.DoubleBuffered = true;
+            this.DoubleBuffered = false;
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
+            return;
             // Do not clear background → no white flash
             // base.OnPaintBackground(e);
         }

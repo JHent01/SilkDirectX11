@@ -79,8 +79,8 @@
                 <i:Interaction.Behaviors>
                     <custom:GridCustomBehavior />
                 </i:Interaction.Behaviors>
-                <wfi:WindowsFormsHost x:Name="VideoHostControl"  >
-                    <wf:TableLayoutPanel Name="flowLayoutPanel1" BackColor="LightCoral"    > <!--Width="{Binding ActualWidth, ElementName=VideoCanvas1 }" Height="400"-->
+                <wfi:WindowsFormsHost x:Name="VideoHostControl" >
+                    <wf:TableLayoutPanel Name="flowLayoutPanel1"  BackColor="LightCoral"    > <!--Width="{Binding ActualWidth, ElementName=VideoCanvas1 }" Height="400"-->
                         
                     </wf:TableLayoutPanel>
 
