@@ -394,9 +394,9 @@ namespace SilkDirectX11.Behaviors
                 SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
                 //SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height,int.Parse(grid.Tag.ToString()));
                 SendSetSize(setSize);
-                //host.Child.Width = (int)e.NewSize.Width;
-                //host.Child.Height = (int)e.NewSize.Height;
-               // host.Margin = new Thickness(5);
+                host.Child.Width = (int)e.NewSize.Width;
+                host.Child.Height = (int)e.NewSize.Height;
+                // host.Margin = new Thickness(5);
             }
         }
 
@@ -1057,7 +1057,7 @@ namespace SilkDirectX11.Behaviors
             try
             {
 
-                await _connection.InvokeAsync("SenNewSize", setSize);
+                await _connection.InvokeAsync("SenNewSizeToGroup", setSize);
                      }
             catch (Exception ex)
             {
