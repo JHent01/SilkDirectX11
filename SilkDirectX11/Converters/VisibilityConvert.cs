@@ -18,9 +18,10 @@ namespace SilkDirectX11.Converters
             if (isVisible) return Visibility.Visible;
 
             var mode = parameter as string;
-            return string.Equals(mode, "Hidden", StringComparison.OrdinalIgnoreCase)
-                ? Visibility.Hidden
-                : Visibility.Collapsed;
+            return Visibility.Hidden;
+                //string.Equals(mode, "Hidden", StringComparison.OrdinalIgnoreCase)
+                //? Visibility.Hidden
+                //: Visibility.Collapsed;
 
         }
 

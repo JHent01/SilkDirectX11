@@ -1,4 +1,5 @@
 ﻿using FFmpeg.AutoGen;
+using LibraryForSignalR;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using SilkDirectX11.Events;
@@ -48,14 +49,15 @@ namespace SilkDirectX11.ViewModels
             _eventAggregator.GetEvent<CameraEvent>().Subscribe(AddCamExsample);
             _eventAggregator.GetEvent<CloseAddCameraEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, AddCameraDialogs); MainVisibility = true; });
             _eventAggregator.GetEvent<CloseSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, SettingsDialog); MainVisibility = true; });
-            _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); MainVisibility = true; });
-            
+            _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); MainVisibility = true; } );
+           _eventAggregator.GetEvent<CloseReconectCamersEvent>().Subscribe( s=> { try { if (!MainVisibility) _dialogCoordinator.HideMetroDialogAsync(this, ReconectCamera); } catch(Exception ex) { Debug.WriteLine(ex.Message); } MainVisibility = true; });
             #endregion
-            
+
         }
         private BaseMetroDialog AddCameraDialogs = new CustomDialog();
         private BaseMetroDialog SettingsDialog = new CustomDialog();
         private BaseMetroDialog CameraSettingsDialog = new CustomDialog();
+        private BaseMetroDialog ReconectCamera = new CustomDialog();
         public IEventAggregator _eventAggregator;
         ICameraSettingsDAO _cameraSettingsDAO;
         private IDialogCoordinator _dialogCoordinator;
@@ -86,10 +88,12 @@ namespace SilkDirectX11.ViewModels
         }
 
         #region Commands and Methods
-        public async Task ShowMahapsDialog(string title,string messege)
-        { 
-             await _dialogCoordinator.ShowMessageAsync(this, title, messege);
+        public    void ShowMahapsDialog(string title,string messege)
+        {
              
+             _dialogCoordinator.ShowModalMessageExternal(this, title, messege);
+            
+             _dialogCoordinator.ShowProgressAsync(this, title, messege);
         }
         public DelegateCommand AddCameraCommand { get; private set; }
         public  async Task AddCameraDialog()
@@ -113,6 +117,35 @@ namespace SilkDirectX11.ViewModels
             await _dialogCoordinator.ShowMetroDialogAsync(this, AddCameraDialogs);
 
          }
+        public async void CameraProgressBar(string nameCamera)
+        {
+            MainVisibility = false;
+            ReconectCamersView view = new ReconectCamersView();
+            view.Title = nameCamera;
+            ReconectCamera.Title = nameCamera;
+              ReconectCamera.DialogContentWidth = GridLength.Auto;
+            ReconectCamera.Width = 400;
+            // ReconectCamera.DialogContentMargin = (GridLength)(new GridLengthConverter()).ConvertFromString("10");
+            ReconectCamera.Content = view.Content;
+            ReconectCamera.DataContext = view.DataContext;
+
+            await _dialogCoordinator.ShowMetroDialogAsync(this, ReconectCamera);
+
+        }
+        public void Message(string statusCamera)
+        {
+            _eventAggregator.GetEvent<MessegeToReconectCameraEvent>().Publish(statusCamera);
+        }
+        public void SetProgressBar(bool set)
+        {
+            _eventAggregator.GetEvent<ProgressBarForReconnectEvent>().Publish(set);
+        }
+
+        public void ClouseCamera(string mes)
+        {
+            _eventAggregator.GetEvent<ClouseCameraModuleEvent>().Publish(mes);
+        }
+
         public async void AddCamExsample(CameraStream camera)
         {
             if (camera == null)
@@ -219,6 +252,8 @@ namespace SilkDirectX11.ViewModels
 
 
         }
+        
+
         public DelegateCommand<WindowsFormsHost> RemoveCameraCommand { get; private set; }
         private void RemoveCamera(WindowsFormsHost host)
         {

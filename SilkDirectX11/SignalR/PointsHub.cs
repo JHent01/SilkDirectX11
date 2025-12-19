@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using LibraryForSignalR;
 using Vortice.Mathematics;
+using SilkDirectX11;
+using SilkDirectX11.Events;
 namespace SilkDirectX11.SignalR
 {
     public class PointsHub : Hub
     {
-        public Task JoinGroup(string groupId)//эту чать надо будет засунуть перед запуском процесса
+       
+        public Task JoinGroup(string groupId) 
         {
             return Groups.AddToGroupAsync(Context.ConnectionId, groupId);
         }
@@ -30,16 +33,19 @@ namespace SilkDirectX11.SignalR
         {
             return Clients.Group(setSize.ID.ToString()).SendAsync("NewSize", setSize);
         }
-        public Task ClosingModulRender(MessageClousedModul message)
+        public   void ClosingModulRender(MessageClousedModul message)
         {
-            MessageBox.Show(message.Message);
-            return Clients.All.SendAsync("ClosingModulRender", message);
+            //MessageBox.Show(message.Message);
+            EventAggregatorProvider.Instance.Publish(message);
+          //  return Clients.All.SendAsync("ClosingModulRender", message);
         }
 
-        public Task MassegeFromModul(MassegeFromModul message)
+        public   void MassegeFromModul(MassegeFromModul message)
         {
-            MessageBox.Show("Mas");
-            return Clients.All.SendAsync("MassegeFromModul", message);
+            
+            // MessageBox.Show(message.Message);
+            EventAggregatorProvider.Instance.Publish(message);
+           // return Clients.All.SendAsync("MassegeFromModul", message);
         }
 
 
