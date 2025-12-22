@@ -47,7 +47,10 @@ namespace SilkDirectX11.SignalR
             EventAggregatorProvider.Instance.Publish(message);
            // return Clients.All.SendAsync("MassegeFromModul", message);
         }
-
+        public Task ChangeSettingsCamera(CameraSettingsVisual cameraSettingsVisual)
+        { 
+            return Clients.Group(cameraSettingsVisual.IDprocces).SendAsync("ChangeSettings", cameraSettingsVisual);
+        }
 
 
 

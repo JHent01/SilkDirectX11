@@ -29,6 +29,9 @@ namespace SilkDirectX11.ViewModels
             CanselCopy = new DelegateCommand(() => { VisibilityCheBox = false; });//( )=> { VisibilityCheBox = false; }
 
         }
+
+       
+
         IEventAggregator _eventAggregator;
         ICameraSettingsDAO _cameraSettingsDAO;
         ICameraDAO _cameraDAO;
@@ -122,6 +125,12 @@ namespace SilkDirectX11.ViewModels
             set => SetProperty(ref isCheckedAll, value, UpdateIsCheckedAll);
 
         }
+        bool visibilitySettings = false;
+        public bool VisibilitySettings
+        {
+            get => visibilitySettings;
+            set => SetProperty(ref visibilitySettings, value);
+        }
         List<CameraVisualSettings> cameraVisualSettings;
         public List<CameraVisualSettings> CameraVisualSettingsList
         {
@@ -163,7 +172,7 @@ namespace SilkDirectX11.ViewModels
         }
         private void SelectedCamera()
         {
-
+            VisibilitySettings = true;
 
             CameraVisualSettings cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
             if (cameraVisualSettings != null)
@@ -296,7 +305,10 @@ namespace SilkDirectX11.ViewModels
             CameraVisualSettingsList.Add(settings);
             _cameraSettingsDAO.SaveCameraSettings(CameraVisualSettingsList);
             ListDictionarySettingsCamers.DictionarySettingsCamers = CameraVisualSettingsList.ToDictionary(c => c.CameraId, c => c);
-           
+
+            EventAggregatorProvider.Instance.Publish(CameraVisualSettingsList);
+
+            _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Publish("Close");
         }
         public DelegateCommand SaveCommand { get; private set; }
         private void SaveComExecute()
@@ -328,6 +340,7 @@ namespace SilkDirectX11.ViewModels
             }
             _cameraSettingsDAO.SaveCameraSettings(CameraVisualSettingsList);
             ListDictionarySettingsCamers.DictionarySettingsCamers = CameraVisualSettingsList.ToDictionary(c => c.CameraId, c => c);
+            EventAggregatorProvider.Instance.Publish(CameraVisualSettingsList);
             VisibilityCheBox = false;
              
         }

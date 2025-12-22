@@ -128,8 +128,11 @@ namespace SilkDirectX11.ViewModels
             // ReconectCamera.DialogContentMargin = (GridLength)(new GridLengthConverter()).ConvertFromString("10");
             ReconectCamera.Content = view.Content;
             ReconectCamera.DataContext = view.DataContext;
-
-            await _dialogCoordinator.ShowMetroDialogAsync(this, ReconectCamera);
+            try
+            {
+                await _dialogCoordinator.ShowMetroDialogAsync(this, ReconectCamera);
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
 
         }
         public void Message(string statusCamera)
@@ -138,7 +141,8 @@ namespace SilkDirectX11.ViewModels
         }
         public void SetProgressBar(bool set)
         {
-            _eventAggregator.GetEvent<ProgressBarForReconnectEvent>().Publish(set);
+           _eventAggregator.GetEvent<ProgressBarForReconnectEvent>().Publish(set);
+            //MainVisibility = true;
         }
 
         public void ClouseCamera(string mes)

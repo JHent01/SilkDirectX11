@@ -340,76 +340,77 @@ namespace SilkDirectX11.Behaviors
 
             Button button = sender as Button;
             var griddelet = Rite.Children.OfType<Grid>().Where(s => s.Name == button.Name).FirstOrDefault();
-
-            var indexC = Grid.GetColumn(griddelet);
-            var IndexR = Grid.GetRow(griddelet);
-            var cellContent = Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == IndexR && Grid.GetColumn(c) == indexC);
-            Grid grid = cellContent as Grid;
-            if (grid != null)
+            if (griddelet!=null)
             {
-                var tag = grid.Tag as string;
-                if (!string.IsNullOrEmpty(tag))
+                var indexC = Grid.GetColumn(griddelet);
+                var IndexR = Grid.GetRow(griddelet);
+                var cellContent = Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == IndexR && Grid.GetColumn(c) == indexC);
+                Grid grid = cellContent as Grid;
+                if (grid != null)
                 {
-                    try
+                    var tag = grid.Tag as string;
+                    if (!string.IsNullOrEmpty(tag))
                     {
-                        Process.GetProcessById(int.Parse(tag)).Kill();
+                        try
+                        {
+                            Process.GetProcessById(int.Parse(tag)).Kill();
+                        }
+                        catch { }
+                        Border border = (Border)window.Content;
+                        Grid grids = (Grid)border.Child;
+                        Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
+
+                        gridOverlay.Visibility = Visibility.Hidden;
+
+
                     }
-                    catch { }
-                    Border border = (Border)window.Content;
-                    Grid grids = (Grid)border.Child;
-                    Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
-
-                    gridOverlay.Visibility = Visibility.Hidden;
-
-
-                }
-            }
-
-            grid.Children.Clear();
-            Rite.Children.Remove(cellContent);
-            List<int> list = new List<int>();
-            for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
-            {
-                if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count - 1 && Grid.GetColumn(c) == i) != null)
-                {
-                    list.Add(i);
                 }
 
-
-            }
-            for (int i = 0; i < Rite.RowDefinitions.Count; i++)
-            {
-                if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) != null)
+                grid.Children.Clear();
+                Rite.Children.Remove(cellContent);
+                List<int> list = new List<int>();
+                for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
                 {
-                    list.Add(i);
-                }
-            }
-
-            if (list.Count == 0)
-            {
-                if (Rite.RowDefinitions.Count != 0)
-                {
-                    Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
-                    Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
-                }
-            }
-            if (Rite.RowDefinitions.Count == 1 | Rite.RowDefinitions.Count == 0)
-            {
-                if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) == null)
-                {
-                    try
+                    if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count - 1 && Grid.GetColumn(c) == i) != null)
                     {
+                        list.Add(i);
+                    }
+
+
+                }
+                for (int i = 0; i < Rite.RowDefinitions.Count; i++)
+                {
+                    if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) != null)
+                    {
+                        list.Add(i);
+                    }
+                }
+
+                if (list.Count == 0)
+                {
+                    if (Rite.RowDefinitions.Count != 0)
+                    {
+                        Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
                         Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
                     }
-                    catch
+                }
+                if (Rite.RowDefinitions.Count == 1 | Rite.RowDefinitions.Count == 0)
+                {
+                    if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) == null)
                     {
-                        return;
+                        try
+                        {
+                            Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
+                        }
+                        catch
+                        {
+                            return;
+                        }
                     }
+
                 }
 
             }
-
-
         }
 
 

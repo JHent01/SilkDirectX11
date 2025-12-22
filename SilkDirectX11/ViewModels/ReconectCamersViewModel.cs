@@ -38,11 +38,11 @@ namespace SilkDirectX11.ViewModels
         public void SetStatusCamera(string status)
         {
             ReconectStatus = status;
-            RaisePropertyChanged(ReconectStatus);
+            //RaisePropertyChanged(ReconectStatus);
         }
         public void SetBrogressBar(bool status)
         {
-            // тут надо поправить что бы не заходило сюда и не открывало это окно 
+             
             BrogressBar = status;
             ReconectStatus = "Camera Reconnected";
             Thread.Sleep(1000);
