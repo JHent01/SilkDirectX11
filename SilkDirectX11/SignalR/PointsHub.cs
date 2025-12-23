@@ -16,7 +16,9 @@ namespace SilkDirectX11.SignalR
 
         public Task SendPointToGroup(string groupId, PointsForZoom pointsForZoom)
         {
-            return Clients.Group(groupId).SendAsync("point", pointsForZoom);
+             
+                return Clients.Group(groupId).SendAsync("point", pointsForZoom);
+            
         }
 
         public Task SendZoomToGroup(  OpenZoom openZoom)
