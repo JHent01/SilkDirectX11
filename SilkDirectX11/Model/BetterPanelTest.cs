@@ -15,7 +15,7 @@ namespace SilkDirectX11.Model
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            return;
+            
            
         }
     }

@@ -41,7 +41,7 @@ namespace SilkDirectX11.Behaviors;
  partial class  GridCustomBehavior : Behavior<Grid>
 {
     //static string patch = Path.Combine(GetSolutionParentPath(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
-    System.Windows.Window window = new();
+    System.Windows.Window windowOverlay = new();
      static string patch = Path.Combine(GetSolutionParentPath(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
     bool flagForOverlay;
     CameraDragDrop cameraDragDrop = new CameraDragDrop();
@@ -111,7 +111,7 @@ namespace SilkDirectX11.Behaviors;
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
         var VM = metroWindow.DataContext as MainViewModel;
         VM.ClouseCamera(obj.Message);
-       var remuvGrid = grid.Children.OfType<Grid>().Where(c => c.Name == obj.IDprocces).FirstOrDefault();
+       var remuvGrid = grid.Children.OfType<CustomGrid>().Where(c => c.ProcessTag == obj.IDprocces).FirstOrDefault();
         if (remuvGrid.Children.Count!=0)
         remuvGrid.Children.Clear();
         grid.Children.Remove(remuvGrid);
@@ -181,8 +181,7 @@ namespace SilkDirectX11.Behaviors;
 
             foreach (var it in settingsForCamera)
             {
-                // (grid.Children.OfType<Grid>().FirstOrDefault()?.Children.OfType<WindowsFormsHost>().FirstOrDefault().Where(c => (c.Tag as CameraConnectStrings).CameraID == it.CameraId));//BetterPanelTest
-                //var g =((grid.Children.OfType<Grid>().FirstOrDefault().Children.OfType<WindowsFormsHost>().FirstOrDefault().Child.Tag) as CameraConnectStrings).CameraID == it.CameraId;
+               
 
                 var grids = ((grid.Children.OfType<Grid>().Where(c => (c.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel).Tag is CameraConnectStrings cs && cs.CameraID == it.CameraId).ToList()) ) ;
                 if (grids != null)
@@ -196,10 +195,7 @@ namespace SilkDirectX11.Behaviors;
                             SendSettingsToGroup(cameraSettingsVisual);
                          
                     }
-                    //Grid p =  grid.Children.OfType<Grid>().Where(c => (c.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel).Name == pan.Name).FirstOrDefault();
-                    //CameraSettingsVisual cameraSettingsVisual = new CameraSettingsVisual(grids.Tag.ToString(), it.Brightness, it.Contrast, it.Hue, it.Saturation, it.NoiseReduction, it.EdgeEnhancement, it.AnamorphicScaling, it.StereoAdjustment, it.Rotation);
-                    
-                    //SendSettingsToGroup(cameraSettingsVisual);
+                   
                 }
 
 
@@ -231,7 +227,7 @@ namespace SilkDirectX11.Behaviors;
         if (_connection == null) return;
         try
         {
-            await _connection.InvokeAsync("SendPointToGroup", groupId, pointsForZoom); //SendPointToGroup
+            await _connection.InvokeAsync("SendPointToGroup", groupId, pointsForZoom);  
         }
         catch (Exception ex)
         {
@@ -239,7 +235,7 @@ namespace SilkDirectX11.Behaviors;
         }
     }
 
-    private async void SendWindowForZoom(OpenZoom openZoom)// bool usZoom, int window, int w, int h, int ID
+    private async void SendWindowForZoom(OpenZoom openZoom) 
     {
         if (_connection == null) return;
         try
@@ -251,7 +247,7 @@ namespace SilkDirectX11.Behaviors;
             Debug.WriteLine($" error: {ex.Message}");
         }
     }
-    private async void SendChandeConekting(SetConnect setConnect)//bool Use, int ID
+    private async void SendChandeConekting(SetConnect setConnect) 
     {
         if (_connection == null) return;
         try

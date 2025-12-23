@@ -1,4 +1,5 @@
 ﻿using LibraryForSignalR;
+using MahApps.Metro.Controls;
 using SilkDirectX11.Model;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms.Integration;
+using System.Windows.Input;
+using System.Windows.Interop;
+
+
+//using System.Windows.Forms.Integration;
 using System.Windows.Media;
 using Point = System.Windows.Point;
 
@@ -17,11 +22,11 @@ namespace SilkDirectX11.Behaviors
     {
         private Point _startPoint;
         bool flagChengePosition = false;
-        private void MouseUpTakePixel(object? sender, System.Windows.Forms.MouseEventArgs e)
+        private void MouseUpTakePixel(object? sender, MouseButtonEventArgs e)
         {
 
 
-            pixelPanelForZoom.BottomRight = new Point(e.X, e.Y);
+            pixelPanelForZoom.BottomRight = new Point(e.GetPosition(sender as Window).X, e.GetPosition(sender as Window).Y);//??
 
             if (pixelPanelForZoom.TopLeft != pixelPanelForZoom.BottomRight & pixelPanelForZoom.TopLeft != null & pixelPanelForZoom.TopLeft.X != 0)
             {
@@ -41,37 +46,45 @@ namespace SilkDirectX11.Behaviors
 
                     }
                 }
-                if (CreateWFHForZoom(sender))
+                if (CreateWindowForZoom(sender))
 
 
-                    CreateCanvalInOverlay();
+                    CreateCanvalInOverlay(  sender);
 
 
 
             }
         }
 
-        private bool CreateWFHForZoom(object? sender)
+        private bool CreateWindowForZoom(object? sender)
         {
             var riteGrid = AssociatedObject as Grid;
             //var full = riteGrid.Parent as Grid;
-
-
-
-            Grid gridFullScreen = riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
-
-
-            WindowsFormsHost wfh = gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-            wfh.Width = (riteGrid.ActualWidth / 2);
-            wfh.Child.Width = (int)(riteGrid.ActualWidth / 2);
-            wfh.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-            wfh.Width = (riteGrid.ActualWidth / 2);
-            BetterPanelTest panel = sender as BetterPanelTest;
-            if (gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault() != null/*gridFullScreen.Children.Count > 1*/)//0000000000000000000000000000000000000000000000000000000
+            Window zoomWind = new()
             {
-                WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
+                WindowStyle = WindowStyle.None,
+                ResizeMode = ResizeMode.NoResize,
+            };
+
+
+            // Grid gridFullScreen = riteGrid.Children.OfType<Grid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+
+
+            // WindowsFormsHost wfh = gridFullScreen.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+            zoomWind.Width = (riteGrid.ActualWidth / 2);
+            // zoomWind.Width = (int)(riteGrid.ActualWidth / 2);
+            // wfh.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+            // wfh.Width = (riteGrid.ActualWidth / 2);
+            Window wind = sender as Window;
+            if (wind.GetChildObjects()!=null   /*gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault() != null*//*gridFullScreen.Children.Count > 1*/)//0000000000000000000000000000000000000000000000000000000
+            {
+                var zomWindow =wind.GetChildObjects() as Window;
+                zomWindow?.Close();
+
+
+               // WindowsFormsHost zoom = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
                 //  var t = zoom.Tag as string;
-                gridFullScreen.Children.Remove(zoom);
+               // gridFullScreen.Children.Remove(zoom);
 
                 //try
                 //{
@@ -88,36 +101,48 @@ namespace SilkDirectX11.Behaviors
                 pixelPanelForZoom.TopLeft.X = pixelPanelForZoom.TopLeft.X / 2;
                 pixelPanelForZoom.BottomRight.X = pixelPanelForZoom.BottomRight.X / 2;
             }
+            wind.Width = (riteGrid.ActualWidth / 2);
+            wind.Height = riteGrid.ActualHeight;
+            wind.Left = riteGrid.PointToScreen(new System.Windows.Point(riteGrid.ActualWidth / 2, 0)).X;
+            wind.Top = riteGrid.PointToScreen(new System.Windows.Point(0, 0)).Y;
+            zoomWind.Owner = wind;
+            zoomWind.Width = wind.Width;
+            zoomWind.Height = wind.Height;
+            zoomWind.Left = wind.Left-wind.Width;
+            zoomWind.Top = wind.Top;
+            zoomWind.Show();
 
 
+            //gridFullScreen.Children.Add(new WindowsFormsHost
+            //{
+            //    Width = riteGrid.ActualWidth / 2,
+            //    Height = riteGrid.ActualHeight,
+            //    Child = new BetterPanelTest
+            //    {
+            //        DataContext = wind.DataContext,
+            //        Width = (int)(riteGrid.ActualWidth / 2),
+            //        Height = (int)(riteGrid.ActualHeight),
 
+            //        Tag = wind.Tag
+            //    },
+            //    DataContext = wind.DataContext,
+            //    Name = "ZoomHost",
+            //    Margin = new Thickness(25, 5, 0, 0),
+            //    HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            //});
+            windowOverlay.Width = riteGrid.ActualWidth / 2;
+            windowOverlay.Height = riteGrid.ActualHeight;
+            //gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault().Child.Width = (int)windowOverlay.Width;
+            //var ZoomHost = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
 
-            gridFullScreen.Children.Add(new WindowsFormsHost
-            {
-                Width = riteGrid.ActualWidth / 2,
-                Height = riteGrid.ActualHeight,
-                Child = new BetterPanelTest
-                {
-                    DataContext = panel.DataContext,
-                    Width = (int)(riteGrid.ActualWidth / 2),
-                    Height = (int)(riteGrid.ActualHeight),
+            string proc = riteGrid.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == wind.Name).FirstOrDefault().ProcessTag;//   gridFullScreen.Tag as string;
 
-                    Tag = panel.Tag
-                },
-                DataContext = panel.DataContext,
-                Name = "ZoomHost",
-                Margin = new Thickness(25, 5, 0, 0),
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
-            });
-            window.Width = riteGrid.ActualWidth / 2;
-            window.Height = riteGrid.ActualHeight;
-            gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault().Child.Width = (int)window.Width;
-            var ZoomHost = gridFullScreen.Children.OfType<WindowsFormsHost>().Where(s => s.Name == "ZoomHost").FirstOrDefault();
+            WindowInteropHelper helper = new WindowInteropHelper(zoomWind);
+           
 
-            string proc = gridFullScreen.Tag as string;
-            int wind = int.Parse(ZoomHost.Child.Handle.ToString());
-            int w = ZoomHost.Child.Width;
-            int h = ZoomHost.Child.Height;
+            int windHandel = int.Parse(helper.Handle.ToString());
+            //int w = ZoomHost.Child.Width;
+            //int h = ZoomHost.Child.Height;
             PointsForZoom pointsForZoom = new PointsForZoom(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y, pixelPanelForZoom.BottomRight.X, pixelPanelForZoom.BottomRight.Y);
             //{
             //    xTL = pixelPanelForZoom.TopLeft.X,
@@ -127,11 +152,11 @@ namespace SilkDirectX11.Behaviors
             //};
             // proc.ToString() ,
             Rectangle_MouseMove_SendPoint(proc.ToString(), pointsForZoom);//(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y, pixelPanelForZoom.BottomRight.X, pixelPanelForZoom.BottomRight.Y);
-            OpenZoom openZoom = new OpenZoom(true, wind, w, h, int.Parse(proc));
+            OpenZoom openZoom = new OpenZoom(true, windHandel, (int)zoomWind.Width, (int)zoomWind.Height, int.Parse(proc));
 
             SendWindowForZoom(openZoom);
 
-            ZoomHost.Tag = proc;//process.Id.ToString();
+            zoomWind.Tag = proc;//process.Id.ToString();
             return true;
 
         }
@@ -186,10 +211,10 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-        private void MouseDownTakePxel(object? sender, System.Windows.Forms.MouseEventArgs e)
+        private void MouseDownTakePxel(object? sender, MouseButtonEventArgs e)
         {
             if (!flagChengePosition)
-                pixelPanelForZoom.TopLeft = new Point(e.X, e.Y);
+                pixelPanelForZoom.TopLeft = new Point(e.GetPosition(sender as Window).X, e.GetPosition(sender as Window).Y);
             else pixelPanelForZoom.TopLeft = new Point(0, 0);
         }
     }
