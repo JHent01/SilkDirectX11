@@ -60,7 +60,7 @@ namespace SilkDirectX11.Behaviors
                      
                     Window = new()
                     {
-                        Background = System.Windows.Media.Brushes.Red,
+                        //Background = System.Windows.Media.Brushes.Red,
                         AllowDrop = true,
                         WindowStyle = WindowStyle.None,
                         ResizeMode = ResizeMode.NoResize,
@@ -94,6 +94,9 @@ namespace SilkDirectX11.Behaviors
                     // ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
                     
                  });
+                grid.Window.Content = new Grid();
+                grid.Window.SizeToContent = SizeToContent.WidthAndHeight;
+
                 Rite.MouseUp += MouseUps;
                 grid.Window.PreviewDragEnter += ellipse_DragEnter;
                 grid.Window.BorderBrush = System.Windows.Media.Brushes.Red;
