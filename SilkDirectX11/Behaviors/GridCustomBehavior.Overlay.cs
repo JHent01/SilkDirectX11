@@ -14,10 +14,7 @@ namespace SilkDirectX11.Behaviors
     {
         private void InitWindow()
         {
-
-
             Grid Rite = AssociatedObject as Grid;
-
 
             windowOverlay.Background = System.Windows.Media.Brushes.Transparent;
             windowOverlay.WindowStyle = WindowStyle.None;
@@ -43,9 +40,7 @@ namespace SilkDirectX11.Behaviors
 
 
             };
-
             buttonOverlay.Click += ButtonDeleteChildren;
-
             Grid gridOverlay = new Grid()
             {
                 Visibility = Visibility.Collapsed,
@@ -90,22 +85,6 @@ namespace SilkDirectX11.Behaviors
             grid.Visibility = Visibility.Hidden;
         }
 
-        private void WindowShow(object? sender, System.Windows.Forms.MouseEventArgs e)
-        {
-            //var panel = sender as BetterPanelTest;
-            //Border border = (Border)window.Content;
-            //Grid grids = (Grid)border.Child;
-            //Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
-            //Button b = grid.Children.OfType<Button>().FirstOrDefault();
-            //b.Name = panel.Name;
-
-            //grid.Visibility = Visibility.Visible;
-            //window.Height = panel.Height;
-            //window.Width = panel.Width;
-            //window.Left = panel.PointToScreen(new System.Drawing.Point()).X;
-            //window.Top = panel.PointToScreen(new System.Drawing.Point()).Y;
-        }
-
         private void WindowShow(object sender, System.Windows.Input.MouseEventArgs e)
         {
             var panel = sender as Window;
@@ -127,7 +106,6 @@ namespace SilkDirectX11.Behaviors
             Grid grd = sender as Grid;
             grd.Visibility = Visibility.Hidden;
 
-
         }
 
         private void WindowShowOverlay(object s, System.Windows.Input.MouseEventArgs ev)
@@ -140,9 +118,7 @@ namespace SilkDirectX11.Behaviors
         private void CreateCanvalInOverlay(object? sender)
         {
             var riteGrid = AssociatedObject as Grid;
-            //var full = riteGrid.Parent as Grid;
-          //  Grid gridFullScreen =  // riteGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
-
+          
             Grid gridOverlay = ((Border)windowOverlay.Content).Child as Grid;
             var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
 
@@ -174,7 +150,7 @@ namespace SilkDirectX11.Behaviors
             System.Windows.Shapes.Rectangle rectangle = gridOverlay.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault();//.PointFromScreen(new Point(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y)) ;
             rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             rectangle.VerticalAlignment = VerticalAlignment.Top;
-            Canvas.SetLeft(rectangle, (pixelPanelForZoom.TopLeft.X  /*/ buffer*/) - 10);
+            Canvas.SetLeft(rectangle, (pixelPanelForZoom.TopLeft.X ) - 10);
             Canvas.SetTop(rectangle, pixelPanelForZoom.TopLeft.Y);
 
             canvas.MouseMove += MouseMoveCanvals;

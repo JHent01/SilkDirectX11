@@ -46,7 +46,7 @@ namespace SilkDirectX11.Behaviors;
     bool flagForOverlay;
     CameraDragDrop cameraDragDrop = new CameraDragDrop();
     PixelPanelForZoom pixelPanelForZoom = new PixelPanelForZoom();
-    
+    private IEventAggregator _eventAggregator;
     private HubConnection? _connection;
     protected override void OnAttached()
     {
@@ -62,8 +62,33 @@ namespace SilkDirectX11.Behaviors;
           EventAggregatorProvider.Instance.Subscribe<MassegeFromModul>(DialogMessegeReceived);
         EventAggregatorProvider.Instance.Subscribe<MessageClousedModul>(ClouseModul);
         EventAggregatorProvider.Instance.Subscribe<List<CameraVisualSettings>>(ChengeSettingsCamera);
+        var ev = ContainerLocator.Container.Resolve<IEventAggregator>();
+        _eventAggregator = ev;
+        AssociatedObject.IsVisibleChanged += AssociatedObject_IsVisibleChanged;
+        EventAggregatorProvider.Instance.Subscribe<SetSize>(SendSetSize);
+
     }
-    
+
+    private void AssociatedObject_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        Grid rite = sender as Grid;
+        var chengeWindVis =  rite.Children.OfType<CustomGrid>().ToList();
+        bool vis = (bool)e.NewValue;
+        foreach (var gr in chengeWindVis)
+        {
+            if (vis)
+            { 
+                if (gr.Window != null)
+                    gr.Window.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                if (gr.Window!=null)
+                gr.Window.Visibility = Visibility.Hidden;
+            }
+        }
+    }
+
     private async void Dialog(string name , string messege)
     {
         Grid grid = AssociatedObject as Grid;
@@ -75,7 +100,7 @@ namespace SilkDirectX11.Behaviors;
             
         }else
         {
-            //grid.Visibility = Visibility.Hidden;
+            
             VM.CameraProgressBar(name);
          
         }
@@ -84,25 +109,20 @@ namespace SilkDirectX11.Behaviors;
    
     private void ReconCemera()
     {
-       // Grid grid = AssociatedObject as Grid;
+    
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
         var VM = metroWindow.DataContext as MainViewModel;
-        //if (grid.Visibility == Visibility.Hidden)
-        //{
+      
             VM.SetProgressBar(false);
-            // grid.Visibility = Visibility.Visible;
-        //}
+           
     }
 
     private void ClouseModul(MessageClousedModul obj)
-    {
-        
+    {       
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 CLouseCamera(obj);
-
             });
-      
     }
 
     private void CLouseCamera(MessageClousedModul obj)
@@ -111,20 +131,18 @@ namespace SilkDirectX11.Behaviors;
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
         var VM = metroWindow.DataContext as MainViewModel;
         VM.ClouseCamera(obj.Message);
-       var remuvGrid = grid.Children.OfType<CustomGrid>().Where(c => c.ProcessTag == obj.IDprocces).FirstOrDefault();
+       var remuvGrid = grid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == obj.IDprocces).FirstOrDefault();
         if (remuvGrid.Children.Count!=0)
         remuvGrid.Children.Clear();
         grid.Children.Remove(remuvGrid);
-         
-       // grid.Visibility = Visibility.Visible;//??
-
+          
     }
 
 
     private void DialogMessegeReceived(MassegeFromModul obj)
     {
         if (obj.Message != "reopened")
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() => 
+        System.Windows.Application.Current.Dispatcher.BeginInvoke(() => 
         {
             Dialog(obj.ModulName,obj.Message); 
         });
@@ -178,30 +196,19 @@ namespace SilkDirectX11.Behaviors;
         
         if (grid != null)
         {
-
             foreach (var it in settingsForCamera)
             {
-               
-
-                var grids = ((grid.Children.OfType<Grid>().Where(c => (c.Children.OfType<WindowsFormsHost>().FirstOrDefault().Child as Panel).Tag is CameraConnectStrings cs && cs.CameraID == it.CameraId).ToList()) ) ;
+                var grids = ((grid.Children.OfType<CustomGrid>().Where(c => (c.CameraConnectStrings.CameraID == it.CameraId)).ToList()) ) ;
                 if (grids != null)
                 {
                     foreach (var pan in grids)
                     {
-                         
-                        
-                            CameraSettingsVisual cameraSettingsVisual = new CameraSettingsVisual(pan.Tag.ToString(), it.Brightness, it.Contrast, it.Hue, it.Saturation, it.NoiseReduction, it.EdgeEnhancement, it.AnamorphicScaling, it.StereoAdjustment, it.Rotation);
+                            CameraSettingsVisual cameraSettingsVisual = new CameraSettingsVisual(pan.ProcessTag, it.Brightness, it.Contrast, it.Hue, it.Saturation, it.NoiseReduction, it.EdgeEnhancement, it.AnamorphicScaling, it.StereoAdjustment, it.Rotation);
                             
                             SendSettingsToGroup(cameraSettingsVisual);
-                         
                     }
                    
                 }
-
-
-
-
-                   
             }
         }
     }

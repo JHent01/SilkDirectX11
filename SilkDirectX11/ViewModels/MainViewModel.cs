@@ -51,8 +51,14 @@ namespace SilkDirectX11.ViewModels
             _eventAggregator.GetEvent<CloseSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, SettingsDialog); MainVisibility = true; });
             _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); MainVisibility = true; } );
            _eventAggregator.GetEvent<CloseReconectCamersEvent>().Subscribe( s=> { try { if (!MainVisibility) _dialogCoordinator.HideMetroDialogAsync(this, ReconectCamera); } catch(Exception ex) { Debug.WriteLine(ex.Message); } MainVisibility = true; });
+             
+            _eventAggregator.GetEvent<VisibilityChengeEvent>().Subscribe(VisibilitySet);
             #endregion
 
+        }
+        private void VisibilitySet(Visibility obj)
+        {
+            MainVisibility = (obj == Visibility.Visible);
         }
         private BaseMetroDialog AddCameraDialogs = new CustomDialog();
         private BaseMetroDialog SettingsDialog = new CustomDialog();

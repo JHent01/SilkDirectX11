@@ -15,6 +15,8 @@ using System.Windows.Controls;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using Button = System.Windows.Controls.Button;
 using Point = System.Windows.Point;
 
@@ -37,9 +39,10 @@ namespace SilkDirectX11.Behaviors
                 {
                     Grid.SetRow(cameraDragDrop.GridTake, row);
                     Grid.SetColumn(cameraDragDrop.GridTake, colum);
-
-                    cameraDragDrop.GridTake.Window.Left = cameraDragDrop.GridTake.PointToScreen(new Point()).X;
-                    cameraDragDrop.GridTake.Window.Top = cameraDragDrop.GridTake.PointToScreen(new Point()).Y;
+                    var cellChil2 = Rite.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+                    
+                    cellChil2.Window.Left = cellChil2.PointToScreen(new Point()).X + 5;
+                    cellChil2.Window.Top = cellChil2.PointToScreen(new Point()).Y + 5;
                 }
                 else
                 {
@@ -51,118 +54,79 @@ namespace SilkDirectX11.Behaviors
             {
                 var Rite = AssociatedObject as Grid;
 
-               
-
                 WindowsFormsHost VideoHostSelect = e.Data.GetData(typeof(WindowsFormsHost)) as WindowsFormsHost;
                 CustomGrid grid = new CustomGrid()
                 {
-                    Window = new() 
+                     
+                    Window = new()
                     {
+                        Background = System.Windows.Media.Brushes.Red,
                         AllowDrop = true,
                         WindowStyle = WindowStyle.None,
                         ResizeMode = ResizeMode.NoResize,
-                        Owner = System.Windows.Application.Current.MainWindow, 
-                        //WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                        //  RenderSize = new System.Windows.Size(Rite.ActualWidth / Rite.ColumnDefinitions.Count == 0 ? 1 : Rite.ColumnDefinitions.Count, Rite.ActualHeight / Rite.RowDefinitions.Count == 0 ? 1 : Rite.RowDefinitions.Count)
+                        Owner = System.Windows.Application.Current.MainWindow,
+                         
                     },
                     Name = VideoHostSelect.Name,
                     CameraGuidName = VideoHostSelect.Name + Guid.NewGuid().ToString("N"),
                     CameraConnectStrings = VideoHostSelect.Tag as CameraConnectStrings,
                     Background = System.Windows.Media.Brushes.Transparent,
-                    ColumnDefinitions =
-                    {
-                       new ColumnDefinition(){Width =  GridLength.Auto }
-                    },
-                    RowDefinitions =
-                    {
-                         
-                        new RowDefinition(){Height = GridLength.Auto }
-                    },
-                    
-                };//!!!
+                    //ColumnDefinitions =
+                    //{
+                    //   new ColumnDefinition(){Width =  GridLength.Auto }
+                    //},
+                    //RowDefinitions =
+                    //{
 
+                    //    new RowDefinition(){Height = GridLength.Auto }
+                    //},
+                     
+                   
+                };
+                grid.Children.Add(  new Border()
+                {
+                    Background = System.Windows.Media.Brushes.Transparent,
+                    BorderBrush = System.Windows.Media.Brushes.White,
+                    BorderThickness = new Thickness(5),
+                    CornerRadius = new CornerRadius(5),
+                    Margin = new Thickness(1, 1, 1, 1),
+                    Padding = new Thickness(1, 1, 1, 1),
+                    // ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
+                    
+                 });
                 Rite.MouseUp += MouseUps;
                 grid.Window.PreviewDragEnter += ellipse_DragEnter;
+                grid.Window.BorderBrush = System.Windows.Media.Brushes.Red;
+                grid.Window.MouseLeave += LeaveColor;
+                grid.Window.MouseMove += Window_MouseMove;
                 grid.Window.Drop += AssociatedObject_Drop;
                 grid.Window.Owner = System.Windows.Application.Current.MainWindow;
                 grid.Window.Show();
                 grid.Window.Name = grid.CameraGuidName;
-                // grid.CameraConnectStrings = VideoHostSelect.Child.Tag as CameraConnectStrings;
-                // grid.Name = VideoHostSelect.Name;
-                // grid.CameraGuidName = VideoHostSelect.Name + Guid.NewGuid().ToString("N");
-
                 WindowInteropHelper helper = new WindowInteropHelper(grid.Window);
                 grid.WindowTag = helper.Handle.ToString();
-
-                //  grid.window.RenderSize = new System.Windows.Size(200, 200);
-
-
-                //BetterPanelTest panel = new BetterPanelTest
-                //{
-                //    DataContext = VideoHostSelect.Child.DataContext,
-                //    Name = VideoHostSelect.Name + Guid.NewGuid().ToString("N"),
-                //    AutoSize = false,
-                //    //Anchor = AnchorStyles.Bottom,
-                //    Dock = DockStyle.Fill,
-                //    Tag = VideoHostSelect.Tag,
-                //    //BackColor = System.Drawing.Color.Green
-
-                //};
-                //panel.MouseDown += Child_MouseDown;
-                //panel.MouseUp += MouseUps;
                 grid.Window.MouseRightButtonDown += MouseRiteClick;
-                // panel.MouseDoubleClick += MouseDoubleClick;
-
-                //WindowsFormsHost VideoHost = new WindowsFormsHost
-                //{
-                //    DataContext = VideoHostSelect.DataContext,
-                //    Child = panel,
-                //    //Tag = VideoHostSelect.Tag,
-                //    Margin = new Thickness(5),
-                //    Name = VideoHostSelect.Name,
-
-                //    //Background = System.Windows.Media.Brushes.Green
-                //};
-
-
-                //UIElement uIElement = new UIElement();
-                //UIElement uIElement2 = new UIElement();
-
-                //uIElement = VideoHost;
-
                 grid.Window.MouseDown += Child_MouseDown;
                 grid.Window.MouseUp += MouseUps;
-
-
-                //VideoHost.SizeChanged += VideoHost_SizeChanged;
                 grid.Margin = new Thickness(5);
-             //   grid.SizeChanged += Grid_SizeChanged;
-               
-
-                
-
                 int colum = GetColumnGrid(e.GetPosition(Rite));
                 int row = GetRowGrid(e.GetPosition(Rite));
 
-                List<string> arguments = new List<string>() { grid.CameraConnectStrings.subStream, grid.CameraConnectStrings.mainStream, grid.Name, grid.WindowTag /* VideoHost.Child.Handle.ToString()*/, grid.CameraGuidName/*, Process.GetCurrentProcess().Id.ToString()*/ };
+                List<string> arguments = new List<string>() { grid.CameraConnectStrings.subStream, grid.CameraConnectStrings.mainStream, grid.Name, grid.WindowTag, grid.CameraGuidName};
                 var process = StartProcess(arguments, grid.CameraConnectStrings.CameraID);
-
                 grid.ProcessTag = process.Id.ToString();
-              //  VideoHost.Tag = VideoHost.Child.Handle.ToString();// window; меняю это 
-
+             
                 windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
                 windowOverlay.Show();
                 grid.Window.MouseLeave += Leave;
-                 grid.Window.MouseMove += WindowShow;
+                grid.Window.MouseMove += WindowShow;
 
 
                 if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
                 {
                     Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
                     Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
-
                     Rite.ColumnDefinitions.Add(new ColumnDefinition());
-
                     Rite.Children.Add(grid);
 
 
@@ -172,11 +136,8 @@ namespace SilkDirectX11.Behaviors
                     Rite.RowDefinitions.Add(new RowDefinition());
                     Grid.SetRow(grid, Rite.RowDefinitions.Count);
                     Grid.SetRow(grid, Rite.RowDefinitions.Count);
-
                     Rite.RowDefinitions.Add(new RowDefinition());
-
                     Rite.Children.Add(grid);
-
 
                 }
                 else
@@ -210,7 +171,13 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-     
+        private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (e.LeftButton != MouseButtonState.Pressed)
+            { return; }
+            var w = sender as Window;
+            AssociatedObject.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == w.Name).FirstOrDefault().Children.OfType<Border>().FirstOrDefault().BorderBrush = System.Windows.Media.Brushes.Green;
+        }
 
         private int GetRowGrid(Point point)
         {
@@ -240,28 +207,37 @@ namespace SilkDirectX11.Behaviors
 
             if (cellChil2 != null)
             {
+                
                 cameraDragDrop.GridChange = cellChil2;
 
             }
 
         }
-
+        private void LeaveColor(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var senderWind = sender as Window;
+            var Rite = AssociatedObject as Grid;
+            var cellChil = Rite.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == senderWind.Name).FirstOrDefault();
+            if (cellChil != null)
+            {
+                cellChil.Children.OfType<Border>().FirstOrDefault().BorderBrush = System.Windows.Media.Brushes.White;
+            }
+        }
         private void MouseUps(object sender, MouseButtonEventArgs e)
         {
-            //if ((e.LeftButton != MouseButtonState.Pressed )/*e.Button != System.Windows.Forms.MouseButtons.Left*/) return;
+             if (idk/*(e.LeftButton != MouseButtonState.Released *//*e.Button != System.Windows.Forms.MouseButtons.Left*/) return;
             if (cameraDragDrop.GridTake != null & cameraDragDrop.GridChange != null)
                 DragDrop.DoDragDrop(cameraDragDrop.GridTake, cameraDragDrop, System.Windows.DragDropEffects.Move);
-            //else 
-            //{
-            //    var Rite = AssociatedObject as Grid;
-            //    var grid = Rite.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == cameraDragDrop.GridTake.CameraGuidName).FirstOrDefault();
-            //    grid = cameraDragDrop.GridTake;
-            //}
+           
         }
-
+        bool idk = false;
         private void Child_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton!= MouseButtonState.Pressed ) return;
+            if (e.LeftButton != MouseButtonState.Pressed)
+            {
+                idk = true; return;
+            }
+            idk = false;
             var Rite = AssociatedObject as Grid;
             var wind = sender as Window;
             var grid = Rite.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == wind.Name).FirstOrDefault();
@@ -270,34 +246,8 @@ namespace SilkDirectX11.Behaviors
             {
                 cameraDragDrop.GridTake = grid;
                 
-
-               // grid.Window.DragMove();
-               // cameraDragDrop.GridTake = grid;
-
             }
         }
-        
-        //private void MouseUps(object s, System.Windows.Forms.MouseEventArgs args)
-        //{
-        //    if (args.Button != System.Windows.Forms.MouseButtons.Left) return;
-        //    if (cameraDragDrop.GridTake != null & cameraDragDrop.GridChange != null)
-        //        DragDrop.DoDragDrop(cameraDragDrop.GridTake, cameraDragDrop, System.Windows.DragDropEffects.Move);
-
-        //}
-
-        //private void Child_MouseDown(object? sender, System.Windows.Forms.MouseEventArgs e)
-        //{
-        //    if (e.Button != System.Windows.Forms.MouseButtons.Left) return;
-        //    var Rite = AssociatedObject as Grid;
-        //    var panel = sender as BetterPanelTest;
-        //    var grid = Rite.Children.OfType<Grid>().Where(c => c.Name == panel.Name).FirstOrDefault();
-
-        //    if (grid != null)
-        //    {
-        //        cameraDragDrop.GridTake = grid;
-
-        //    }
-        //}
         private Process StartProcess(List<string> argument, Guid IDCamera)
         {
             Process process = new();
@@ -334,11 +284,7 @@ namespace SilkDirectX11.Behaviors
                 start.ArgumentList.Add(argument[i]);
 
             }
-
-            //start.CreateNoWindow = true;
-
             process.StartInfo = start;
-
             process.Start();
 
             return process;
@@ -351,18 +297,16 @@ namespace SilkDirectX11.Behaviors
             var flipS = Grid.GetRow(cameraDragDrop.GridTake);
             var flipC = Grid.GetColumn(cameraDragDrop.GridTake);
 
-
-
             Grid.SetRow(cameraDragDrop.GridTake, rowSet);
             Grid.SetColumn(cameraDragDrop.GridTake, columSet);
 
             Grid.SetRow(cameraDragDrop.GridChange, flipS);
             Grid.SetColumn(cameraDragDrop.GridChange, flipC);
 
-            cameraDragDrop.GridTake.Window.Left = cameraDragDrop.GridChange.PointToScreen(new Point()).X;
-            cameraDragDrop.GridTake.Window.Top = cameraDragDrop.GridChange.PointToScreen(new Point()).Y;
-            cameraDragDrop.GridChange.Window.Left = cameraDragDrop.GridTake.PointToScreen(new Point()).X;
-            cameraDragDrop.GridChange.Window.Top = cameraDragDrop.GridTake.PointToScreen(new Point()).Y;
+            cameraDragDrop.GridTake.Window.Left = cameraDragDrop.GridChange.PointToScreen(new Point()).X + 5;
+            cameraDragDrop.GridTake.Window.Top = cameraDragDrop.GridChange.PointToScreen(new Point()).Y + 5;
+            cameraDragDrop.GridChange.Window.Left = cameraDragDrop.GridTake.PointToScreen(new Point()).X + 5;
+            cameraDragDrop.GridChange.Window.Top = cameraDragDrop.GridTake.PointToScreen(new Point()).Y + 5;
 
 
         }
@@ -438,6 +382,7 @@ namespace SilkDirectX11.Behaviors
                         gridOverlay.Visibility = Visibility.Hidden;
 
 
+
                     }
                     grid.Window.Close();
                 }
@@ -490,42 +435,42 @@ namespace SilkDirectX11.Behaviors
         }
 
 
-        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
+        //private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+        //{
             
-            CustomGrid grid = sender as CustomGrid;
-            grid.Window.Left = grid.PointToScreen(new Point()).X; 
-            grid.Window.Top = grid.PointToScreen(new Point()).Y;
-            grid.Window.Width = grid.ActualWidth; 
-            grid.Window.Height = grid.ActualHeight;  
-            //WindowsFormsHost wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-            //if (wfh != null)
-            //{
-            //    //SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
-            //    //wfh.Child.Size = new System.Drawing.Size((int)e.NewSize.Width, (int)e.NewSize.Height);
-            //    wfh.Width = e.NewSize.Width;
-            //    wfh.Height = e.NewSize.Height;
-            //    //wfh.Child.Width = (int)grid.ActualWidth;
-            //    //wfh.Child.Height = (int)grid.ActualWidth;
-            //    //SendSetSize(setSize);
-            //}
-        }
+        //    CustomGrid grid = sender as CustomGrid;
+        //    grid.Window.Left = grid.PointToScreen(new Point()).X; 
+        //    grid.Window.Top = grid.PointToScreen(new Point()).Y;
+        //    grid.Window.Width = grid.ActualWidth; 
+        //    grid.Window.Height = grid.ActualHeight;  
+        //    //WindowsFormsHost wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
+        //    //if (wfh != null)
+        //    //{
+        //    //    //SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
+        //    //    //wfh.Child.Size = new System.Drawing.Size((int)e.NewSize.Width, (int)e.NewSize.Height);
+        //    //    wfh.Width = e.NewSize.Width;
+        //    //    wfh.Height = e.NewSize.Height;
+        //    //    //wfh.Child.Width = (int)grid.ActualWidth;
+        //    //    //wfh.Child.Height = (int)grid.ActualWidth;
+        //    //    //SendSetSize(setSize);
+        //    //}
+        //}
 
-        private void VideoHost_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            WindowsFormsHost host = sender as WindowsFormsHost;
-            if (host != null)
-            {
-                Grid grid = host.Parent as Grid;
+        //private void VideoHost_SizeChanged(object sender, SizeChangedEventArgs e)
+        //{
+        //    WindowsFormsHost host = sender as WindowsFormsHost;
+        //    if (host != null)
+        //    {
+        //        Grid grid = host.Parent as Grid;
 
-                SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
-                //SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height,int.Parse(grid.Tag.ToString()));
-                SendSetSize(setSize);
-                host.Child.Width = (int)e.NewSize.Width;
-                host.Child.Height = (int)e.NewSize.Height;
-                // host.Margin = new Thickness(5);
-            }
-        }
+        //        SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
+        //        //SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height,int.Parse(grid.Tag.ToString()));
+        //        SendSetSize(setSize);
+        //        host.Child.Width = (int)e.NewSize.Width;
+        //        host.Child.Height = (int)e.NewSize.Height;
+        //        // host.Margin = new Thickness(5);
+        //    }
+        //}
 
 
     }
