@@ -22,7 +22,7 @@ namespace SilkDirectX11.Behaviors
             windowOverlay.ShowInTaskbar = false;
             windowOverlay.Topmost = true;
 
-            Button buttonOverlay = new Button
+            Button buttonClouseInOverlay = new Button
             {
                 Content = "X",
                 Width = 30,
@@ -40,27 +40,27 @@ namespace SilkDirectX11.Behaviors
 
 
             };
-            buttonOverlay.Click += ButtonDeleteChildren;
-            Grid gridOverlay = new Grid()
+            buttonClouseInOverlay.Click += DeleteChild;
+            Grid gridWithButtonOverlay = new Grid()
             {
                 Visibility = Visibility.Collapsed,
                 Background = System.Windows.Media.Brushes.Black,
                 Opacity = 0.5,
-                Width = buttonOverlay.Width,
-                Height = buttonOverlay.Height,
+                Width = buttonClouseInOverlay.Width,
+                Height = buttonClouseInOverlay.Height,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
             };
-            Grid gridOll = new Grid()
+            Grid GridOverlay = new Grid()
             {
                 Background = System.Windows.Media.Brushes.Transparent,
 
                 Width = windowOverlay.Width,
                 Height = windowOverlay.Height,
             };
-            gridOverlay.Children.Add(buttonOverlay);
-            gridOll.Children.Add(gridOverlay);
-            border.Child = gridOll;
+            gridWithButtonOverlay.Children.Add(buttonClouseInOverlay);
+            GridOverlay.Children.Add(gridWithButtonOverlay);
+            border.Child = GridOverlay;
 
             windowOverlay.Content = border;
 
@@ -71,12 +71,12 @@ namespace SilkDirectX11.Behaviors
             windowOverlay.Visibility = Visibility.Visible;
 
 
-            gridOverlay.MouseMove += WindowShowOverlay;
+            gridWithButtonOverlay.MouseMove += OnMouseEnterWindowShowOverlay;
 
-            gridOverlay.MouseLeave += LeaveOverLay;
+            gridWithButtonOverlay.MouseLeave += OnMouseLeaveOverLay;
 
         }
-        private void Leave(object? sender, EventArgs e)
+        private void OnMouseLeaveHideOverlay(object? sender, EventArgs e)
         {
             if (!flagForOverlay) return;
             Border border = (Border)windowOverlay.Content;
@@ -85,7 +85,7 @@ namespace SilkDirectX11.Behaviors
             grid.Visibility = Visibility.Hidden;
         }
 
-        private void WindowShow(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OnMouseMuveWindowShow(object sender, System.Windows.Input.MouseEventArgs e)
         {
             var panel = sender as Window;
             Border border = (Border)windowOverlay.Content;
@@ -100,7 +100,7 @@ namespace SilkDirectX11.Behaviors
             windowOverlay.Left = panel.PointToScreen(new System.Windows.Point()).X;
             windowOverlay.Top = panel.PointToScreen(new System.Windows.Point()).Y;
         }
-        private void LeaveOverLay(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OnMouseLeaveOverLay(object sender, System.Windows.Input.MouseEventArgs e)
         {
             flagForOverlay = true;
             Grid grd = sender as Grid;
@@ -108,7 +108,7 @@ namespace SilkDirectX11.Behaviors
 
         }
 
-        private void WindowShowOverlay(object s, System.Windows.Input.MouseEventArgs ev)
+        private void OnMouseEnterWindowShowOverlay(object s, System.Windows.Input.MouseEventArgs ev)
         {
             flagForOverlay = false;
             Grid grid = s as Grid;

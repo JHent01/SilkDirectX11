@@ -31,8 +31,8 @@ namespace SilkDirectX11.Behaviors
             {
                 var Rite = AssociatedObject as Grid;
                 System.Windows.Point point = e.GetPosition(Rite);
-                int row = GetRowGrid(point);
-                int colum = GetColumnGrid(point);
+                int row = GetGridRow(point);
+                int colum = GetGridColumn(point);
 
                 var cellChil = Rite.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
                 if (cellChil == null)
@@ -46,7 +46,7 @@ namespace SilkDirectX11.Behaviors
                 }
                 else
                 {
-                    Swich();
+                    SwichCameraForDragDrop();
                 }
 
             }
@@ -94,35 +94,36 @@ namespace SilkDirectX11.Behaviors
                     // ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
                     
                  });
-                grid.Window.Content = new Grid();
-                grid.Window.SizeToContent = SizeToContent.WidthAndHeight;
-
-                Rite.MouseUp += MouseUps;
-                grid.Window.PreviewDragEnter += ellipse_DragEnter;
+                //  grid.Window.Content = new Grid();
+                // grid.Window.SizeToContent = SizeToContent.WidthAndHeight;
+               
+                Rite.MouseUp += DropCamera;
+                grid.Window.PreviewDragEnter += MouseMoveDragDrop;
                 grid.Window.BorderBrush = System.Windows.Media.Brushes.Red;
-                grid.Window.MouseLeave += LeaveColor;
-                grid.Window.MouseMove += Window_MouseMove;
+                grid.Window.MouseLeave += ChengeBorderColor;
+                grid.Window.MouseMove += CameraWindowMouseMove;
                 grid.Window.Drop += AssociatedObject_Drop;
                 grid.Window.Owner = System.Windows.Application.Current.MainWindow;
                 grid.Window.Show();
                 grid.Window.Name = grid.CameraGuidName;
                 WindowInteropHelper helper = new WindowInteropHelper(grid.Window);
                 grid.WindowTag = helper.Handle.ToString();
-                grid.Window.MouseRightButtonDown += MouseRiteClick;
-                grid.Window.MouseDown += Child_MouseDown;
-                grid.Window.MouseUp += MouseUps;
+                grid.Window.MouseRightButtonDown += ChengeFullScreen;
+                grid.Window.MouseDown += StartDragDrop;
+                grid.Window.MouseUp += DropCamera;
                 grid.Margin = new Thickness(5);
-                int colum = GetColumnGrid(e.GetPosition(Rite));
-                int row = GetRowGrid(e.GetPosition(Rite));
-
+                int colum = GetGridColumn(e.GetPosition(Rite));
+                int row = GetGridRow(e.GetPosition(Rite));
+                 
+                grid.Window.Owner.LocationChanged += OwnedWindowsLocationChange;
                 List<string> arguments = new List<string>() { grid.CameraConnectStrings.subStream, grid.CameraConnectStrings.mainStream, grid.Name, grid.WindowTag, grid.CameraGuidName};
                 var process = StartProcess(arguments, grid.CameraConnectStrings.CameraID);
                 grid.ProcessTag = process.Id.ToString();
              
                 windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
                 windowOverlay.Show();
-                grid.Window.MouseLeave += Leave;
-                grid.Window.MouseMove += WindowShow;
+                grid.Window.MouseLeave += OnMouseLeaveHideOverlay;
+                grid.Window.MouseMove += OnMouseMuveWindowShow;
 
 
                 if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
@@ -174,7 +175,26 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-        private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OwnedWindowsLocationChange(object? sender, EventArgs e)
+        {
+          var MainWind = sender as Window;
+            foreach (var item in AssociatedObject.Children.OfType<CustomGrid>())
+            {
+                if (item.Window==null) continue;
+                item.Window.Left = item.PointToScreen(new Point()).X + 5;
+                item.Window.Top = item.PointToScreen(new Point()).Y + 5;
+            }
+            CustomGrid host = (AssociatedObject.Parent as Grid).Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+            if (host != null)
+            {
+                host.Window.Left = host.PointToScreen(new Point()).X;
+                host.Window.Top = host.PointToScreen(new Point()).Y;
+                //host.Window.Width = MainWind.ActualWidth;
+                //host.Window.Height = MainWind.ActualHeight;
+            }
+        }
+
+        private void CameraWindowMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (e.LeftButton != MouseButtonState.Pressed)
             { return; }
@@ -182,7 +202,7 @@ namespace SilkDirectX11.Behaviors
             AssociatedObject.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == w.Name).FirstOrDefault().Children.OfType<Border>().FirstOrDefault().BorderBrush = System.Windows.Media.Brushes.Green;
         }
 
-        private int GetRowGrid(Point point)
+        private int GetGridRow(Point point)
         {
             var Rite = AssociatedObject as Grid;
             int countRow = Rite.RowDefinitions.Count;
@@ -190,7 +210,7 @@ namespace SilkDirectX11.Behaviors
             int row = (int)(point.Y / heightCell);
             return row;
         }
-        private int GetColumnGrid(Point point)
+        private int GetGridColumn(Point point)
         {
             var Rite = AssociatedObject as Grid;
             int countCollumn = Rite.ColumnDefinitions.Count;
@@ -200,12 +220,12 @@ namespace SilkDirectX11.Behaviors
 
         }
 
-        private void ellipse_DragEnter(object sender, System.Windows.DragEventArgs e)
+        private void MouseMoveDragDrop(object sender, System.Windows.DragEventArgs e)
         {
             var Rite = AssociatedObject as Grid;
             System.Windows.Point point = e.GetPosition(Rite);
-            int row = GetRowGrid(point);
-            int colum = GetColumnGrid(point);
+            int row = GetGridRow(point);
+            int colum = GetGridColumn(point);
             var cellChil2 = Rite.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
 
             if (cellChil2 != null)
@@ -216,8 +236,9 @@ namespace SilkDirectX11.Behaviors
             }
 
         }
-        private void LeaveColor(object sender, System.Windows.Input.MouseEventArgs e)
+        private void ChengeBorderColor(object sender, System.Windows.Input.MouseEventArgs e)
         {
+            
             var senderWind = sender as Window;
             var Rite = AssociatedObject as Grid;
             var cellChil = Rite.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == senderWind.Name).FirstOrDefault();
@@ -226,7 +247,7 @@ namespace SilkDirectX11.Behaviors
                 cellChil.Children.OfType<Border>().FirstOrDefault().BorderBrush = System.Windows.Media.Brushes.White;
             }
         }
-        private void MouseUps(object sender, MouseButtonEventArgs e)
+        private void DropCamera(object sender, MouseButtonEventArgs e)
         {
              if (idk/*(e.LeftButton != MouseButtonState.Released *//*e.Button != System.Windows.Forms.MouseButtons.Left*/) return;
             if (cameraDragDrop.GridTake != null & cameraDragDrop.GridChange != null)
@@ -234,7 +255,7 @@ namespace SilkDirectX11.Behaviors
            
         }
         bool idk = false;
-        private void Child_MouseDown(object sender, MouseButtonEventArgs e)
+        private void StartDragDrop(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton != MouseButtonState.Pressed)
             {
@@ -293,7 +314,7 @@ namespace SilkDirectX11.Behaviors
             return process;
         }
 
-        private void Swich()
+        private void SwichCameraForDragDrop()
         {
             var rowSet = Grid.GetRow(cameraDragDrop.GridChange);
             var columSet = Grid.GetColumn(cameraDragDrop.GridChange);
@@ -356,7 +377,7 @@ namespace SilkDirectX11.Behaviors
             return result;
         }
 
-        private void ButtonDeleteChildren(object sender, RoutedEventArgs e)
+        private void DeleteChild(object sender, RoutedEventArgs e)
         {
             var Rite = AssociatedObject as Grid;
 

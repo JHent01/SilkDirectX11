@@ -54,13 +54,13 @@ namespace SilkDirectX11.Behaviors;
 
         _ = EnsureSignalRAsync();
 
-        AssociatedObject.PreviewDragEnter += ellipse_DragEnter;
+        AssociatedObject.PreviewDragEnter += MouseMoveDragDrop;
       
         AssociatedObject.Drop += AssociatedObject_Drop;
        
         InitWindow();
-          EventAggregatorProvider.Instance.Subscribe<MassegeFromModul>(DialogMessegeReceived);
-        EventAggregatorProvider.Instance.Subscribe<MessageClousedModul>(ClouseModul);
+          EventAggregatorProvider.Instance.Subscribe<MassegeFromModul>(OnDialogMessegeReceived);
+        EventAggregatorProvider.Instance.Subscribe<MessageClousedModul>(OnModuleClouse);
         EventAggregatorProvider.Instance.Subscribe<List<CameraVisualSettings>>(ChengeSettingsCamera);
         var ev = ContainerLocator.Container.Resolve<IEventAggregator>();
         _eventAggregator = ev;
@@ -89,7 +89,7 @@ namespace SilkDirectX11.Behaviors;
         }
     }
 
-    private async void Dialog(string name , string messege)
+    private async void ShowMessage(string name , string messege)
     {
         Grid grid = AssociatedObject as Grid;
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
@@ -107,7 +107,7 @@ namespace SilkDirectX11.Behaviors;
         
     }
    
-    private void ReconCemera()
+    private void ReconnectCamera()
     {
     
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
@@ -117,7 +117,7 @@ namespace SilkDirectX11.Behaviors;
            
     }
 
-    private void ClouseModul(MessageClousedModul obj)
+    private void OnModuleClouse(MessageClousedModul obj)
     {       
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
@@ -139,18 +139,18 @@ namespace SilkDirectX11.Behaviors;
     }
 
 
-    private void DialogMessegeReceived(MassegeFromModul obj)
+    private void OnDialogMessegeReceived(MassegeFromModul obj)
     {
         if (obj.Message != "reopened")
         System.Windows.Application.Current.Dispatcher.BeginInvoke(() => 
         {
-            Dialog(obj.ModulName,obj.Message); 
+            ShowMessage(obj.ModulName,obj.Message); 
         });
         else
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                ReconCemera();
+                ReconnectCamera();
             });
         }
 

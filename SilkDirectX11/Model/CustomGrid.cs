@@ -10,11 +10,19 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Runtime.InteropServices;
 
 namespace SilkDirectX11.Model
 {
+    
+
+
     public class CustomGrid :Grid
     {
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr GetWindow(IntPtr hWnd, int uCmd);
+
+
         private readonly DispatcherTimer _resizeDebounceTimer;
         private int _pendingWidth;
         private int _pendingHeight;
@@ -33,8 +41,9 @@ namespace SilkDirectX11.Model
            
            this.MinHeight= 50;
            this.MinWidth= 50;
-            this.SnapsToDevicePixels = true;
-            this.SetValue(TextOptions.TextFormattingModeProperty, TextFormattingMode.Display);
+           
+            // this.SnapsToDevicePixels = true;
+            // this.SetValue(TextOptions.TextFormattingModeProperty, TextFormattingMode.Display);
 
             _resizeDebounceTimer = new DispatcherTimer
             {
@@ -44,6 +53,8 @@ namespace SilkDirectX11.Model
             //this.Window.SizeToContent = SizeToContent.WidthAndHeight;
             //this.Window.Content= this;
         }
+
+        
 
         private void BeginResizeVisualFreeze()
         {
@@ -92,29 +103,35 @@ namespace SilkDirectX11.Model
             if (this.Window != null)
             {
                 
-                (this.Window.Content as Grid).Width = this.ActualWidth-10;
-                (this.Window.Content as Grid).Height = this.ActualHeight-10;
+
+                //(this.Window.Content as Grid).Width = this.ActualWidth-10;
+                //(this.Window.Content as Grid).Height = this.ActualHeight-10;
                 //this.Window.SizeToContent = SizeToContent.WidthAndHeight;
                 //this.Window.Content= this;
                 //RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
                 //this.Window.CacheMode = null;
-                  Window.Left = this.PointToScreen(new System.Windows.Point()).X+5;
+                Window.Left = this.PointToScreen(new System.Windows.Point()).X+5;
                   Window.Top = this.PointToScreen(new System.Windows.Point()).Y+5;
-                //  Window.Width = this.ActualWidth-10;
-                //  Window.Height = this.ActualHeight-10;
-
-                SetSize setSize = new SetSize((int)this.ActualWidth, (int)this.ActualHeight,int.Parse(this.ProcessTag));
-               EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
-               // BeginResizeVisualFreeze();
+                 Window.Width = this.ActualWidth-10;
+                  Window.Height = this.ActualHeight-10;
+                
+                 SetSize setSize = new SetSize((int)this.ActualWidth, (int)this.ActualHeight,int.Parse(this.ProcessTag));
+               // EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
+                //BeginResizeVisualFreeze();
 
 
                 _pendingWidth = (int)Math.Max(this.ActualWidth, this.MinWidth);
                 _pendingHeight = (int)Math.Max(this.ActualHeight, this.MinHeight);
-                 _resizeDebounceTimer.Stop();
-                 _resizeDebounceTimer.Start();
+                // _resizeDebounceTimer.Stop();
+                // _resizeDebounceTimer.Start();
             }
         }
+
+
+
     }
+
+     
 }
 //public class IsCamersSettingsViewModel<T> : BindableBase
 //{
