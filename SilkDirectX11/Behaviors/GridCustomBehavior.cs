@@ -96,12 +96,12 @@ namespace SilkDirectX11.Behaviors;
         var VM = metroWindow.DataContext as MainViewModel;
         if (grid.Visibility==Visibility.Hidden)
         {
-            VM.Message(messege);
+            VM.OnMessageToReconect(messege);
             
         }else
         {
             
-            VM.CameraProgressBar(name);
+            VM.CameraReconnects(name);
          
         }
         
@@ -113,7 +113,7 @@ namespace SilkDirectX11.Behaviors;
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
         var VM = metroWindow.DataContext as MainViewModel;
       
-            VM.SetProgressBar(false);
+            VM.OnReconnectCamera(false);
            
     }
 

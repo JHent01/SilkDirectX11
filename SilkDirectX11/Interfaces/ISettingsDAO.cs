@@ -9,7 +9,7 @@ namespace SilkDirectX11.Interfaces
 {
     internal interface ISettingsDAO
     {
-        void SaveSettings(PathSettingsJson pathSaveSettingscs);
-        public PathSettingsJson ReadSettings();
+        void SaveGeneralSettings(PathSettingsJson pathSaveSettingscs);
+        public PathSettingsJson ReadGeneralSettings();
     }
 }

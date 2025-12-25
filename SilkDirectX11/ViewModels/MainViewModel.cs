@@ -40,17 +40,17 @@ namespace SilkDirectX11.ViewModels
             #region Commands
             AddCameraCommand = new DelegateCommand(async () => await AddCameraDialog());
             LoadedCommand = new DelegateCommand(LoadedExecute);
-            CameraSettingsOpen = new DelegateCommand(async () => await CameraSettingsOpenExecute());
+            CameraSettingsOpen = new DelegateCommand(async () => await OpenCameraSettings());
             RemoveCameraCommand = new DelegateCommand<WindowsFormsHost>(RemoveCamera);
             SettingsOpenComman = new DelegateCommand(OpenSettings);
             // StartCommand = new AsyncDelegateCommand(StartCameraStream);
             #endregion
             #region SubscribeEvents
-            _eventAggregator.GetEvent<CameraEvent>().Subscribe(AddCamExsample);
-            _eventAggregator.GetEvent<CloseAddCameraEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, AddCameraDialogs); MainVisibility = true; });
-            _eventAggregator.GetEvent<CloseSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, SettingsDialog); MainVisibility = true; });
+            _eventAggregator.GetEvent<AddCameraEvent>().Subscribe(AddCameraExsample);
+            _eventAggregator.GetEvent<CloseViewAddCameraEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, AddCameraDialogs); MainVisibility = true; });
+            _eventAggregator.GetEvent<CloseViewSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, SettingsDialog); MainVisibility = true; });
             _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { _dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); MainVisibility = true; } );
-           _eventAggregator.GetEvent<CloseReconectCamersEvent>().Subscribe( s=> { try { if (!MainVisibility) _dialogCoordinator.HideMetroDialogAsync(this, ReconectCamera); } catch(Exception ex) { Debug.WriteLine(ex.Message); } MainVisibility = true; });
+           _eventAggregator.GetEvent<CloseViewReconectCamersEvent>().Subscribe( s=> { try { if (!MainVisibility) _dialogCoordinator.HideMetroDialogAsync(this, ReconectCamera); } catch(Exception ex) { Debug.WriteLine(ex.Message); } MainVisibility = true; });
              
             _eventAggregator.GetEvent<VisibilityChengeEvent>().Subscribe(VisibilitySet);
             #endregion
@@ -94,13 +94,13 @@ namespace SilkDirectX11.ViewModels
         }
 
         #region Commands and Methods
-        public    void ShowMahapsDialog(string title,string messege)
-        {
+        //public    void ShowMahapsDialog(string title,string messege)
+        //{
              
-             _dialogCoordinator.ShowModalMessageExternal(this, title, messege);
+        //     _dialogCoordinator.ShowModalMessageExternal(this, title, messege);
             
-             _dialogCoordinator.ShowProgressAsync(this, title, messege);
-        }
+        //     _dialogCoordinator.ShowProgressAsync(this, title, messege);
+        //}
         public DelegateCommand AddCameraCommand { get; private set; }
         public  async Task AddCameraDialog()
         {
@@ -123,7 +123,7 @@ namespace SilkDirectX11.ViewModels
             await _dialogCoordinator.ShowMetroDialogAsync(this, AddCameraDialogs);
 
          }
-        public async void CameraProgressBar(string nameCamera)
+        public async void CameraReconnects(string nameCamera)
         {
             MainVisibility = false;
             ReconectCamersView view = new ReconectCamersView();
@@ -141,22 +141,22 @@ namespace SilkDirectX11.ViewModels
             catch (Exception ex) { Console.WriteLine(ex.Message); }
 
         }
-        public void Message(string statusCamera)
+        public void OnMessageToReconect(string statusCamera)
         {
-            _eventAggregator.GetEvent<MessegeToReconectCameraEvent>().Publish(statusCamera);
+            _eventAggregator.GetEvent<MessegeToViewReconectCameraEvent>().Publish(statusCamera);
         }
-        public void SetProgressBar(bool set)
+        public void OnReconnectCamera(bool set)
         {
-           _eventAggregator.GetEvent<ProgressBarForReconnectEvent>().Publish(set);
+           _eventAggregator.GetEvent<ReconnectEvent>().Publish(set);
             //MainVisibility = true;
         }
 
-        public void ClouseCamera(string mes)
+        public void OnClouseCamera(string mes)
         {
             _eventAggregator.GetEvent<ClouseCameraModuleEvent>().Publish(mes);
         }
 
-        public async void AddCamExsample(CameraStream camera)
+        public async void AddCameraExsample(CameraStream camera)
         {
             if (camera == null)
                 return;
@@ -243,7 +243,7 @@ namespace SilkDirectX11.ViewModels
             await _dialogCoordinator.ShowMetroDialogAsync(this, SettingsDialog);
         }
         public DelegateCommand CameraSettingsOpen { get; private set; }
-        private async Task CameraSettingsOpenExecute()
+        private async Task OpenCameraSettings()
         {
             MainVisibility = false;
             CameraSettingsDialog.Title = "Camera Settings";

@@ -17,8 +17,8 @@ namespace SilkDirectX11.ViewModels
        public AddCameraViewModel(IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
-           AddCameraCommand = new DelegateCommand(AddCameraExecute);
-            CanselCommand = new DelegateCommand(CanselExecute);
+           AddCameraCommand = new DelegateCommand(AddCamera);
+            CanselCommand = new DelegateCommand(Cansel);
         }
         string _cameraName;
         public string CameraName
@@ -45,7 +45,7 @@ namespace SilkDirectX11.ViewModels
         //    set => SetProperty(ref flag, value);
         //}
         public DelegateCommand AddCameraCommand { get; private set; }
-        private void AddCameraExecute()
+        private void AddCamera()
         {  
             //if (string.IsNullOrEmpty(CameraName) || string.IsNullOrEmpty(MainSreamURL)||string.IsNullOrEmpty(CameraName))
             //{
@@ -53,13 +53,13 @@ namespace SilkDirectX11.ViewModels
             //    return;
             //}
 
-            _eventAggregator.GetEvent<CameraEvent>().Publish(new Model.CameraStream { CameraName = CameraName, ConnectStrings  = new CameraConnectStrings { mainStream = MainSreamURL,subStream = SubStreamURL, CameraID =   Guid.NewGuid() }  });
+            _eventAggregator.GetEvent<AddCameraEvent>().Publish(new Model.CameraStream { CameraName = CameraName, ConnectStrings  = new CameraConnectStrings { mainStream = MainSreamURL,subStream = SubStreamURL, CameraID =   Guid.NewGuid() }  });
          
         }
         public DelegateCommand CanselCommand { get; private set; }
-        private void CanselExecute()
+        private void Cansel()
         {
-            _eventAggregator.GetEvent<CloseAddCameraEvent>().Publish("Cansel");
+            _eventAggregator.GetEvent<CloseViewAddCameraEvent>().Publish("Cansel");
         }
 
     }

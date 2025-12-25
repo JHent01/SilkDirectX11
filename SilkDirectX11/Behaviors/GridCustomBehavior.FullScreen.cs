@@ -20,7 +20,7 @@ namespace SilkDirectX11.Behaviors
     partial class GridCustomBehavior
     {
        
-        private void ChengeFullScreen(object? sender, MouseButtonEventArgs e)
+        private void OnChangeFullScreen(object? sender, MouseButtonEventArgs e)
         {
            
             var wind = sender as Window;
@@ -39,75 +39,129 @@ namespace SilkDirectX11.Behaviors
                 
                 if (grid.Window != null)
                 {
-                   
-                    _eventAggregator.GetEvent<VisibilityChengeEvent>().Publish(Visibility.Hidden);
-                    AssociatedObject.Drop -= AssociatedObject_Drop;
-                    grid.Window.Drop -= AssociatedObject_Drop;
-                    grid.Window.Width = riteGrid.ActualWidth;
-                    grid.Window.Height = riteGrid.ActualHeight;
-                    grid.Window.MouseLeave -= OnMouseLeaveHideOverlay;
-                    grid.Window.MouseMove -= OnMouseMuveWindowShow;
-                    grid.Window.MouseDown -= StartDragDrop;
-                   // grid.Window.MouseUp -= MouseUps;
-                    wind.Tag = grid.ProcessTag;
-                    windowOverlay.Left = riteGrid.PointToScreen(new Point()).X;
-                    windowOverlay.Top = riteGrid.PointToScreen(new Point()).Y;
-                    wind.Focus();
-                    
-                        pixelPanelForZoom.TopLeft.X = 0;
-                 
-                    if (MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
-                    {
-                    CustomGrid newGr = new CustomGrid()
 
-                    {
-                        Name = "FullScreenGrid",
-                        Width = riteGrid.ActualWidth,
-                        Height = riteGrid.ActualHeight,
-                        DataContext = grid.DataContext,
-                        Window = grid.Window,
-                        ProcessTag = grid.ProcessTag,
-                        CameraConnectStrings = grid.CameraConnectStrings,
-                        CameraGuidName = grid.CameraGuidName
-                        
-                    };
-                    
-                    grid.Window = null;
-                  
-                    MainGrid.Children.Add(newGr);
-                    Grid.SetColumn(newGr, MainGrid.ColumnDefinitions.Count);
-                    SetConnect setConnect = new SetConnect(false, int.Parse(grid.ProcessTag));
-                        SendChandeConekting(setConnect);
-                    CustomGrid GridFullScreen = MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+                // _eventAggregator.GetEvent<VisibilityChengeEvent>().Publish(Visibility.Hidden);
+                // AssociatedObject.Drop -= AssociatedObject_Drop;
+                // grid.Window.Drop -= AssociatedObject_Drop;
+                // grid.Window.Width = riteGrid.ActualWidth;
+                // grid.Window.Height = riteGrid.ActualHeight;
+                // grid.Window.MouseLeave -= OnMouseLeaveHideOverlay;
+                // grid.Window.MouseMove -= OnMouseMuveWindowShow;
+                // grid.Window.MouseDown -= StartDragDrop;
+                //// grid.Window.MouseUp -= MouseUps;
+                // wind.Tag = grid.ProcessTag;
+                // windowOverlay.Left = riteGrid.PointToScreen(new Point()).X;
+                // windowOverlay.Top = riteGrid.PointToScreen(new Point()).Y;
+                // wind.Focus();
 
-                    MainGrid.SizeChanged += OnMainGridSizeChenge;
+                //     pixelPanelForZoom.TopLeft.X = 0;
 
-                    GridFullScreen.Window.MouseUp += MouseUpTakePixel;
-                    GridFullScreen.Window.MouseDown += MouseDownTakePxel;
-                    GridFullScreen.Window.Left = riteGrid.PointToScreen(new Point()).X;
-                    GridFullScreen.Window.Top = riteGrid.PointToScreen(new Point()).Y;
-                     
-                    pixelPanelForZoom.TopLeft.X = 0;
-                     
-                    }
-                
+                // if (MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
+                // {
+                // CustomGrid newGr = new CustomGrid()
+
+                // {
+                //     Name = "FullScreenGrid",
+                //     Width = riteGrid.ActualWidth,
+                //     Height = riteGrid.ActualHeight,
+                //     DataContext = grid.DataContext,
+                //     Window = grid.Window,
+                //     ProcessTag = grid.ProcessTag,
+                //     CameraConnectStrings = grid.CameraConnectStrings,
+                //     CameraGuidName = grid.CameraGuidName
+
+                // };
+
+                // grid.Window = null;
+
+                // MainGrid.Children.Add(newGr);
+                // Grid.SetColumn(newGr, MainGrid.ColumnDefinitions.Count);
+                // SetConnect setConnect = new SetConnect(false, int.Parse(grid.ProcessTag));
+                //     SendChandeConekting(setConnect);
+                // CustomGrid GridFullScreen = MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+
+                // MainGrid.SizeChanged += OnMainGridSizeChenge;
+
+                // GridFullScreen.Window.MouseUp += MouseUpTakePixel;
+                // GridFullScreen.Window.MouseDown += MouseDownTakePxel;
+                // GridFullScreen.Window.Left = riteGrid.PointToScreen(new Point()).X;
+                // GridFullScreen.Window.Top = riteGrid.PointToScreen(new Point()).Y;
+
+                // pixelPanelForZoom.TopLeft.X = 0;
+
+                // }
+                OpenFullScreenAndZoom(wind, grid);
                 }
                 else
                 {
                     wind.Tag=null;
-                    AssociatedObject.Drop += AssociatedObject_Drop;
+                    
                    
                     CloseFullScreenAndZoom(gridOverlay,  MainGrid, gridOverlayCanvals, grid );//riteGrid,grid.ProcessTag,
-            }
+                }
              
         }
-
-
-        
-        private void CloseFullScreenAndZoom(Grid gridOverlay,  Grid full, Grid gridOverlayCanvals, CustomGrid parent) //Grid Rite,, string processTag
+        private void OpenFullScreenAndZoom(Window wind,  CustomGrid grid) //Grid Rite,, string processTag
         {
+            var riteGrid = AssociatedObject as Grid;
+            var MainGrid = riteGrid.Parent as Grid;
+
+            _eventAggregator.GetEvent<VisibilityChengeEvent>().Publish(Visibility.Hidden);
+            AssociatedObject.Drop -= AssociatedObject_Drop;
+            grid.Window.Drop -= AssociatedObject_Drop;
+            grid.Window.Width = riteGrid.ActualWidth;
+            grid.Window.Height = riteGrid.ActualHeight;
+            grid.Window.MouseLeave -= OnMouseLeaveHideOverlay;
+            grid.Window.MouseMove -= OnMouseMuveWindowShow;
+            grid.Window.MouseDown -= StartDragDrop;
+            // grid.Window.MouseUp -= MouseUps;
+            wind.Tag = grid.ProcessTag;
+            windowOverlay.Left = riteGrid.PointToScreen(new Point()).X;
+            windowOverlay.Top = riteGrid.PointToScreen(new Point()).Y;
+            wind.Focus();
+
+            pixelPanelForZoom.TopLeft.X = 0;
+
+            if (MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
+            {
+                CustomGrid newGr = new CustomGrid()
+
+                {
+                    Name = "FullScreenGrid",
+                    Width = riteGrid.ActualWidth,
+                    Height = riteGrid.ActualHeight,
+                    DataContext = grid.DataContext,
+                    Window = grid.Window,
+                    ProcessTag = grid.ProcessTag,
+                    CameraConnectStrings = grid.CameraConnectStrings,
+                    CameraGuidName = grid.CameraGuidName
+
+                };
+
+                grid.Window = null;
+
+                MainGrid.Children.Add(newGr);
+                Grid.SetColumn(newGr, MainGrid.ColumnDefinitions.Count);
+                SetConnect setConnect = new SetConnect(false, int.Parse(grid.ProcessTag));
+                SendChandeConekting(setConnect);
+                CustomGrid GridFullScreen = MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+
+                MainGrid.SizeChanged += OnMainGridSizeChenge;
+
+                GridFullScreen.Window.MouseUp += MouseUpTakePixel;
+                GridFullScreen.Window.MouseDown += MouseDownTakePxel;
+                GridFullScreen.Window.Left = riteGrid.PointToScreen(new Point()).X;
+                GridFullScreen.Window.Top = riteGrid.PointToScreen(new Point()).Y;
+
+                pixelPanelForZoom.TopLeft.X = 0;
+            }
+        }
+
+        private void CloseFullScreenAndZoom(Grid gridOverlay,  Grid MainGrid, Grid gridOverlayCanvals, CustomGrid parent) //Grid Rite,, string processTag
+        {
+            AssociatedObject.Drop += AssociatedObject_Drop;
             gridOverlay.Visibility = Visibility.Visible;
-            CustomGrid gridFullScreen = full.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
+            CustomGrid gridFullScreen = MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
             gridFullScreen.Window.MouseUp -= MouseUpTakePixel;
             gridFullScreen.Window.MouseDown -= MouseDownTakePxel;
             if (gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault() != null)
@@ -117,13 +171,13 @@ namespace SilkDirectX11.Behaviors
             }
             _eventAggregator.GetEvent<VisibilityChengeEvent>().Publish(Visibility.Visible);
 
-            full.SizeChanged -= OnMainGridSizeChenge;
+            MainGrid.SizeChanged -= OnMainGridSizeChenge;
             pixelPanelForZoom.TopLeft.X = 0;
            
             parent.Window = gridFullScreen.Window;
             gridFullScreen.Window= null;
             gridFullScreen.Children.Clear();
-            full.Children.Remove(gridFullScreen);
+            MainGrid.Children.Remove(gridFullScreen);
 
             parent.Window.Width = parent.ActualWidth-10;
             parent.Window.Height = parent.ActualHeight-10;
@@ -138,10 +192,10 @@ namespace SilkDirectX11.Behaviors
             SetConnect setConnect = new SetConnect(true, int.Parse(parent.ProcessTag));
             SendChandeConekting(setConnect);
 
-            var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
-            if (child != null)
+            var canvas = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
+            if (canvas != null)
             
-                gridOverlay.Children.Remove(child);
+                gridOverlay.Children.Remove(canvas);
             
 
         }

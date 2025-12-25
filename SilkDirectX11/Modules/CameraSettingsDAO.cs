@@ -20,7 +20,7 @@ namespace SilkDirectX11.Modules
         {
             try
             {
-                var path = _settingsDAO.ReadSettings();
+                var path = _settingsDAO.ReadGeneralSettings();
                 if (string.IsNullOrEmpty(path.SavePathSettings))
                     return;
                 string json = System.Text.Json.JsonSerializer.Serialize(settings);
@@ -35,7 +35,7 @@ namespace SilkDirectX11.Modules
         {
             try
             {
-                var path = _settingsDAO.ReadSettings();
+                var path = _settingsDAO.ReadGeneralSettings();
                 if (string.IsNullOrEmpty(path.SavePathSettings))
                     return new List<CameraVisualSettings>();
                 var filePath = System.IO.Path.Combine(path.SavePathSettings, "CameraSettings.json");

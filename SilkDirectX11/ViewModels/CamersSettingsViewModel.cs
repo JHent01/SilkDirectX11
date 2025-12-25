@@ -21,11 +21,11 @@ namespace SilkDirectX11.ViewModels
             _cameraSettingsDAO = camSettingsDAO;
             _eventAggregator = eventAggregator;
             CloseComaand = new DelegateCommand(() => { _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Publish("Close"); });
-            SaveSettingsSingleComand = new DelegateCommand(SaveSettings);
+            SaveSettingsSingleComand = new DelegateCommand(SaveSingleSettings);
             _cameraDAO = cameraDAO;
-            CameraVisualSettingsList = Loaded();
+            CameraVisualSettingsList = OnLoaded();
             CopyCommand = new DelegateCommand(() => { VisibilityCheBox = true; }); 
-            SaveCommand = new DelegateCommand(SaveComExecute);
+            SaveCommand = new DelegateCommand(SaveSettingsListCamers);
             CanselCopy = new DelegateCommand(() => { VisibilityCheBox = false; });//( )=> { VisibilityCheBox = false; }
 
         }
@@ -139,7 +139,7 @@ namespace SilkDirectX11.ViewModels
         }
         #endregion
         #region Metods
-        private List<CameraVisualSettings> Loaded()
+        private List<CameraVisualSettings> OnLoaded()
         {
 
             var listCamers = _cameraDAO.GetAllCameras();
@@ -259,7 +259,7 @@ namespace SilkDirectX11.ViewModels
             }
         }
         public DelegateCommand SaveSettingsSingleComand { get; private set; }
-        private void SaveSettings()
+        private void SaveSingleSettings()
         {
             CameraVisualSettings settings = null;
             CameraVisualSettings cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
@@ -311,7 +311,7 @@ namespace SilkDirectX11.ViewModels
             _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Publish("Close");
         }
         public DelegateCommand SaveCommand { get; private set; }
-        private void SaveComExecute()
+        private void SaveSettingsListCamers()
         {
             var selectedCameras = CameraList.Where(c => c.IsSelected).Select(c => c.Item).ToList();
 

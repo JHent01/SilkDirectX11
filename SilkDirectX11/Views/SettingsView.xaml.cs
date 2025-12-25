@@ -24,7 +24,7 @@ namespace SilkDirectX11.Views
         {
             InitializeComponent();
             var vm = this.DataContext as SettingsViewModel;
-            this.Path.Text = vm.LoadedExecute();
+            this.Path.Text = vm.OnLoadedExecute();
            
         }
 

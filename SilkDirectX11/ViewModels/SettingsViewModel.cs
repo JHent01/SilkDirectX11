@@ -20,7 +20,7 @@ namespace SilkDirectX11.ViewModels
             _settingsDAO = settingsDAO;
             SaveSettingsCommand = new DelegateCommand(SaveSettingsExecute);
             _eventAggregator = eventAggregator;
-           // LoadedCommand = new DelegateCommand(LoadedExecute);
+            
             CanselCommand = new DelegateCommand(CanselExecute);
             SelectForderForCamers = new DelegateCommand(SelectForderForCamersExecute);
         }
@@ -52,14 +52,14 @@ namespace SilkDirectX11.ViewModels
         {
              
 
-            _settingsDAO.SaveSettings(new Model.PathSettingsJson { SavePathSettings = SavePathSettings });
-            _eventAggregator.GetEvent<CloseSettingsEvent>().Publish("Close");
+            _settingsDAO.SaveGeneralSettings(new Model.PathSettingsJson { SavePathSettings = SavePathSettings });
+            _eventAggregator.GetEvent<CloseViewSettingsEvent>().Publish("Close");
 
         }
        // public DelegateCommand LoadedCommand { get;   set; }
-        public string LoadedExecute()
+        public string OnLoadedExecute()
         {
-            var settings = _settingsDAO.ReadSettings();
+            var settings = _settingsDAO.ReadGeneralSettings();
             SavePathSettings = settings.SavePathSettings;
             return SavePathSettings;
         }
@@ -67,7 +67,7 @@ namespace SilkDirectX11.ViewModels
         public DelegateCommand CanselCommand { get; private set; }
         private void CanselExecute()
         {
-            _eventAggregator.GetEvent<CloseSettingsEvent>().Publish("Close");
+            _eventAggregator.GetEvent<CloseViewSettingsEvent>().Publish("Close");
 
         }
     }

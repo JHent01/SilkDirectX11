@@ -37,7 +37,7 @@ namespace SilkDirectX11.Modules
                    });
                 }
                
-                var path = _settingsDAO.ReadSettings();
+                var path = _settingsDAO.ReadGeneralSettings();
                 if (string.IsNullOrEmpty(path.SavePathSettings))
                     return;
                  string json = System.Text.Json.JsonSerializer.Serialize(cameras);
@@ -56,7 +56,7 @@ namespace SilkDirectX11.Modules
         {
             try
             {
-                var path = _settingsDAO.ReadSettings();
+                var path = _settingsDAO.ReadGeneralSettings();
                 if (string.IsNullOrEmpty(path.SavePathSettings))
                     return new ObservableCollection<CameraStream>();
                 var filePath = Path.Combine(path.SavePathSettings, "Cameras.json");

@@ -153,9 +153,9 @@ namespace SilkDirectX11.Behaviors
             Canvas.SetLeft(rectangle, (pixelPanelForZoom.TopLeft.X ) - 10);
             Canvas.SetTop(rectangle, pixelPanelForZoom.TopLeft.Y);
 
-            canvas.MouseMove += MouseMoveCanvals;
-            rectangle.MouseDown += RectangleMouseDown;
-            rectangle.MouseUp += RectangleMouseUp;
+            canvas.MouseMove += OnMoveCanvals;
+            rectangle.MouseDown += OnRectangleMouseDown;
+            rectangle.MouseUp += OnRectangleMouseUp;
 
         }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SilkDirectX11.Events
 {
-    internal class ProgressBarForReconnectEvent: PubSubEvent<bool>
+    internal class CloseViewSettingsEvent : PubSubEvent<string>
     {
     }
 }

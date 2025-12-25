@@ -8,7 +8,7 @@ using System.Windows.Media.Media3D;
 
 namespace SilkDirectX11.Events
 {
-    public class CameraEvent :PubSubEvent<CameraStream>
+    public class AddCameraEvent :PubSubEvent<CameraStream>
     {
     }
 }

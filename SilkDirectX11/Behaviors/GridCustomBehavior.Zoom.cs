@@ -97,18 +97,18 @@ namespace SilkDirectX11.Behaviors
 
 
 
-        private void RectangleMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnRectangleMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             flagChengePosition = true;
             Canvas canvas = VisualTreeHelper.GetParent(sender as System.Windows.Shapes.Rectangle) as Canvas;
             _startPoint = e.GetPosition(canvas);
 
         }
-        private void RectangleMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnRectangleMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             flagChengePosition = false;
         }
-        private void MouseMoveCanvals(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OnMoveCanvals(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (flagChengePosition)
             {

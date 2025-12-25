@@ -108,7 +108,7 @@ namespace SilkDirectX11.Behaviors
                 grid.Window.Name = grid.CameraGuidName;
                 WindowInteropHelper helper = new WindowInteropHelper(grid.Window);
                 grid.WindowTag = helper.Handle.ToString();
-                grid.Window.MouseRightButtonDown += ChengeFullScreen;
+                grid.Window.MouseRightButtonDown += OnChangeFullScreen;
                 grid.Window.MouseDown += StartDragDrop;
                 grid.Window.MouseUp += DropCamera;
                 grid.Margin = new Thickness(5);
