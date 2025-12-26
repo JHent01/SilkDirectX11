@@ -11,7 +11,7 @@ namespace SilkDirectX11.Model
     {
         
          
-        public static Dictionary<Guid, CameraVisualSettings> DictionarySettingsCamers = new Dictionary<Guid, CameraVisualSettings>();
+        public static Dictionary<Guid, Filters> DictionarySettingsCamers = new Dictionary<Guid, Filters>();
          
 
     }

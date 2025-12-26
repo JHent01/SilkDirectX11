@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SilkDirectX11.Events
+namespace SilkDirectX11.Servise
 {
     public class EventAggregator
     {

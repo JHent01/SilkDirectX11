@@ -2,7 +2,7 @@
 
 namespace SilkDirectX11.Model
 {
-    public class PixelPanelForZoom
+    public class PositionCanvasForZoom
     {
         public System.Windows.Point TopLeft;
         public System.Windows.Point BottomRight;

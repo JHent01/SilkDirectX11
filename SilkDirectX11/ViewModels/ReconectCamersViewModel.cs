@@ -16,7 +16,7 @@ namespace SilkDirectX11.ViewModels
         public ReconectCamersViewModel(IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
-            _eventAggregator.GetEvent<MessegeToViewReconectCameraEvent>().Subscribe(SetStatusCamera);
+            _eventAggregator.GetEvent<MessegeToReconectCameraViewEvent>().Subscribe(SetStatusCamera);
             _eventAggregator.GetEvent<ReconnectEvent>().Subscribe(SetBrogressBar);
             _eventAggregator.GetEvent<ClouseCameraModuleEvent>().Subscribe(OnClouseCamera);
         }
@@ -47,7 +47,7 @@ namespace SilkDirectX11.ViewModels
             ReconectStatus = "Camera Reconnected";
             Thread.Sleep(1000);
 
-            _eventAggregator.GetEvent<CloseViewReconectCamersEvent>().Publish("Close");
+            _eventAggregator.GetEvent<CloseReconectCamersViewEvent>().Publish("Close");
         }
         int counter = 4;
         public   async  void OnClouseCamera(string stat)
@@ -68,7 +68,7 @@ namespace SilkDirectX11.ViewModels
               
             }
 
-            _eventAggregator.GetEvent<CloseViewReconectCamersEvent>().Publish("Close");
+            _eventAggregator.GetEvent<CloseReconectCamersViewEvent>().Publish("Close");
 
         }
         

@@ -12,15 +12,15 @@ namespace SilkDirectX11.Behaviors
 {
     partial class GridCustomBehavior
     {
-        private void InitWindow()
+        private void InitOverlayWindow()
         {
             Grid Rite = AssociatedObject as Grid;
 
-            windowOverlay.Background = System.Windows.Media.Brushes.Transparent;
-            windowOverlay.WindowStyle = WindowStyle.None;
-            windowOverlay.AllowsTransparency = true;
-            windowOverlay.ShowInTaskbar = false;
-            windowOverlay.Topmost = true;
+            _windowOverlay.Background = System.Windows.Media.Brushes.Transparent;
+            _windowOverlay.WindowStyle = WindowStyle.None;
+            _windowOverlay.AllowsTransparency = true;
+            _windowOverlay.ShowInTaskbar = false;
+            _windowOverlay.Topmost = true;
 
             Button buttonClouseInOverlay = new Button
             {
@@ -35,12 +35,12 @@ namespace SilkDirectX11.Behaviors
             Border border = new Border
             {
 
-                Width = windowOverlay.Width,
-                Height = windowOverlay.Height,
+                Width = _windowOverlay.Width,
+                Height = _windowOverlay.Height,
 
 
             };
-            buttonClouseInOverlay.Click += DeleteChild;
+            buttonClouseInOverlay.Click += DeleteGridChild;
             Grid gridWithButtonOverlay = new Grid()
             {
                 Visibility = Visibility.Collapsed,
@@ -55,20 +55,20 @@ namespace SilkDirectX11.Behaviors
             {
                 Background = System.Windows.Media.Brushes.Transparent,
 
-                Width = windowOverlay.Width,
-                Height = windowOverlay.Height,
+                Width = _windowOverlay.Width,
+                Height = _windowOverlay.Height,
             };
             gridWithButtonOverlay.Children.Add(buttonClouseInOverlay);
             GridOverlay.Children.Add(gridWithButtonOverlay);
             border.Child = GridOverlay;
 
-            windowOverlay.Content = border;
+            _windowOverlay.Content = border;
 
-            windowOverlay.Width = Rite.ActualWidth / Rite.ColumnDefinitions.Count;
-            if (Rite.RowDefinitions.Count != 0) windowOverlay.Height = Rite.ActualHeight / Rite.RowDefinitions.Count;
-            else windowOverlay.Height = Rite.ActualHeight;
+            _windowOverlay.Width = Rite.ActualWidth / Rite.ColumnDefinitions.Count;
+            if (Rite.RowDefinitions.Count != 0) _windowOverlay.Height = Rite.ActualHeight / Rite.RowDefinitions.Count;
+            else _windowOverlay.Height = Rite.ActualHeight;
 
-            windowOverlay.Visibility = Visibility.Visible;
+            _windowOverlay.Visibility = Visibility.Visible;
 
 
             gridWithButtonOverlay.MouseMove += OnMouseEnterWindowShowOverlay;
@@ -78,8 +78,8 @@ namespace SilkDirectX11.Behaviors
         }
         private void OnMouseLeaveHideOverlay(object? sender, EventArgs e)
         {
-            if (!flagForOverlay) return;
-            Border border = (Border)windowOverlay.Content;
+            if (!_flagForOverlay) return;
+            Border border = (Border)_windowOverlay.Content;
             Grid grids = (Grid)border.Child;
             Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
             grid.Visibility = Visibility.Hidden;
@@ -88,21 +88,21 @@ namespace SilkDirectX11.Behaviors
         private void OnMouseMuveWindowShow(object sender, System.Windows.Input.MouseEventArgs e)
         {
             var panel = sender as Window;
-            Border border = (Border)windowOverlay.Content;
+            Border border = (Border)_windowOverlay.Content;
             Grid grids = (Grid)border.Child;
             Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
             Button b = grid.Children.OfType<Button>().FirstOrDefault();
             b.Name = panel.Name;
 
             grid.Visibility = Visibility.Visible;
-            windowOverlay.Height = panel.Height;
-            windowOverlay.Width = panel.Width;
-            windowOverlay.Left = panel.PointToScreen(new System.Windows.Point()).X;
-            windowOverlay.Top = panel.PointToScreen(new System.Windows.Point()).Y;
+            _windowOverlay.Height = panel.Height;
+            _windowOverlay.Width = panel.Width;
+            _windowOverlay.Left = panel.PointToScreen(new System.Windows.Point()).X;
+            _windowOverlay.Top = panel.PointToScreen(new System.Windows.Point()).Y;
         }
         private void OnMouseLeaveOverLay(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            flagForOverlay = true;
+            _flagForOverlay = true;
             Grid grd = sender as Grid;
             grd.Visibility = Visibility.Hidden;
 
@@ -110,7 +110,7 @@ namespace SilkDirectX11.Behaviors
 
         private void OnMouseEnterWindowShowOverlay(object s, System.Windows.Input.MouseEventArgs ev)
         {
-            flagForOverlay = false;
+            _flagForOverlay = false;
             Grid grid = s as Grid;
 
             grid.Visibility = Visibility.Visible;
@@ -119,27 +119,27 @@ namespace SilkDirectX11.Behaviors
         {
             var riteGrid = AssociatedObject as Grid;
           
-            Grid gridOverlay = ((Border)windowOverlay.Content).Child as Grid;
+            Grid gridOverlay = ((Border)_windowOverlay.Content).Child as Grid;
             var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
 
-            int buffer = 2;
+           
             if (child != null)
             {
-                buffer = 1;
+               
                 gridOverlay.Children.Remove(child);
             }
             Canvas canvas = new Canvas()
             {
-                Width = windowOverlay.Width,
-                Height = windowOverlay.Height,
+                Width = _windowOverlay.Width,
+                Height = _windowOverlay.Height,
                 Background = System.Windows.Media.Brushes.Transparent,
                 Tag = (sender as Window).Tag
 
             };
             canvas.Children.Add(new System.Windows.Shapes.Rectangle
             {
-                Width = (pixelPanelForZoom.BottomRight.X - pixelPanelForZoom.TopLeft.X),
-                Height = pixelPanelForZoom.BottomRight.Y - pixelPanelForZoom.TopLeft.Y,
+                Width = (_pixelPanelForZoom.BottomRight.X - _pixelPanelForZoom.TopLeft.X),
+                Height = _pixelPanelForZoom.BottomRight.Y - _pixelPanelForZoom.TopLeft.Y,
                 Stroke = System.Windows.Media.Brushes.Red,
                 StrokeThickness = 2,
                 Fill = System.Windows.Media.Brushes.Red,
@@ -150,8 +150,8 @@ namespace SilkDirectX11.Behaviors
             System.Windows.Shapes.Rectangle rectangle = gridOverlay.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault();//.PointFromScreen(new Point(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y)) ;
             rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             rectangle.VerticalAlignment = VerticalAlignment.Top;
-            Canvas.SetLeft(rectangle, (pixelPanelForZoom.TopLeft.X ) - 10);
-            Canvas.SetTop(rectangle, pixelPanelForZoom.TopLeft.Y);
+            Canvas.SetLeft(rectangle, (_pixelPanelForZoom.TopLeft.X ) - 10);
+            Canvas.SetTop(rectangle, _pixelPanelForZoom.TopLeft.Y);
 
             canvas.MouseMove += OnMoveCanvals;
             rectangle.MouseDown += OnRectangleMouseDown;

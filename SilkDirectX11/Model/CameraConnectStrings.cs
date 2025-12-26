@@ -8,8 +8,8 @@ namespace SilkDirectX11.Model
 {
     public class CameraConnectStrings
     {
-        public string mainStream;
-        public string subStream;
+        public string MainStream;
+        public string SubStream;
         public Guid CameraID;
     }
 }

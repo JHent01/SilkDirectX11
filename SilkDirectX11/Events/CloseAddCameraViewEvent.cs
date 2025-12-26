@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SilkDirectX11.Events
 {
-    internal class CloseViewAddCameraEvent: PubSubEvent<string>
+    internal class CloseAddCameraViewEvent: PubSubEvent<string>
     {
         
     }

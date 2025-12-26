@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SilkDirectX11.Model
 {
-    public class CameraVisualSettings
+    public class Filters
     {
         public int Brightness { get; set; } = 0;
         public int Contrast { get; set; } = 0;

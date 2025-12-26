@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Xaml.Behaviors;
 using RenderANDVideoReaderVIdeoDecoder;
-using SilkDirectX11.Events;
 using SilkDirectX11.Model;
+using SilkDirectX11.Servise;
 using SilkDirectX11.SignalR;
 using SilkDirectX11.ViewModels;
 using System;
@@ -41,11 +41,11 @@ namespace SilkDirectX11.Behaviors;
  partial class  GridCustomBehavior : Behavior<Grid>
 {
     //static string patch = Path.Combine(GetSolutionParentPath(), "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
-    System.Windows.Window windowOverlay = new();
+    System.Windows.Window _windowOverlay = new();
      static string patch = Path.Combine(GetSolutionParentPath(), "Rend", "RenderANDVideoReaderVIdeoDecoder", "RenderANDVideoReaderVIdeoDecoder", "bin", "Debug", "net8.0", "RenderANDVideoReaderVIdeoDecoder.exe");
-    bool flagForOverlay;
-    CameraDragDrop cameraDragDrop = new CameraDragDrop();
-    PixelPanelForZoom pixelPanelForZoom = new PixelPanelForZoom();
+    bool _flagForOverlay;
+    CameraDragDrop _cameraDragDrop = new CameraDragDrop();
+    PositionCanvasForZoom _pixelPanelForZoom = new PositionCanvasForZoom();
     private IEventAggregator _eventAggregator;
     private HubConnection? _connection;
     protected override void OnAttached()
@@ -58,10 +58,10 @@ namespace SilkDirectX11.Behaviors;
       
         AssociatedObject.Drop += AssociatedObject_Drop;
        
-        InitWindow();
+        InitOverlayWindow();
           EventAggregatorProvider.Instance.Subscribe<MassegeFromModul>(OnDialogMessegeReceived);
         EventAggregatorProvider.Instance.Subscribe<MessageClousedModul>(OnModuleClouse);
-        EventAggregatorProvider.Instance.Subscribe<List<CameraVisualSettings>>(ChengeSettingsCamera);
+        EventAggregatorProvider.Instance.Subscribe<List<Filters>>(ChengeSettingsCamera);
         var ev = ContainerLocator.Container.Resolve<IEventAggregator>();
         _eventAggregator = ev;
         AssociatedObject.IsVisibleChanged += AssociatedObject_IsVisibleChanged;
@@ -130,7 +130,7 @@ namespace SilkDirectX11.Behaviors;
         Grid grid = AssociatedObject as Grid;
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
         var VM = metroWindow.DataContext as MainViewModel;
-        VM.ClouseCamera(obj.Message);
+        VM.OnClouseCamera(obj.Message);
        var remuvGrid = grid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == obj.IDprocces).FirstOrDefault();
         if (remuvGrid.Children.Count!=0)
         remuvGrid.Children.Clear();
@@ -190,7 +190,7 @@ namespace SilkDirectX11.Behaviors;
     
 
 
-    private void ChengeSettingsCamera(List<CameraVisualSettings> settingsForCamera)
+    private void ChengeSettingsCamera(List<Filters> settingsForCamera)
     {
         var grid = AssociatedObject as Grid;
         

@@ -1,5 +1,4 @@
-﻿using SilkDirectX11.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,18 +15,21 @@ using System.Windows.Shapes;
 namespace SilkDirectX11.Views
 {
     /// <summary>
-    /// Логика взаимодействия для SettingsView.xaml
+    /// Логика взаимодействия для TestWindDialog.xaml
     /// </summary>
-    public partial class SettingsView  
+    public partial class SettingsView : Window
     {
         public SettingsView()
         {
             InitializeComponent();
-            var vm = this.DataContext as SettingsViewModel;
-            this.Path.Text = vm.OnLoadedExecute();
+            this.Owner = System.Windows.Application.Current.MainWindow;
+            
            
         }
 
-        
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+        }
     }
 }

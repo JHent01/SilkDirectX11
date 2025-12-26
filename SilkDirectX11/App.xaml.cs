@@ -17,6 +17,8 @@ namespace SilkDirectX11
     /// </summary>
     public partial class App : PrismApplication
     {
+
+
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             // containerRegistry.RegisterSingleton<TestWindCamera>();    

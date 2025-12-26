@@ -37,8 +37,8 @@ namespace SilkDirectX11.Behaviors
                 var cellChil = Rite.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
                 if (cellChil == null)
                 {
-                    Grid.SetRow(cameraDragDrop.GridTake, row);
-                    Grid.SetColumn(cameraDragDrop.GridTake, colum);
+                    Grid.SetRow(_cameraDragDrop.GridTake, row);
+                    Grid.SetColumn(_cameraDragDrop.GridTake, colum);
                     var cellChil2 = Rite.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
                     
                     cellChil2.Window.Left = cellChil2.PointToScreen(new Point()).X + 5;
@@ -96,6 +96,7 @@ namespace SilkDirectX11.Behaviors
                  });
                 //  grid.Window.Content = new Grid();
                 // grid.Window.SizeToContent = SizeToContent.WidthAndHeight;
+                HwndSource _hwndSource;
                
                 Rite.MouseUp += DropCamera;
                 grid.Window.PreviewDragEnter += MouseMoveDragDrop;
@@ -111,19 +112,22 @@ namespace SilkDirectX11.Behaviors
                 grid.Window.MouseRightButtonDown += OnChangeFullScreen;
                 grid.Window.MouseDown += StartDragDrop;
                 grid.Window.MouseUp += DropCamera;
+                grid.Window.MouseLeave += OnMouseLeaveHideOverlay;
+                grid.Window.MouseMove += OnMouseMuveWindowShow;
                 grid.Margin = new Thickness(5);
                 int colum = GetGridColumn(e.GetPosition(Rite));
                 int row = GetGridRow(e.GetPosition(Rite));
-                 
+                _hwndSource = HwndSource.FromHwnd(nint.Parse(grid.WindowTag));
+                _hwndSource.AddHook(grid.HwndHook);
                 grid.Window.Owner.LocationChanged += OwnedWindowsLocationChange;
-                List<string> arguments = new List<string>() { grid.CameraConnectStrings.subStream, grid.CameraConnectStrings.mainStream, grid.Name, grid.WindowTag, grid.CameraGuidName};
+                grid.Window.Owner.SizeChanged += OwnerSizeChanged;
+                List<string> arguments = new List<string>() { grid.CameraConnectStrings.SubStream, grid.CameraConnectStrings.MainStream, grid.Name, grid.WindowTag, grid.CameraGuidName};
                 var process = StartProcess(arguments, grid.CameraConnectStrings.CameraID);
                 grid.ProcessTag = process.Id.ToString();
              
-                windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
-                windowOverlay.Show();
-                grid.Window.MouseLeave += OnMouseLeaveHideOverlay;
-                grid.Window.MouseMove += OnMouseMuveWindowShow;
+                _windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
+                _windowOverlay.Show();
+                
 
 
                 if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
@@ -175,9 +179,37 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
+        private void OwnerSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Border border = (Border)_windowOverlay.Content;
+            Grid grids = (Grid)border.Child;
+            Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
+            Button b = grid.Children.OfType<Button>().FirstOrDefault();
+            var selectedGrid = AssociatedObject.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == b.Name).FirstOrDefault();
+            if (selectedGrid == null) return;
+            if (selectedGrid.Window != null)
+            {
+                _windowOverlay.Width = selectedGrid.Window.ActualWidth;
+                _windowOverlay.Height = selectedGrid.Window.ActualHeight;
+                _windowOverlay.Left = selectedGrid.Window.PointToScreen(new Point()).X;
+                _windowOverlay.Top = selectedGrid.Window.PointToScreen(new Point()).Y;
+            }
+            else
+            {
+                _windowOverlay.Width = selectedGrid.ActualWidth;
+                _windowOverlay.Height = selectedGrid.ActualHeight;
+                
+            }
+        }
+
         private void OwnedWindowsLocationChange(object? sender, EventArgs e)
         {
-          var MainWind = sender as Window;
+          //var MainWind = sender as Window;
+            //Border border = (Border)_windowOverlay.Content;
+            //Grid grids = (Grid)border.Child;
+            //Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
+            //Button b = grid.Children.OfType<Button>().FirstOrDefault();
+            //var selectedGrid = AssociatedObject.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == b.Name).FirstOrDefault();
             foreach (var item in AssociatedObject.Children.OfType<CustomGrid>())
             {
                 if (item.Window==null) continue;
@@ -192,6 +224,8 @@ namespace SilkDirectX11.Behaviors
                 //host.Window.Width = MainWind.ActualWidth;
                 //host.Window.Height = MainWind.ActualHeight;
             }
+            //_windowOverlay.Left = selectedGrid.PointToScreen(new Point()).X;
+            //_windowOverlay.Top = selectedGrid.PointToScreen(new Point()).Y;
         }
 
         private void CameraWindowMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -231,7 +265,7 @@ namespace SilkDirectX11.Behaviors
             if (cellChil2 != null)
             {
                 
-                cameraDragDrop.GridChange = cellChil2;
+                _cameraDragDrop.GridChange = cellChil2;
 
             }
 
@@ -250,8 +284,8 @@ namespace SilkDirectX11.Behaviors
         private void DropCamera(object sender, MouseButtonEventArgs e)
         {
              if (idk/*(e.LeftButton != MouseButtonState.Released *//*e.Button != System.Windows.Forms.MouseButtons.Left*/) return;
-            if (cameraDragDrop.GridTake != null & cameraDragDrop.GridChange != null)
-                DragDrop.DoDragDrop(cameraDragDrop.GridTake, cameraDragDrop, System.Windows.DragDropEffects.Move);
+            if (_cameraDragDrop.GridTake != null & _cameraDragDrop.GridChange != null)
+                DragDrop.DoDragDrop(_cameraDragDrop.GridTake, _cameraDragDrop, System.Windows.DragDropEffects.Move);
            
         }
         bool idk = false;
@@ -268,7 +302,7 @@ namespace SilkDirectX11.Behaviors
 
             if (grid != null)
             {
-                cameraDragDrop.GridTake = grid;
+                _cameraDragDrop.GridTake = grid;
                 
             }
         }
@@ -316,21 +350,21 @@ namespace SilkDirectX11.Behaviors
 
         private void SwichCameraForDragDrop()
         {
-            var rowSet = Grid.GetRow(cameraDragDrop.GridChange);
-            var columSet = Grid.GetColumn(cameraDragDrop.GridChange);
-            var flipS = Grid.GetRow(cameraDragDrop.GridTake);
-            var flipC = Grid.GetColumn(cameraDragDrop.GridTake);
+            var rowSet = Grid.GetRow(_cameraDragDrop.GridChange);
+            var columSet = Grid.GetColumn(_cameraDragDrop.GridChange);
+            var flipS = Grid.GetRow(_cameraDragDrop.GridTake);
+            var flipC = Grid.GetColumn(_cameraDragDrop.GridTake);
 
-            Grid.SetRow(cameraDragDrop.GridTake, rowSet);
-            Grid.SetColumn(cameraDragDrop.GridTake, columSet);
+            Grid.SetRow(_cameraDragDrop.GridTake, rowSet);
+            Grid.SetColumn(_cameraDragDrop.GridTake, columSet);
 
-            Grid.SetRow(cameraDragDrop.GridChange, flipS);
-            Grid.SetColumn(cameraDragDrop.GridChange, flipC);
+            Grid.SetRow(_cameraDragDrop.GridChange, flipS);
+            Grid.SetColumn(_cameraDragDrop.GridChange, flipC);
 
-            cameraDragDrop.GridTake.Window.Left = cameraDragDrop.GridChange.PointToScreen(new Point()).X + 5;
-            cameraDragDrop.GridTake.Window.Top = cameraDragDrop.GridChange.PointToScreen(new Point()).Y + 5;
-            cameraDragDrop.GridChange.Window.Left = cameraDragDrop.GridTake.PointToScreen(new Point()).X + 5;
-            cameraDragDrop.GridChange.Window.Top = cameraDragDrop.GridTake.PointToScreen(new Point()).Y + 5;
+            _cameraDragDrop.GridTake.Window.Left = _cameraDragDrop.GridChange.PointToScreen(new Point()).X + 5;
+            _cameraDragDrop.GridTake.Window.Top = _cameraDragDrop.GridChange.PointToScreen(new Point()).Y + 5;
+            _cameraDragDrop.GridChange.Window.Left = _cameraDragDrop.GridTake.PointToScreen(new Point()).X + 5;
+            _cameraDragDrop.GridChange.Window.Top = _cameraDragDrop.GridTake.PointToScreen(new Point()).Y + 5;
 
 
         }
@@ -377,7 +411,7 @@ namespace SilkDirectX11.Behaviors
             return result;
         }
 
-        private void DeleteChild(object sender, RoutedEventArgs e)
+        private void DeleteGridChild(object sender, RoutedEventArgs e)
         {
             var Rite = AssociatedObject as Grid;
 
@@ -399,7 +433,7 @@ namespace SilkDirectX11.Behaviors
                             Process.GetProcessById(int.Parse(tag)).Kill();
                         }
                         catch { }
-                        Border border = (Border)windowOverlay.Content;
+                        Border border = (Border)_windowOverlay.Content;
                         Grid grids = (Grid)border.Child;
                         Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
 

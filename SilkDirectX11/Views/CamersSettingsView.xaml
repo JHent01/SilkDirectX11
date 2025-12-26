@@ -1,22 +1,26 @@
-﻿<mahx:CustomDialog x:Class="SilkDirectX11.Views.CamersSettingsView"
+﻿<Window x:Class="SilkDirectX11.Views.CamersSettingsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SilkDirectX11.Views"
         mc:Ignorable="d"
-        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:prism="http://prismlibrary.com/"
         xmlns:enums="clr-namespace:SilkDirectX11.Enums"
         xmlns:convert="clr-namespace:SilkDirectX11.Converters"
+        ResizeMode="NoResize"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
+        WindowStyle="None"
+        xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Height="500" Width="700"  x:Name="CameraSettingsDialog" >
-    <mahx:CustomDialog.Resources>
+        ShowInTaskbar="False"
+         
+        Title="Camers Settings Page" x:Name="CamersSettings" Height="500" Width="700" Background="Transparent"><!--#FF252525-->
+    <Window.Resources>
         <ResourceDictionary >
             <convert:VisibilityConvert x:Key="VisibilityConvert"/>
         </ResourceDictionary>
-    </mahx:CustomDialog.Resources>
+    </Window.Resources>
 
     <Grid >
         <Grid.ColumnDefinitions>
@@ -24,21 +28,25 @@
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
             <RowDefinition Height="35" />
             <RowDefinition Height="auto" />
+            
         </Grid.RowDefinitions>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="CheckBoxSelectAll" Content="Select All" Width="100" Height="25" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsCheckedAll}" Visibility="{Binding DataContext.VisibilityCheBox, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type mahx:CustomDialog}}, Converter={StaticResource VisibilityConvert}}" />
-        <ListBox x:Name="List" Width="200" Margin="0,30,90,00" ItemsSource="{Binding CameraList}" SelectedItem="{Binding IsSelectedViewModel}" Grid.Column="0" Grid.Row="1">
+        <Label Grid.Column="0" Grid.Row="0" Content="Filters Settings" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="24" Margin="10,0,0,0"/>
+        <CheckBox Grid.Column="0" Grid.Row="2" x:Name="CheckBoxSelectAll" Content="Select All" Width="100" Height="25" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsCheckedAll}" Visibility="{Binding VisibilityCheBox, Converter={StaticResource VisibilityConvert}}" /> <!--RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type mahx:CustomDialog}},-->
+        <ListBox x:Name="List" Width="200" Margin="0,30,90,10" ItemsSource="{Binding CameraList}" SelectedItem="{Binding IsSelectedViewModel}" Grid.Column="0" Grid.Row="2" >
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <CheckBox IsChecked="{Binding IsSelected}" Margin="10,0,0,0" Width="auto" HorizontalAlignment="Left" Visibility="{Binding DataContext.VisibilityCheBox, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type mahx:CustomDialog}}, Converter={StaticResource VisibilityConvert}}"  />
+                        <CheckBox IsChecked="{Binding IsSelected}" Margin="10,0,0,0" Width="auto" HorizontalAlignment="Left" Visibility="{Binding DataContext.VisibilityCheBox, Source={x:Reference CamersSettings} , Converter={StaticResource VisibilityConvert}}"  /> <!--, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type mahx:CustomDialog}}-->
                         <Label   Content="{Binding Item.CameraName}" >
                             <Label.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Копировать"
-                                              Command="{Binding DataContext.CopyCommand, Source={x:Reference CameraSettingsDialog}}"
-                                              /> <!--CommandParameter="{Binding Item , Source={x:Reference CameraSettingsDialog} }"-->
+                                           Command="{Binding DataContext.CopyCommand, Source={x:Reference CamersSettings}}"
+                                           />
+                                    <!--CommandParameter="{Binding Item , Source={x:Reference CameraSettingsDialog} }"-->
                                 </ContextMenu>
                             </Label.ContextMenu>
                         </Label>
@@ -46,53 +54,60 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-
-        <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="1" Visibility="{Binding VisibilitySettings, Converter={StaticResource VisibilityConvert}}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Column="1" Grid.Row="2" Grid.RowSpan="2" >
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <Label Grid.Row="0" Grid.Column="0" Content="Brightness:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <Label Grid.Row="1" Grid.Column="0" Content="Contrast:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <Label Grid.Row="2" Grid.Column="0" Content="Hue:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <Label Grid.Row="3" Grid.Column="0" Content="Saturation:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <Label Grid.Row="4" Grid.Column="0" Content="NoiseReduction:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <Label Grid.Row="5" Grid.Column="0" Content="EdgeEnhancement:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <Label Grid.Row="6" Grid.Column="0" Content="AnamorphicScaling:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <Label Grid.Row="7" Grid.Column="0" Content="StereoAdjustment:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <Label Grid.Row="8" Grid.Column="0" Content="Rotation:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
-            <ComboBox Grid.Row="8" Grid.Column="1" Width="120" Height="30" Margin="5" HorizontalAlignment="Left"
-                      ItemsSource="{Binding Source={convert:ConvertEnum EnumType={x:Type enums:EnumRotation}}}"
-                      SelectedItem="{Binding Rotation}" />
+            <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="1" Visibility="{Binding VisibilitySettings, Converter={StaticResource VisibilityConvert}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Content="Brightness:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <Label Grid.Row="1" Grid.Column="0" Content="Contrast:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <Label Grid.Row="2" Grid.Column="0" Content="Hue:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <Label Grid.Row="3" Grid.Column="0" Content="Saturation:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <Label Grid.Row="4" Grid.Column="0" Content="NoiseReduction:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <Label Grid.Row="5" Grid.Column="0" Content="EdgeEnhancement:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <Label Grid.Row="6" Grid.Column="0" Content="AnamorphicScaling:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <Label Grid.Row="7" Grid.Column="0" Content="StereoAdjustment:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <Label Grid.Row="8" Grid.Column="0" Content="Rotation:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+                <ComboBox Grid.Row="8" Grid.Column="1" Width="120" Height="30" Margin="5" HorizontalAlignment="Left"
+                   ItemsSource="{Binding Source={convert:ConvertEnum EnumType={x:Type enums:EnumRotation}}}"
+                   SelectedItem="{Binding Rotation}" />
 
-            <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Brightness}" Width="200" Height="30" Margin="5"  />
-            <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Contrast}" Width="200" Height="30" Margin="5"  />
-            <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Hue}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Saturation}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding NoiseReduction}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="5" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding EdgeEnhancement}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="6" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding AnamorphicScaling}" Width="200" Height="30"  Margin="5" />
-            <Slider Grid.Row="7" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding StereoAdjustment}" Width="200" Height="30"  Margin="5" />
+                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Brightness}" Width="200" Height="30" Margin="5"  />
+                <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Contrast}" Width="200" Height="30" Margin="5"  />
+                <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Hue}" Width="200" Height="30"  Margin="5" />
+                <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Saturation}" Width="200" Height="30"  Margin="5" />
+                <Slider Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding NoiseReduction}" Width="200" Height="30"  Margin="5" />
+                <Slider Grid.Row="5" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding EdgeEnhancement}" Width="200" Height="30"  Margin="5" />
+                <Slider Grid.Row="6" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding AnamorphicScaling}" Width="200" Height="30"  Margin="5" />
+                <Slider Grid.Row="7" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding StereoAdjustment}" Width="200" Height="30"  Margin="5" />
 
-            <Button  Grid.Row="9" Grid.Column="0" Content="Save" Margin="5" HorizontalAlignment="Right"  Width="100" Height="30" Command="{Binding SaveSettingsSingleComand}"   Visibility="{Binding VisibilityButton, Converter={StaticResource VisibilityConvert}}"/>
-            <Button  Grid.Row="9" Grid.Column="1" Content="Close" Margin="5" HorizontalAlignment="Left"  Width="100" Height="30" Command="{Binding CloseComaand}"  Visibility="{Binding VisibilityButton, Converter={StaticResource VisibilityConvert}}" />
-            <!--<Button Grid.Row="9" Grid.Column="1" Content="Test" Margin="5" HorizontalAlignment="Center" Width="100" Height="30" Command="{Binding CopyCommand}" />-->
+                <Button  Grid.Row="9" Grid.Column="0" Content="Save" Margin="5" HorizontalAlignment="Center"  Width="100" Height="30" Command="{Binding SaveSettingsSingleComand}"   Visibility="{Binding VisibilityButton, Converter={StaticResource VisibilityConvert}}"/>
+
+                <!--<Button Grid.Row="9" Grid.Column="1" Content="Test" Margin="5" HorizontalAlignment="Center" Width="100" Height="30" Command="{Binding CopyCommand}" />-->
+            </Grid>
+            <Button  Grid.Row="0" Grid.RowSpan="1" Grid.Column="1" Content="Close" Margin="5" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Width="100" Height="30" Command="{Binding CloseComaand}" Visibility="{Binding VisibilityButton, Converter={StaticResource VisibilityConvert}}"  />
+
         </Grid>
-        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal"  Width="auto"  VerticalAlignment="Top"   >
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal"  Width="auto"  VerticalAlignment="Top"   >
             <Button Grid.Row="0" Grid.Column="0" Content="Save" Margin="5" HorizontalAlignment="Left" Width="70" Height="20" Visibility="{Binding VisibilityCheBox, Converter={StaticResource VisibilityConvert}}" Command="{Binding SaveCommand}" />
             <Button Grid.Column="0" Grid.Row="0" Content="Cansel" Margin="5" HorizontalAlignment="Right" Width="70" Height="20"  Visibility="{Binding VisibilityCheBox, Converter={StaticResource VisibilityConvert}}" Command="{Binding CanselCopy}" />
         </StackPanel>
     </Grid>
-</mahx:CustomDialog>
+</Window>

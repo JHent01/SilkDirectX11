@@ -1,32 +1,28 @@
-﻿using SilkDirectX11.Interfaces;
+﻿using SilkDirectX11.Events;
+using SilkDirectX11.Interfaces;
+using SilkDirectX11.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Prism.Mvvm;
-using Prism.Commands;
-using SilkDirectX11.Model;
-using Prism.Events;
-using SilkDirectX11.Events;
-
 
 namespace SilkDirectX11.ViewModels
 {
     internal class SettingsViewModel : BindableBase
     {
-       public SettingsViewModel(ISettingsDAO settingsDAO, IEventAggregator eventAggregator)
+        public SettingsViewModel(ISettingsDAO settingsDAO, IEventAggregator eventAggregator)
         {
             _settingsDAO = settingsDAO;
             SaveSettingsCommand = new DelegateCommand(SaveSettingsExecute);
             _eventAggregator = eventAggregator;
-            
+            LoadedCommand= new DelegateCommand(OnLoadedExecute);
             CanselCommand = new DelegateCommand(CanselExecute);
             SelectForderForCamers = new DelegateCommand(SelectForderForCamersExecute);
         }
         IEventAggregator _eventAggregator;
         ISettingsDAO _settingsDAO;
-        private string _savePathSettings  ;
+        private string _savePathSettings;
         public string SavePathSettings
         {
             get { return _savePathSettings; }
@@ -50,25 +46,26 @@ namespace SilkDirectX11.ViewModels
         public DelegateCommand SaveSettingsCommand { get; private set; }
         private void SaveSettingsExecute()
         {
-             
+
 
             _settingsDAO.SaveGeneralSettings(new Model.PathSettingsJson { SavePathSettings = SavePathSettings });
-            _eventAggregator.GetEvent<CloseViewSettingsEvent>().Publish("Close");
+             _eventAggregator.GetEvent<CloseSettingsViewEvent>().Publish("Close");
 
         }
-       // public DelegateCommand LoadedCommand { get;   set; }
-        public string OnLoadedExecute()
+         public DelegateCommand LoadedCommand { get;   set; }
+        public void OnLoadedExecute()
         {
             var settings = _settingsDAO.ReadGeneralSettings();
             SavePathSettings = settings.SavePathSettings;
-            return SavePathSettings;
+            //return SavePathSettings;
         }
 
         public DelegateCommand CanselCommand { get; private set; }
         private void CanselExecute()
         {
-            _eventAggregator.GetEvent<CloseViewSettingsEvent>().Publish("Close");
-
+            
+             _eventAggregator.GetEvent<CloseSettingsViewEvent>().Publish("Close");
+           
         }
     }
 }

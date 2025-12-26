@@ -29,8 +29,8 @@ namespace SilkDirectX11.Modules
                     {
                         CameraName = cam.Name,
                         ConnectStrings = cam.Tag as CameraConnectStrings,
-                        CameraMainStream = (cam.Tag as CameraConnectStrings)?.mainStream,
-                        CameraSubStream = (cam.Tag as CameraConnectStrings)?.subStream,
+                        CameraMainStream = (cam.Tag as CameraConnectStrings)?.MainStream,
+                        CameraSubStream = (cam.Tag as CameraConnectStrings)?.SubStream,
                         CameraID = (cam.Tag as CameraConnectStrings).CameraID ,
 
 

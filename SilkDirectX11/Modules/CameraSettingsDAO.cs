@@ -16,7 +16,7 @@ namespace SilkDirectX11.Modules
             _settingsDAO = settingsDAO;
         }
 
-        public void SaveCameraSettings(List<CameraVisualSettings> settings)
+        public void SaveCameraSettings(List<Filters> settings)
         {
             try
             {
@@ -31,18 +31,18 @@ namespace SilkDirectX11.Modules
                 throw new Exception("Error saving camera settings", ex);
             }
         }
-        public List<CameraVisualSettings> GetCameraSettings()
+        public List<Filters> GetCameraSettings()
         {
             try
             {
                 var path = _settingsDAO.ReadGeneralSettings();
                 if (string.IsNullOrEmpty(path.SavePathSettings))
-                    return new List<CameraVisualSettings>();
+                    return new List<Filters>();
                 var filePath = System.IO.Path.Combine(path.SavePathSettings, "CameraSettings.json");
                 if (!System.IO.File.Exists(filePath))
-                    return new List<CameraVisualSettings>();
+                    return new List<Filters>();
                 string json = System.IO.File.ReadAllText(filePath);
-                 List<CameraVisualSettings> settings = System.Text.Json.JsonSerializer.Deserialize<List<CameraVisualSettings>>(json);
+                 List<Filters> settings = System.Text.Json.JsonSerializer.Deserialize<List<Filters>>(json);
                 return settings;
             }
             catch (Exception ex)

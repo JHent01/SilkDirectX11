@@ -53,13 +53,13 @@ namespace SilkDirectX11.ViewModels
             //    return;
             //}
 
-            _eventAggregator.GetEvent<AddCameraEvent>().Publish(new Model.CameraStream { CameraName = CameraName, ConnectStrings  = new CameraConnectStrings { mainStream = MainSreamURL,subStream = SubStreamURL, CameraID =   Guid.NewGuid() }  });
+            _eventAggregator.GetEvent<AddCameraEvent>().Publish(new Model.CameraStream { CameraName = CameraName, ConnectStrings  = new CameraConnectStrings { MainStream = MainSreamURL,SubStream = SubStreamURL, CameraID =   Guid.NewGuid() }  });
          
         }
         public DelegateCommand CanselCommand { get; private set; }
         private void Cansel()
         {
-            _eventAggregator.GetEvent<CloseViewAddCameraEvent>().Publish("Cansel");
+            _eventAggregator.GetEvent<CloseAddCameraViewEvent>().Publish("Cansel");
         }
 
     }

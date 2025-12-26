@@ -17,7 +17,7 @@
             Dialog:DialogParticipation.Register="{Binding}"
          prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="MainView" Height="500" Width="800"  Background="Transparent" x:Name="MainW" >
+        Title="MainView" Height="500" Width="800"  Background="Transparent" x:Name="MainW" Opacity="{Binding Opasity }" >
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
@@ -92,5 +92,6 @@
         <Button    Command="{Binding SettingsOpenComman}"  HorizontalAlignment="Right" >
             <iconPacks:BootstrapIcons Kind="Gear" Height="20" Width="20" /> 
         </Button>
+      
     </Grid>
 </mahx:MetroWindow>

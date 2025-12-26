@@ -1,5 +1,4 @@
 ﻿using LibraryForSignalR;
-using SilkDirectX11.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +10,10 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Runtime.InteropServices;
+using SilkDirectX11.Servise;
+using DevExpress.XtraPrinting.Native;
+using ControlzEx.Standard;
+using System.Diagnostics;
 
 namespace SilkDirectX11.Model
 {
@@ -102,8 +105,10 @@ namespace SilkDirectX11.Model
         {
             if (this.Window != null)
             {
-                
 
+                SetSize setSize = new SetSize((int)this.ActualWidth - 10, (int)this.ActualHeight - 10, int.Parse(this.ProcessTag));
+                EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
+                 
                 //(this.Window.Content as Grid).Width = this.ActualWidth-10;
                 //(this.Window.Content as Grid).Height = this.ActualHeight-10;
                 //this.Window.SizeToContent = SizeToContent.WidthAndHeight;
@@ -114,11 +119,12 @@ namespace SilkDirectX11.Model
                   Window.Top = this.PointToScreen(new System.Windows.Point()).Y+5;
                  Window.Width = this.ActualWidth-10;
                   Window.Height = this.ActualHeight-10;
-                
-                 SetSize setSize = new SetSize((int)this.ActualWidth, (int)this.ActualHeight,int.Parse(this.ProcessTag));
-               // EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
-                //BeginResizeVisualFreeze();
 
+                //SetSize setSize = new SetSize((int)this.ActualWidth, (int)this.ActualHeight,int.Parse(this.ProcessTag));
+                //EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
+                //BeginResizeVisualFreeze();
+                //_hwndSource = HwndSource.FromHwnd(nint.Parse(WindowTag));
+                //_hwndSource.AddHook(HwndHook);
 
                 _pendingWidth = (int)Math.Max(this.ActualWidth, this.MinWidth);
                 _pendingHeight = (int)Math.Max(this.ActualHeight, this.MinHeight);
@@ -126,7 +132,22 @@ namespace SilkDirectX11.Model
                 // _resizeDebounceTimer.Start();
             }
         }
+        private HwndSource _hwndSource;
+        public IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            
 
+            if (msg == 5)
+            {
+                //_hwndSource = HwndSource.FromHwnd(nint.Parse(WindowTag));
+                Debug.WriteLine("Size");
+                //handled = true;
+                
+
+            }
+
+            return IntPtr.Zero;
+        }
 
 
     }

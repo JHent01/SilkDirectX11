@@ -22,25 +22,25 @@ namespace SilkDirectX11.Behaviors
     {
         private Point _startPoint;
         bool flagChengePosition = false;
-        private void MouseUpTakePixel(object? sender, MouseButtonEventArgs e)
+        private void OnMouseUpTakePosition(object? sender, MouseButtonEventArgs e)
         {
-            pixelPanelForZoom.BottomRight = new Point(e.GetPosition(sender as Window).X, e.GetPosition(sender as Window).Y);//??
+            _pixelPanelForZoom.BottomRight = new Point(e.GetPosition(sender as Window).X, e.GetPosition(sender as Window).Y);//??
 
-            if (pixelPanelForZoom.TopLeft != pixelPanelForZoom.BottomRight & pixelPanelForZoom.TopLeft != null & pixelPanelForZoom.TopLeft.X != 0)
+            if (_pixelPanelForZoom.TopLeft != _pixelPanelForZoom.BottomRight & _pixelPanelForZoom.TopLeft != null & _pixelPanelForZoom.TopLeft.X != 0)
             {
-                if (pixelPanelForZoom.BottomRight.X < pixelPanelForZoom.TopLeft.X || pixelPanelForZoom.BottomRight.Y < pixelPanelForZoom.TopLeft.Y)
+                if (_pixelPanelForZoom.BottomRight.X < _pixelPanelForZoom.TopLeft.X || _pixelPanelForZoom.BottomRight.Y < _pixelPanelForZoom.TopLeft.Y)
                 {
-                    if (pixelPanelForZoom.BottomRight.X < pixelPanelForZoom.TopLeft.X)
+                    if (_pixelPanelForZoom.BottomRight.X < _pixelPanelForZoom.TopLeft.X)
                     {
-                        var bufferX = pixelPanelForZoom.TopLeft.X;
-                        pixelPanelForZoom.TopLeft.X = pixelPanelForZoom.BottomRight.X;
-                        pixelPanelForZoom.BottomRight.X = bufferX;
+                        var bufferX = _pixelPanelForZoom.TopLeft.X;
+                        _pixelPanelForZoom.TopLeft.X = _pixelPanelForZoom.BottomRight.X;
+                        _pixelPanelForZoom.BottomRight.X = bufferX;
                     }
-                    if (pixelPanelForZoom.BottomRight.Y < pixelPanelForZoom.TopLeft.Y)
+                    if (_pixelPanelForZoom.BottomRight.Y < _pixelPanelForZoom.TopLeft.Y)
                     {
-                        var bufferY = pixelPanelForZoom.TopLeft.Y;
-                        pixelPanelForZoom.TopLeft.Y = pixelPanelForZoom.BottomRight.Y;
-                        pixelPanelForZoom.BottomRight.Y = bufferY;
+                        var bufferY = _pixelPanelForZoom.TopLeft.Y;
+                        _pixelPanelForZoom.TopLeft.Y = _pixelPanelForZoom.BottomRight.Y;
+                        _pixelPanelForZoom.BottomRight.Y = bufferY;
 
                     }
                 }
@@ -67,8 +67,8 @@ namespace SilkDirectX11.Behaviors
                 wind.OwnedWindows[0].Close();
             else
             {
-                pixelPanelForZoom.TopLeft.X = pixelPanelForZoom.TopLeft.X / 2;
-                pixelPanelForZoom.BottomRight.X = pixelPanelForZoom.BottomRight.X / 2;
+                _pixelPanelForZoom.TopLeft.X = _pixelPanelForZoom.TopLeft.X / 2;
+                _pixelPanelForZoom.BottomRight.X = _pixelPanelForZoom.BottomRight.X / 2;
             }
             wind.Width = (riteGrid.ActualWidth / 2);
             wind.Height = riteGrid.ActualHeight;
@@ -80,11 +80,11 @@ namespace SilkDirectX11.Behaviors
             zoomWind.Show();
             zoomWind.Focus();
 
-            windowOverlay.Width = riteGrid.ActualWidth / 2;
-            windowOverlay.Height = riteGrid.ActualHeight;
+            _windowOverlay.Width = riteGrid.ActualWidth / 2;
+            _windowOverlay.Height = riteGrid.ActualHeight;
             WindowInteropHelper helper = new WindowInteropHelper(zoomWind);
             int windHandel = int.Parse(helper.Handle.ToString());
-            PointsForZoom pointsForZoom = new PointsForZoom(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y, pixelPanelForZoom.BottomRight.X, pixelPanelForZoom.BottomRight.Y);
+            PointsForZoom pointsForZoom = new PointsForZoom(_pixelPanelForZoom.TopLeft.X, _pixelPanelForZoom.TopLeft.Y, _pixelPanelForZoom.BottomRight.X, _pixelPanelForZoom.BottomRight.Y);
             Rectangle_MouseMove_SendPoint(wind.Tag as string , pointsForZoom);
             OpenZoom openZoom = new OpenZoom(true, windHandel, (int)zoomWind.Width, (int)zoomWind.Height, int.Parse(wind.Tag as string));
 
@@ -144,11 +144,11 @@ namespace SilkDirectX11.Behaviors
             }
         }
 
-        private void MouseDownTakePxel(object? sender, MouseButtonEventArgs e)
+        private void OnMouseDownTakePosition(object? sender, MouseButtonEventArgs e)
         {
             if (!flagChengePosition)
-                pixelPanelForZoom.TopLeft = new Point(e.GetPosition(sender as Window).X, e.GetPosition(sender as Window).Y);
-            else pixelPanelForZoom.TopLeft = new Point(0, 0);
+                _pixelPanelForZoom.TopLeft = new Point(e.GetPosition(sender as Window).X, e.GetPosition(sender as Window).Y);
+            else _pixelPanelForZoom.TopLeft = new Point(0, 0);
         }
     }
 }

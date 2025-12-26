@@ -1,5 +1,4 @@
-﻿using SilkDirectX11.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,15 +13,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace SilkDirectX11.Views
-{ 
-    public partial class CamersSettingsView  
+{
+    /// <summary>
+    /// Логика взаимодействия для CamersSettingsView.xaml
+    /// </summary>
+    public partial class CamersSettingsView : Window
     {
         public CamersSettingsView()
         {
             InitializeComponent();
-          
         }
-
-         
     }
 }

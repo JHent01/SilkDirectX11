@@ -9,7 +9,7 @@ namespace SilkDirectX11.Interfaces
 {
     interface ICameraSettingsDAO
     {
-        void SaveCameraSettings(List<CameraVisualSettings> settings);
-        List<CameraVisualSettings> GetCameraSettings();
+        void SaveCameraSettings(List<Filters> settings);
+        List<Filters> GetCameraSettings();
     }
 }

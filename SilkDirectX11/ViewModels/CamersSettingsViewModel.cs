@@ -4,6 +4,7 @@ using SilkDirectX11.Enums;
 using SilkDirectX11.Events;
 using SilkDirectX11.Interfaces;
 using SilkDirectX11.Model;
+using SilkDirectX11.Servise;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -131,15 +132,15 @@ namespace SilkDirectX11.ViewModels
             get => visibilitySettings;
             set => SetProperty(ref visibilitySettings, value);
         }
-        List<CameraVisualSettings> cameraVisualSettings;
-        public List<CameraVisualSettings> CameraVisualSettingsList
+        List<Filters> cameraVisualSettings;
+        public List<Filters> CameraVisualSettingsList
         {
             get => cameraVisualSettings;
             set => SetProperty(ref cameraVisualSettings, value);
         }
         #endregion
         #region Metods
-        private List<CameraVisualSettings> OnLoaded()
+        private List<Filters> OnLoaded()
         {
 
             var listCamers = _cameraDAO.GetAllCameras();
@@ -153,8 +154,8 @@ namespace SilkDirectX11.ViewModels
 
                 cameraList.Add(item);
             }
-            List<CameraVisualSettings> cameraSettings = _cameraSettingsDAO.GetCameraSettings();
-            List<CameraVisualSettings> cameraSettingsToRemove = new List<CameraVisualSettings>();
+            List<Filters> cameraSettings = _cameraSettingsDAO.GetCameraSettings();
+            List<Filters> cameraSettingsToRemove = new List<Filters>();
             foreach (var cam in cameraSettings)
             {
                 if (!cameraList.Any(c => c.Item.CameraID == cam.CameraId))
@@ -174,7 +175,7 @@ namespace SilkDirectX11.ViewModels
         {
             VisibilitySettings = true;
 
-            CameraVisualSettings cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
+            Filters cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
             if (cameraVisualSettings != null)
             {
                 Rotation = (EnumRotation)Enum.Parse(typeof(EnumRotation), cameraVisualSettings.Rotation);
@@ -261,12 +262,12 @@ namespace SilkDirectX11.ViewModels
         public DelegateCommand SaveSettingsSingleComand { get; private set; }
         private void SaveSingleSettings()
         {
-            CameraVisualSettings settings = null;
-            CameraVisualSettings cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
+            Filters settings = null;
+            Filters cameraVisualSettings = CameraVisualSettingsList.FirstOrDefault(c => c.CameraId == IsSelectedViewModel.Item.CameraID);
             if (cameraVisualSettings == null)
             {
                 var cameraNewVisualSettings = cameraList.FirstOrDefault(c => c.Item.CameraID == IsSelectedViewModel.Item.CameraID);
-                settings = new CameraVisualSettings
+                settings = new Filters
                 {
                     CameraId = cameraNewVisualSettings.Item.CameraID,
                     Rotation = this.Rotation.ToString(),
@@ -283,7 +284,7 @@ namespace SilkDirectX11.ViewModels
             }
             else
             {
-                settings = new CameraVisualSettings
+                settings = new Filters
                 {
                     CameraId = cameraVisualSettings.CameraId,
                     Rotation = this.Rotation.ToString(),
@@ -317,7 +318,7 @@ namespace SilkDirectX11.ViewModels
 
             foreach (var cam in selectedCameras)
             {
-                var settings = new CameraVisualSettings
+                var settings = new Filters
                 {
                     CameraId = cam.CameraID,
                     Rotation = this.Rotation.ToString(),

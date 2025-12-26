@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using LibraryForSignalR;
 using Vortice.Mathematics;
 using SilkDirectX11;
-using SilkDirectX11.Events;
+using SilkDirectX11.Servise;
 namespace SilkDirectX11.SignalR
 {
     public class PointsHub : Hub
