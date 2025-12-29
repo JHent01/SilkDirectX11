@@ -17,7 +17,7 @@ namespace SilkDirectX11.Views
     /// <summary>
     /// Логика взаимодействия для ReconectCamersView.xaml
     /// </summary>
-    public partial class ReconectCamersView  
+    public partial class ReconectCamersView : Window
     {
         public ReconectCamersView()
         {

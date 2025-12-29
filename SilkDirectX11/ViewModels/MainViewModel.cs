@@ -52,7 +52,7 @@ namespace SilkDirectX11.ViewModels
             _eventAggregator.GetEvent<CloseAddCameraViewEvent>().Subscribe(s => { /*_dialogCoordinator.HideMetroDialogAsync(this, AddCameraDialogs); MainVisibility = true;*/Opasity = 1; addCameraView.DialogResult = true; });
             _eventAggregator.GetEvent<CloseSettingsViewEvent>().Subscribe(s => { /*_dialogCoordinator.HideMetroDialogAsync(this, SettingsDialog); */Opasity = 1; test.DialogResult = true; /*MainVisibility = true; */});
             _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { /*_dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); MainVisibility = true;*/ Opasity = 1; camersSettingsView.DialogResult = true;   } );
-           _eventAggregator.GetEvent<CloseReconectCamersViewEvent>().Subscribe( s=> { /*try { if (!MainVisibility) _dialogCoordinator.HideMetroDialogAsync(this, ReconectCamera); } catch(Exception ex) { Debug.WriteLine(ex.Message); } MainVisibility = true; */});
+           _eventAggregator.GetEvent<CloseReconectCamersViewEvent>().Subscribe( s=> { /*try { if (!MainVisibility) _dialogCoordinator.HideMetroDialogAsync(this, ReconectCamera); } catch(Exception ex) { Debug.WriteLine(ex.Message); } MainVisibility = true; */ if (reconectCamersView.DialogResult!=true) { Opasity = 1; reconectCamersView.DialogResult = true; } });
              
             _eventAggregator.GetEvent<VisibilityChengeEvent>().Subscribe(VisibilitySet);
             #endregion
@@ -62,10 +62,10 @@ namespace SilkDirectX11.ViewModels
         {
             MainVisibility = (obj == Visibility.Visible);
         }
-        private BaseMetroDialog AddCameraDialogs = new CustomDialog();
-        private BaseMetroDialog SettingsDialog = new CustomDialog();
-        private BaseMetroDialog CameraSettingsDialog = new CustomDialog();
-        private BaseMetroDialog ReconectCamera = new CustomDialog();
+        //private BaseMetroDialog AddCameraDialogs = new CustomDialog();
+        //private BaseMetroDialog SettingsDialog = new CustomDialog();
+        //private BaseMetroDialog CameraSettingsDialog = new CustomDialog();
+        //private BaseMetroDialog ReconectCamera = new CustomDialog();
         public IEventAggregator _eventAggregator;
         ICameraSettingsDAO _cameraSettingsDAO;
         private IDialogCoordinator _dialogCoordinator;
@@ -130,22 +130,29 @@ namespace SilkDirectX11.ViewModels
             //await _dialogCoordinator.ShowMetroDialogAsync(this, AddCameraDialogs);
 
         }
+        ReconectCamersView reconectCamersView;
         public async void CameraReconnects(string nameCamera)
         {
-            MainVisibility = false;
-            ReconectCamersView view = new ReconectCamersView();
-            view.Title = nameCamera;
-            ReconectCamera.Title = nameCamera;
-            ReconectCamera.DialogContentWidth = GridLength.Auto;
-            ReconectCamera.Width = 400;
-            
-            ReconectCamera.Content = view.Content;
-            ReconectCamera.DataContext = view.DataContext;
-            try
-            {
-                await _dialogCoordinator.ShowMetroDialogAsync(this, ReconectCamera);
-            }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            //MainVisibility = false;
+            Opasity = 0.5;
+            reconectCamersView = new ReconectCamersView();
+            reconectCamersView.Owner = System.Windows.Application.Current.MainWindow;
+            reconectCamersView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            reconectCamersView.Topmost = true;
+            reconectCamersView.Title = nameCamera;
+            reconectCamersView.ShowDialog();
+            //view.Title = nameCamera;
+            //ReconectCamera.Title = nameCamera;
+            //ReconectCamera.DialogContentWidth = GridLength.Auto;
+            //ReconectCamera.Width = 400;
+
+            //ReconectCamera.Content = view.Content;
+            //ReconectCamera.DataContext = view.DataContext;
+            //try
+            //{
+            //    await _dialogCoordinator.ShowMetroDialogAsync(this, ReconectCamera);
+            //}
+            //catch (Exception ex) { Console.WriteLine(ex.Message); }
 
         }
         public void OnMessageToReconect(string statusCamera)

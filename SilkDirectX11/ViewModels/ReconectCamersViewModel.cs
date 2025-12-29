@@ -38,7 +38,7 @@ namespace SilkDirectX11.ViewModels
         public void SetStatusCamera(string status)
         {
             ReconectStatus = status;
-            //RaisePropertyChanged(ReconectStatus);
+           
         }
         public void SetBrogressBar(bool status)
         {
@@ -52,8 +52,10 @@ namespace SilkDirectX11.ViewModels
         int counter = 4;
         public   async  void OnClouseCamera(string stat)
         { 
-            Task.Factory.StartNew(() => Clouse(stat));
+           var ts =  Task.Factory.StartNew(() => Clouse(stat));
            
+            await ts;
+            _eventAggregator.GetEvent<CloseReconectCamersViewEvent>().Publish("Close");
         }
 
         private  async Task Clouse(string s)
@@ -67,9 +69,7 @@ namespace SilkDirectX11.ViewModels
                 Thread.Sleep(1000);
               
             }
-
-            _eventAggregator.GetEvent<CloseReconectCamersViewEvent>().Publish("Close");
-
+             
         }
         
         

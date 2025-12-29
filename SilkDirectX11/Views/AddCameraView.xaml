@@ -6,44 +6,49 @@
         xmlns:local="clr-namespace:SilkDirectX11.Views"
         mc:Ignorable="d"  
         ResizeMode="NoResize"
+         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+ xmlns:mahx="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         WindowStyle="None"
         xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
         ShowInTaskbar="False"
-        Title="AddCameraView" Height="500" Width="700" Background="Transparent">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="auto" />
-
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="200"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="150" />
-        </Grid.RowDefinitions>
-        <Label Content="Add Camera in list" HorizontalAlignment="Left" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Top" Margin="15" FontSize="22"/>
-        <Label Content="MainStreamStringConnect" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="15"/>
-        <TextBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="1" Text="{Binding MainSreamURL}"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="15" MinWidth="150"  Width="auto"/>
-
-        <Label Content="SubStreamStringConnect" Grid.Row="1"    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Grid.RowSpan="1" Text="{Binding SubStreamURL }"   HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" MinWidth="150" Width="auto"/>
-
-        <Label Content="Name Camera" Grid.Row="2"     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="15" />
-        <TextBox Grid.Row="2" Grid.Column="1" Grid.RowSpan="1" Text="{Binding CameraName}"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" MinWidth="100" Width="auto"/>
-        <Grid Grid.Column="1" Grid.Row="2" >
-            <Grid.ColumnDefinitions >
+         AllowsTransparency="True"
+        Title="AddCameraView" Height="500" Width="700" Background="Transparent" mah:ControlsHelper.CornerRadius="55" >
+    <Border CornerRadius="25" BorderThickness="5"   Background="#252525">
+        <Grid Background="Transparent">
+            <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+
             </Grid.ColumnDefinitions>
-            <Button Content="Save" Grid.Column="0"   HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15" Width="100" Command="{Binding AddCameraCommand}" />
-            <!--CommandParameter=""-->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="200"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label Content="Add Camera in list" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" VerticalAlignment="Top" Margin="0,25,0,0" FontSize="32"/>
+            <Label Content="MainStreamStringConnect" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="15"/>
+            <TextBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="1" Text="{Binding MainSreamURL}"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="15" MinWidth="150"  Width="400"/>
+
+            <Label Content="SubStreamStringConnect" Grid.Row="1"    HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="15"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Grid.RowSpan="1" Text="{Binding SubStreamURL }"   HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="15" MinWidth="150" Width="400"/>
+
+            <Label Content="Name Camera" Grid.Row="2"     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" />
+            <TextBox Grid.Row="2" Grid.Column="1" Grid.RowSpan="1" Text="{Binding CameraName}"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" MinWidth="100" Width="400"/>
+            <Grid Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="15" >
+                <Grid.ColumnDefinitions >
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <Button Content="Save" Grid.Column="0"   HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15" Width="100" Command="{Binding AddCameraCommand}" />
+                <!--CommandParameter=""-->
 
 
-            <Button Content="Cansel"  Command="{Binding CanselCommand}" HorizontalAlignment="Left" Width="100" Height="30"  Grid.Column="1"  />
+                <Button Content="Cansel"  Command="{Binding CanselCommand}" HorizontalAlignment="Left" Width="100" Height="30" Margin="15" Grid.Column="1"  />
+            </Grid>
+
         </Grid>
-
-    </Grid>
+    </Border>
 </Window>

@@ -1,4 +1,5 @@
-﻿using LibraryForSignalR;
+﻿using DevExpress.CodeParser;
+using LibraryForSignalR;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -88,19 +89,20 @@ namespace SilkDirectX11.Behaviors;
             }
         }
     }
-
+    bool isOpen = false;
     private async void ShowMessage(string name , string messege)
     {
         Grid grid = AssociatedObject as Grid;
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
         var VM = metroWindow.DataContext as MainViewModel;
-        if (grid.Visibility==Visibility.Hidden)
+        if (isOpen)
         {
+            isOpen = true;
             VM.OnMessageToReconect(messege);
             
         }else
         {
-            
+            isOpen=true;
             VM.CameraReconnects(name);
          
         }
@@ -112,15 +114,18 @@ namespace SilkDirectX11.Behaviors;
     
         var metroWindow = System.Windows.Application.Current.MainWindow as MetroWindow;
         var VM = metroWindow.DataContext as MainViewModel;
-      
-            VM.OnReconnectCamera(false);
-           
+        isOpen = false;
+        VM.OnReconnectCamera(false);
+        
+
+
     }
 
     private void OnModuleClouse(MessageClousedModul obj)
     {       
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
+                isOpen = false;
                 CLouseCamera(obj);
             });
     }
@@ -134,6 +139,7 @@ namespace SilkDirectX11.Behaviors;
        var remuvGrid = grid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == obj.IDprocces).FirstOrDefault();
         if (remuvGrid.Children.Count!=0)
         remuvGrid.Children.Clear();
+        remuvGrid.Window.Close();
         grid.Children.Remove(remuvGrid);
           
     }

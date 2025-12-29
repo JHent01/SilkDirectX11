@@ -17,7 +17,7 @@
             Dialog:DialogParticipation.Register="{Binding}"
          prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="MainView" Height="500" Width="800"  Background="Transparent" x:Name="MainW" Opacity="{Binding Opasity }" >
+        Title="MainView" Height="700" Width="1000"  Background="Transparent" x:Name="MainW" Opacity="{Binding Opasity }" >
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
@@ -25,17 +25,40 @@
     </i:Interaction.Triggers>
     <mahx:MetroWindow.Resources>
         <ResourceDictionary >
+            <ControlTemplate x:Key="ArrowedItemsControl" TargetType="{x:Type ItemsControl}">
+                <Border
+                    BorderBrush="#cccccc"
+                    BorderThickness="2"
+                    CornerRadius="15"> 
+                    <Grid>
+                        <Grid.OpacityMask>
+                            <VisualBrush Visual="{Binding ElementName=mask}" />
+                        </Grid.OpacityMask>
+                        <Border
+                         Name="mask"
+                         Background="#252525"
+                         BorderThickness="0"
+                         CornerRadius="15" />       
+                        <ItemsPresenter />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+
+
             <convert:VisibilityConvert x:Key="VisibilityConvert"/>
         </ResourceDictionary>
     </mahx:MetroWindow.Resources>
-
+    
+    
+    
+    
     <Grid Background="Transparent"   >
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         
-        <Grid ShowGridLines="True" AllowDrop="True" x:Name="Test" Grid.Row="1" >
+        <Grid   AllowDrop="True" x:Name="Test" Grid.Row="1" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200" />
 
@@ -44,14 +67,14 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <ListBox x:Name="ListViewCameras" ItemsSource="{Binding WindowsFormsHosts}" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  SelectedItem="{Binding VideoHost}" >
-                 
+            <ListBox x:Name="ListViewCameras" ItemsSource="{Binding WindowsFormsHosts}" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  SelectedItem="{Binding VideoHost}"  Template="{DynamicResource ArrowedItemsControl}"><!--BorderBrush="#cccccc" BorderThickness="2" mah:ControlsHelper.CornerRadius="10"-->
+
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-
-                        <Label Content="{Binding Name}"     Width="150">
+                        
+                        <Label Content="{Binding Name}"    Width="150" >
                             <Label.Tag>
-                                <Binding RelativeSource="{RelativeSource AncestorType={x:Type mahx:MetroWindow}}" Path="DataContext"/>
+                                <Binding RelativeSource="{RelativeSource AncestorType={x:Type mahx:MetroWindow}}" Path="DataContext" />
                             </Label.Tag>
                             <i:Interaction.Behaviors>
                                 <custom:ListViewCustomBehavior />
@@ -73,7 +96,7 @@
                 
             </ListBox>
 
-            <Grid  ShowGridLines="True"   Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"   Visibility="{Binding MainVisibility, Converter={StaticResource VisibilityConvert}}"  >
+            <Grid      Grid.Row="0" Grid.Column="1" x:Name="VideoCanvas1" Margin="10" Background="Transparent" AllowDrop="True"   Visibility="{Binding MainVisibility, Converter={StaticResource VisibilityConvert}}"  >
                 <!--SizeChanged="VideoCanvas1_SizeChanged"-->
  
                 <i:Interaction.Behaviors>
@@ -94,4 +117,6 @@
         </Button>
       
     </Grid>
+    
+   
 </mahx:MetroWindow>

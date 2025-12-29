@@ -60,7 +60,7 @@ namespace SilkDirectX11.Behaviors
                      
                     Window = new()
                     {
-                        //Background = System.Windows.Media.Brushes.Red,
+                        
                         AllowDrop = true,
                         WindowStyle = WindowStyle.None,
                         ResizeMode = ResizeMode.NoResize,
@@ -71,15 +71,7 @@ namespace SilkDirectX11.Behaviors
                     CameraGuidName = VideoHostSelect.Name + Guid.NewGuid().ToString("N"),
                     CameraConnectStrings = VideoHostSelect.Tag as CameraConnectStrings,
                     Background = System.Windows.Media.Brushes.Transparent,
-                    //ColumnDefinitions =
-                    //{
-                    //   new ColumnDefinition(){Width =  GridLength.Auto }
-                    //},
-                    //RowDefinitions =
-                    //{
-
-                    //    new RowDefinition(){Height = GridLength.Auto }
-                    //},
+                 
                      
                    
                 };
@@ -94,9 +86,8 @@ namespace SilkDirectX11.Behaviors
                     // ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
                     
                  });
-                //  grid.Window.Content = new Grid();
-                // grid.Window.SizeToContent = SizeToContent.WidthAndHeight;
-                HwndSource _hwndSource;
+                
+                 
                
                 Rite.MouseUp += DropCamera;
                 grid.Window.PreviewDragEnter += MouseMoveDragDrop;
@@ -117,8 +108,7 @@ namespace SilkDirectX11.Behaviors
                 grid.Margin = new Thickness(5);
                 int colum = GetGridColumn(e.GetPosition(Rite));
                 int row = GetGridRow(e.GetPosition(Rite));
-                _hwndSource = HwndSource.FromHwnd(nint.Parse(grid.WindowTag));
-                _hwndSource.AddHook(grid.HwndHook);
+              
                 grid.Window.Owner.LocationChanged += OwnedWindowsLocationChange;
                 grid.Window.Owner.SizeChanged += OwnerSizeChanged;
                 List<string> arguments = new List<string>() { grid.CameraConnectStrings.SubStream, grid.CameraConnectStrings.MainStream, grid.Name, grid.WindowTag, grid.CameraGuidName};
@@ -203,13 +193,7 @@ namespace SilkDirectX11.Behaviors
         }
 
         private void OwnedWindowsLocationChange(object? sender, EventArgs e)
-        {
-          //var MainWind = sender as Window;
-            //Border border = (Border)_windowOverlay.Content;
-            //Grid grids = (Grid)border.Child;
-            //Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
-            //Button b = grid.Children.OfType<Button>().FirstOrDefault();
-            //var selectedGrid = AssociatedObject.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == b.Name).FirstOrDefault();
+        { 
             foreach (var item in AssociatedObject.Children.OfType<CustomGrid>())
             {
                 if (item.Window==null) continue;
@@ -221,11 +205,9 @@ namespace SilkDirectX11.Behaviors
             {
                 host.Window.Left = host.PointToScreen(new Point()).X;
                 host.Window.Top = host.PointToScreen(new Point()).Y;
-                //host.Window.Width = MainWind.ActualWidth;
-                //host.Window.Height = MainWind.ActualHeight;
+                
             }
-            //_windowOverlay.Left = selectedGrid.PointToScreen(new Point()).X;
-            //_windowOverlay.Top = selectedGrid.PointToScreen(new Point()).Y;
+           
         }
 
         private void CameraWindowMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
