@@ -39,14 +39,17 @@ namespace SilkDirectX11.Behaviors
                 {
                     Grid.SetRow(_cameraDragDrop.GridTake, row);
                     Grid.SetColumn(_cameraDragDrop.GridTake, colum);
-                    
+                    _cameraDragDrop.GridTake.RaiseEvent(new RoutedEventArgs(CustomGrid.SizeChangedEvent));
                 }
                 else
                 {
                     SwichCameraForDragDrop();
                 }
-                Rite.Width = Rite.ActualWidth + 0.1;
-                Rite.Width = Rite.ActualWidth - 0.1;
+                
+                //System.Windows.Application.Current.MainWindow.Width += 1.1;
+                //System.Windows.Application.Current.MainWindow.Width -= 1.1;
+                //Rite.Width = Rite.ActualWidth + 0.1;
+                //Rite.Width = Rite.ActualWidth - 0.1;
             }
             else if (e.Data.GetDataPresent(typeof(WindowsFormsHost)))
             {
@@ -63,7 +66,7 @@ namespace SilkDirectX11.Behaviors
                         WindowStyle = WindowStyle.None,
                         ResizeMode = ResizeMode.NoResize,
                         Owner = System.Windows.Application.Current.MainWindow,
-                        ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
+                       // ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
                     },
                     Name = VideoHostSelect.Name,
                     CameraGuidName = VideoHostSelect.Name + Guid.NewGuid().ToString("N"),
@@ -263,10 +266,10 @@ namespace SilkDirectX11.Behaviors
         }
         private void DropCamera(object sender, MouseButtonEventArgs e)
         {
-             if (idk/*(e.LeftButton != MouseButtonState.Released *//*e.Button != System.Windows.Forms.MouseButtons.Left*/) return;
+             if (idk) return;
             if (_cameraDragDrop.GridTake != null & _cameraDragDrop.GridChange != null)
                 DragDrop.DoDragDrop(_cameraDragDrop.GridTake, _cameraDragDrop, System.Windows.DragDropEffects.Move);
-           
+            
         }
         bool idk = false;
         private void StartDragDrop(object sender, MouseButtonEventArgs e)
