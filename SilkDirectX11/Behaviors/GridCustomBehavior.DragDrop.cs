@@ -39,17 +39,18 @@ namespace SilkDirectX11.Behaviors
                 {
                     Grid.SetRow(_cameraDragDrop.GridTake, row);
                     Grid.SetColumn(_cameraDragDrop.GridTake, colum);
-                    _cameraDragDrop.GridTake.RaiseEvent(new RoutedEventArgs(CustomGrid.SizeChangedEvent));
+                    _cameraDragDrop.GridTake.Window.Left = Rite.PointToScreen(new Point(Rite.ActualWidth/(colum+1))).X + 5;
+                    _cameraDragDrop.GridTake.Window.Top = Rite.PointToScreen(new Point()).Y + 5;
+
                 }
                 else
                 {
                     SwichCameraForDragDrop();
                 }
-                
+
                 //System.Windows.Application.Current.MainWindow.Width += 1.1;
                 //System.Windows.Application.Current.MainWindow.Width -= 1.1;
-                //Rite.Width = Rite.ActualWidth + 0.1;
-                //Rite.Width = Rite.ActualWidth - 0.1;
+
             }
             else if (e.Data.GetDataPresent(typeof(WindowsFormsHost)))
             {
@@ -269,7 +270,7 @@ namespace SilkDirectX11.Behaviors
              if (idk) return;
             if (_cameraDragDrop.GridTake != null & _cameraDragDrop.GridChange != null)
                 DragDrop.DoDragDrop(_cameraDragDrop.GridTake, _cameraDragDrop, System.Windows.DragDropEffects.Move);
-            
+           
         }
         bool idk = false;
         private void StartDragDrop(object sender, MouseButtonEventArgs e)

@@ -17,11 +17,11 @@ using System.Diagnostics;
 
 namespace SilkDirectX11.Model
 {
-    
 
 
-    public class CustomGrid :Grid
-    { 
+
+    public class CustomGrid : Grid
+    {
         public string ProcessTag { get; set; }
         public string WindowTag { get; set; }//??
         public CameraConnectStrings CameraConnectStrings { get; set; }
@@ -29,22 +29,22 @@ namespace SilkDirectX11.Model
         public Window Window { get; set; }//??
         public CustomGrid()
         {
-           this.Background = System.Windows.Media.Brushes.Transparent;
-           this.SizeChanged += CustomGrid_SizeChanged;
-           this.IsVisibleChanged += CustomGrid_IsVisibleChanged;
-           
-           this.MinHeight= 50;
-           this.MinWidth= 50;
-            
+            this.Background = System.Windows.Media.Brushes.Transparent;
+            this.SizeChanged += CustomGrid_SizeChanged;
+            this.IsVisibleChanged += CustomGrid_IsVisibleChanged;
+
+            this.MinHeight = 50;
+            this.MinWidth = 50;
+
         }
 
-        
- 
-        
+
+
+
         private void CustomGrid_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            
-             if (this.Window != null&&this.Window.IsActive) Window.Visibility= this.Visibility;
+
+            if (this.Window != null && this.Window.IsActive) Window.Visibility = this.Visibility;
         }
 
         internal void CustomGrid_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -54,14 +54,18 @@ namespace SilkDirectX11.Model
 
                 SetSize setSize = new SetSize((int)this.ActualWidth - 10, (int)this.ActualHeight - 10, int.Parse(this.ProcessTag));
                 EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
-                Window.Left = this.PointToScreen(new System.Windows.Point()).X+5;
-                  Window.Top = this.PointToScreen(new System.Windows.Point()).Y+5;
-                 Window.Width = this.ActualWidth-10;
-                  Window.Height = this.ActualHeight-10;
-                  
+                Window.Left = this.PointToScreen(new System.Windows.Point()).X + 5;
+                Window.Top = this.PointToScreen(new System.Windows.Point()).Y + 5;
+                Window.Width = this.ActualWidth - 10;
+                Window.Height = this.ActualHeight - 10;
+
             }
         }
-         
+        internal void Location( )
+        {
+            Window.Left = this.PointToScreen(new System.Windows.Point()).X + 5;
+            Window.Top = this.PointToScreen(new System.Windows.Point()).Y + 5;
+        }
     }
 
      
