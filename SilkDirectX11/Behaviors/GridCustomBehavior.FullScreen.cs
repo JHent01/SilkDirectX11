@@ -31,16 +31,16 @@ namespace SilkDirectX11.Behaviors
                if (grid.Window != null)
                 {
  
-                OpenFullScreenAndZoom(wind/*, grid*/);
+                OpenFullScreenAndZoom(wind);
                 }
                 else
                 {
                    
-                    CloseFullScreenAndZoom( wind/*gridOverlay,  MainGrid, gridOverlayCanvals, grid */); 
+                    CloseFullScreenAndZoom( wind ); 
                 }
              
         }
-        private void OpenFullScreenAndZoom(Window wind/*,  CustomGrid grid*/)  
+        private void OpenFullScreenAndZoom(Window wind )  
         {
             var riteGrid = AssociatedObject as Grid;
             var MainGrid = riteGrid.Parent as Grid;
@@ -62,7 +62,7 @@ namespace SilkDirectX11.Behaviors
             grid.Window.MouseLeave -= OnMouseLeaveHideOverlay;
             grid.Window.MouseMove -= OnMouseMuveWindowShow;
             grid.Window.MouseDown -= StartDragDrop;
-            // grid.Window.MouseUp -= MouseUps;
+           
             wind.Tag = grid.ProcessTag;
             grid.Window.Width = riteGrid.ActualWidth;
             grid.Window.Height = riteGrid.ActualHeight;
@@ -86,7 +86,17 @@ namespace SilkDirectX11.Behaviors
                     CameraGuidName = grid.CameraGuidName
 
                 };
+                newGr.Children.Add(new Border()
+                {
+                    Background = System.Windows.Media.Brushes.Transparent,
+                    BorderBrush = System.Windows.Media.Brushes.Yellow,
+                    BorderThickness = new Thickness(5),
+                    CornerRadius = new CornerRadius(5),
+                    Margin = new Thickness(1, 1, 1, 1),
+                    Padding = new Thickness(1, 1, 1, 1),
+                    
 
+                });
                 grid.Window = null;
 
                 MainGrid.Children.Add(newGr);
@@ -102,11 +112,11 @@ namespace SilkDirectX11.Behaviors
                 GridFullScreen.Window.Left = riteGrid.PointToScreen(new Point()).X;
                 GridFullScreen.Window.Top = riteGrid.PointToScreen(new Point()).Y;
 
-               // pixelPanelForZoom.TopLeft.X = 0;
+                
             }
         }
 
-        private void CloseFullScreenAndZoom(Window wind/*Grid gridOverlay, *//* Grid MainGrid,*/ /*Grid gridOverlayCanvals,*/ /*CustomGrid parent*/) //Grid Rite,, string processTag
+        private void CloseFullScreenAndZoom(Window wind)
         {
             wind.Tag = null;
               
@@ -114,7 +124,7 @@ namespace SilkDirectX11.Behaviors
    
             if (gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault() != null)
             {
-                ClouseZoom(/*gridFullScreen, gridOverlayCanvals*/);
+                ClouseZoom();
               
             }
              ClouseFullScreen(wind);

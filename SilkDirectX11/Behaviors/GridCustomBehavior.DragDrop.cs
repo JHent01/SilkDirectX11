@@ -24,7 +24,7 @@ namespace SilkDirectX11.Behaviors
 {
     partial class GridCustomBehavior
     {
-
+         
         private void AssociatedObject_Drop(object sender, System.Windows.DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(CameraDragDrop)))
@@ -39,16 +39,14 @@ namespace SilkDirectX11.Behaviors
                 {
                     Grid.SetRow(_cameraDragDrop.GridTake, row);
                     Grid.SetColumn(_cameraDragDrop.GridTake, colum);
-                    var cellChil2 = Rite.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
                     
-                    cellChil2.Window.Left = cellChil2.PointToScreen(new Point()).X + 5;
-                    cellChil2.Window.Top = cellChil2.PointToScreen(new Point()).Y + 5;
                 }
                 else
                 {
                     SwichCameraForDragDrop();
                 }
-
+                Rite.Width = Rite.ActualWidth + 0.1;
+                Rite.Width = Rite.ActualWidth - 0.1;
             }
             else if (e.Data.GetDataPresent(typeof(WindowsFormsHost)))
             {
@@ -65,7 +63,7 @@ namespace SilkDirectX11.Behaviors
                         WindowStyle = WindowStyle.None,
                         ResizeMode = ResizeMode.NoResize,
                         Owner = System.Windows.Application.Current.MainWindow,
-                         
+                        ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
                     },
                     Name = VideoHostSelect.Name,
                     CameraGuidName = VideoHostSelect.Name + Guid.NewGuid().ToString("N"),
@@ -83,7 +81,7 @@ namespace SilkDirectX11.Behaviors
                     CornerRadius = new CornerRadius(5),
                     Margin = new Thickness(1, 1, 1, 1),
                     Padding = new Thickness(1, 1, 1, 1),
-                    // ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
+                   
                     
                  });
                 
