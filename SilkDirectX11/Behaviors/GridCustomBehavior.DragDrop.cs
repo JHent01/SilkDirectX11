@@ -39,8 +39,10 @@ namespace SilkDirectX11.Behaviors
                 {
                     Grid.SetRow(_cameraDragDrop.GridTake, row);
                     Grid.SetColumn(_cameraDragDrop.GridTake, colum);
-                    _cameraDragDrop.GridTake.Window.Left = Rite.PointToScreen(new Point(Rite.ActualWidth/(colum+1))).X + 5;
-                    _cameraDragDrop.GridTake.Window.Top = Rite.PointToScreen(new Point()).Y + 5;
+                    UpdateWindowPositionForGrid(_cameraDragDrop.GridTake);
+
+                    //_cameraDragDrop.GridTake.Window.Left = Rite.PointToScreen(new Point(Rite.ActualWidth/(colum+1))).X + 5;
+                    //_cameraDragDrop.GridTake.Window.Top = Rite.PointToScreen(new Point()).Y + 5;
 
                 }
                 else
@@ -170,7 +172,16 @@ namespace SilkDirectX11.Behaviors
 
             }
         }
+        private void UpdateWindowPositionForGrid(CustomGrid grid)
+        {
+            if (grid == null || grid.Window == null) return;
 
+            (AssociatedObject as Grid)?.UpdateLayout();
+
+            var p = grid.PointToScreen(new Point());
+            grid.Window.Left = p.X + 5;
+            grid.Window.Top = p.Y + 5;
+        }
         private void OwnerSizeChanged(object sender, SizeChangedEventArgs e)
         {
             Border border = (Border)_windowOverlay.Content;
