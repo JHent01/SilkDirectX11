@@ -114,7 +114,7 @@ namespace SilkDirectX11.Behaviors
              
                 //_windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
                 _windowOverlay.Show();
-                
+               
 
 
                 if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
@@ -436,12 +436,13 @@ namespace SilkDirectX11.Behaviors
 
                 grid.Children.Clear();
                 Rite.Children.Remove(cellContent);
-                List<int> list = new List<int>();
+                List<int> listRow = new List<int>();
+                List<int> listColumn = new List<int>();
                 for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
                 {
                     if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count - 1 && Grid.GetColumn(c) == i) != null)
                     {
-                        list.Add(i);
+                        listRow.Add(i);
                     }
 
 
@@ -450,11 +451,11 @@ namespace SilkDirectX11.Behaviors
                 {
                     if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) != null)
                     {
-                        list.Add(i);
+                        listColumn.Add(i);
                     }
                 }
 
-                if (list.Count == 0)
+                if (listRow.Count == 0 && listColumn.Count == 0)
                 {
                     if (Rite.RowDefinitions.Count != 0)
                     {
@@ -462,6 +463,70 @@ namespace SilkDirectX11.Behaviors
                         Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
                     }
                 }
+                else if (listRow.Count == 0)
+                {
+                    if (Rite.RowDefinitions.Count != 0)
+                    {
+                        Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count-1 );
+                       // return;
+                    }
+                }
+                else if (listColumn.Count == 0)
+                {
+                    Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count -1);
+                    //return;
+                }
+
+                // 
+                listRow= new List<int>();
+                listColumn= new List<int>();
+                for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
+                {
+                    if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == i) != null)
+                    {
+                        listRow.Add(i);
+                    }
+
+
+                }
+                for (int i = 0; i < Rite.RowDefinitions.Count; i++)
+                {
+                    if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == 0)) != null)
+                    {
+                        listColumn.Add(i);
+                    }
+                }
+                if (listRow.Count == 0 && listColumn.Count == 0)
+                {
+                    if (Rite.RowDefinitions.Count != 0)
+                        Rite.RowDefinitions.RemoveAt(0);
+                    if (Rite.ColumnDefinitions.Count != 0)
+                        Rite.ColumnDefinitions.RemoveAt(0);
+                    return;
+                }
+                else if (listRow.Count == 0)
+                {
+                    if (Rite.RowDefinitions.Count != 0)
+                    {
+                        Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
+                         return;
+                    }
+                }
+                else if (listColumn.Count == 0)
+                {
+                    if (Rite.Children.Count == 1)
+                        if (Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1) != null)
+                        {
+                            Grid.SetColumn(Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1), 0);
+
+                        }
+                    Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
+                   
+                        return;
+                }
+                //
+                
+
                 if (Rite.RowDefinitions.Count == 1 | Rite.RowDefinitions.Count == 0)
                 {
                     if ((Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) == null)
@@ -475,13 +540,15 @@ namespace SilkDirectX11.Behaviors
                             return;
                         }
                     }
-                    else if (Rite.ColumnDefinitions.Count == 2 | Rite.RowDefinitions.Count == 0)//тут поправить с проверкой на потом 
+                    else if (Rite.ColumnDefinitions.Count == 2 && Rite.RowDefinitions.Count == 0)//тут поправить с проверкой на потом 
                     {
-                        if ((Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count  && Grid.GetColumn(c) == 0)) == null)
+                        if ((Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count && Grid.GetColumn(c) == 0)) == null)
                         {
                             try
                             {
-                                Rite.RowDefinitions.RemoveAt(Rite.ColumnDefinitions.Count);
+                                Grid.SetColumn(Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1), 0);
+                                Rite.ColumnDefinitions.RemoveAt(1);
+
                             }
                             catch
                             {
