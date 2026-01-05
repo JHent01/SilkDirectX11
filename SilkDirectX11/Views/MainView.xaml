@@ -108,11 +108,11 @@
         </Grid>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8" >
-            <Button Content="Add" Width="100" Margin="0,0,8,0" Command="{Binding AddCameraCommand}"/>
-            <Button Content="Settings Camers" Width="150" Margin="0,0,8,0" Command="{Binding CameraSettingsOpen}" />
+            <Button Content="Add" Width="100" Margin="0,0,8,0" Command="{Binding AddCameraCommand}" Focusable="False"/>
+            <Button Content="Settings Camers" Width="150" Margin="0,0,8,0" Command="{Binding CameraSettingsOpen}" Focusable="False"/>
  
         </StackPanel>
-        <Button    Command="{Binding SettingsOpenComman}"  HorizontalAlignment="Right" >
+        <Button    Command="{Binding SettingsOpenComman}"  HorizontalAlignment="Right" Margin="8" Focusable="False">
             <iconPacks:BootstrapIcons Kind="Gear" Height="20" Width="20" /> 
         </Button>
       

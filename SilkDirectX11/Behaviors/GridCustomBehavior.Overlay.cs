@@ -99,6 +99,7 @@ namespace SilkDirectX11.Behaviors
             _windowOverlay.Width = panel.Width;
             _windowOverlay.Left = panel.PointToScreen(new System.Windows.Point()).X;
             _windowOverlay.Top = panel.PointToScreen(new System.Windows.Point()).Y;
+            _windowOverlay.Focus();
         }
         private void OnMouseLeaveOverLay(object sender, System.Windows.Input.MouseEventArgs e)
         {
@@ -143,19 +144,24 @@ namespace SilkDirectX11.Behaviors
                 Stroke = System.Windows.Media.Brushes.Red,
                 StrokeThickness = 2,
                 Fill = System.Windows.Media.Brushes.Red,
-                Opacity = 0.3
-
+                Opacity = 0.3,
+                
+               
             });
             gridOverlay.Children.Add(canvas);
-            System.Windows.Shapes.Rectangle rectangle = gridOverlay.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault();//.PointFromScreen(new Point(pixelPanelForZoom.TopLeft.X, pixelPanelForZoom.TopLeft.Y)) ;
+           
+            System.Windows.Shapes.Rectangle rectangle = gridOverlay.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault(); 
             rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             rectangle.VerticalAlignment = VerticalAlignment.Top;
             Canvas.SetLeft(rectangle, (_pixelPanelForZoom.TopLeft.X ) - 10);
             Canvas.SetTop(rectangle, _pixelPanelForZoom.TopLeft.Y);
-
+            
             canvas.MouseMove += OnMoveCanvals;
             rectangle.MouseDown += OnRectangleMouseDown;
             rectangle.MouseUp += OnRectangleMouseUp;
+           _windowOverlay.Focus();
+          
+
 
         }
     }

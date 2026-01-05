@@ -14,5 +14,11 @@ namespace SilkDirectX11.Model
             get { return savePathSettings; }
             set { savePathSettings = value; }
         }
+        private bool showRestartCamers;
+        public bool ShowRestartCamers
+        {
+            get { return showRestartCamers; }
+            set { showRestartCamers = value; }
+        }
     }
 }

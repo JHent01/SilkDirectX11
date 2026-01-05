@@ -1,6 +1,7 @@
 ﻿using LibraryForSignalR;
 using MahApps.Metro.Controls;
 using SilkDirectX11.Model;
+using SilkDirectX11.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,11 @@ namespace SilkDirectX11.Behaviors
                 if (CreateWindowForZoom(sender))
 
                     CreateCanvalInOverlay(  sender);
-
+                _windowOverlay.Focus();
+                 
+               // _windowOverlay.Topmost = true;
+                //_windowOverlay.Focusable = true;
+                //_windowOverlay.Focus();
             }
         }
 
@@ -60,8 +65,8 @@ namespace SilkDirectX11.Behaviors
                 WindowStyle = WindowStyle.None,
                 ResizeMode = ResizeMode.NoResize,
             };
-            zoomWind.Width = (riteGrid.ActualWidth / 2);
-            zoomWind.Height = (riteGrid.ActualHeight);
+            zoomWind.Width = (riteGrid.ActualWidth / 2 -5);
+            zoomWind.Height = (riteGrid.ActualHeight -5);
             Window wind = sender as Window;
             if (wind.OwnedWindows.Count > 0  )
                 wind.OwnedWindows[0].Close();
@@ -70,25 +75,27 @@ namespace SilkDirectX11.Behaviors
                 _pixelPanelForZoom.TopLeft.X = _pixelPanelForZoom.TopLeft.X / 2;
                 _pixelPanelForZoom.BottomRight.X = _pixelPanelForZoom.BottomRight.X / 2;
             }
-            wind.Width = (riteGrid.ActualWidth / 2);
-            wind.Height = riteGrid.ActualHeight;
+            wind.Width = (riteGrid.ActualWidth / 2 -5);
+            wind.Height = riteGrid.ActualHeight -10;
+            
             zoomWind.Owner = wind;
             zoomWind.Width = wind.Width;
             zoomWind.Height = wind.Height;
             zoomWind.Left = wind.Left+wind.Width;
             zoomWind.Top = wind.Top;
             zoomWind.Show();
-            zoomWind.Focus();
+            //zoomWind.Focus();
 
             _windowOverlay.Width = riteGrid.ActualWidth / 2;
             _windowOverlay.Height = riteGrid.ActualHeight;
             WindowInteropHelper helper = new WindowInteropHelper(zoomWind);
             int windHandel = int.Parse(helper.Handle.ToString());
             PointsForZoom pointsForZoom = new PointsForZoom(_pixelPanelForZoom.TopLeft.X, _pixelPanelForZoom.TopLeft.Y, _pixelPanelForZoom.BottomRight.X, _pixelPanelForZoom.BottomRight.Y);
-            Rectangle_MouseMove_SendPoint(wind.Tag as string , pointsForZoom);
+            ConnectedManager.Rectangle_MouseMove_SendPoint(wind.Tag as string, pointsForZoom);
+            //Rectangle_MouseMove_SendPoint(wind.Tag as string , pointsForZoom);
             OpenZoom openZoom = new OpenZoom(true, windHandel, (int)zoomWind.Width, (int)zoomWind.Height, int.Parse(wind.Tag as string));
-
-            SendWindowForZoom(openZoom);
+            ConnectedManager.SendWindowForZoom(openZoom);
+            //SendWindowForZoom(openZoom);
 
             zoomWind.Tag = wind.Tag as string;
             return true;
@@ -139,8 +146,8 @@ namespace SilkDirectX11.Behaviors
                 Canvas.SetTop(rectangle, newTop);
                 _startPoint = currentPoint;
                 PointsForZoom pointsForZoom = new PointsForZoom(newLeft, newTop, newRight, newBottom);
-
-                Rectangle_MouseMove_SendPoint(canvas.Tag.ToString(), pointsForZoom);
+                ConnectedManager.Rectangle_MouseMove_SendPoint(canvas.Tag.ToString(), pointsForZoom);
+                //Rectangle_MouseMove_SendPoint(canvas.Tag.ToString(), pointsForZoom);
             }
         }
 

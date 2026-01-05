@@ -71,5 +71,17 @@ namespace SilkDirectX11.Modules
                 return new ObservableCollection<CameraStream>();  
             }
         }
+        public bool GetFlagRestartCameras()//-----------------
+        {
+            try
+            {
+                var path = _settingsDAO.ReadGeneralSettings();
+                return path.ShowRestartCamers;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }

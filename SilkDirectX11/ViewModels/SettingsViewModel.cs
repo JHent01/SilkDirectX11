@@ -1,8 +1,13 @@
-﻿using SilkDirectX11.Events;
+﻿using LibraryForSignalR;
+using Microsoft.AspNetCore.SignalR.Client;
+using SilkDirectX11.Events;
 using SilkDirectX11.Interfaces;
+using SilkDirectX11.Servise;
+using SilkDirectX11.SignalR;
 using SilkDirectX11.Views;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +16,7 @@ namespace SilkDirectX11.ViewModels
 {
     internal class SettingsViewModel : BindableBase
     {
+         
         public SettingsViewModel(ISettingsDAO settingsDAO, IEventAggregator eventAggregator)
         {
             _settingsDAO = settingsDAO;
@@ -19,6 +25,7 @@ namespace SilkDirectX11.ViewModels
             LoadedCommand= new DelegateCommand(OnLoadedExecute);
             CanselCommand = new DelegateCommand(CanselExecute);
             SelectForderForCamers = new DelegateCommand(SelectForderForCamersExecute);
+             
         }
         IEventAggregator _eventAggregator;
         ISettingsDAO _settingsDAO;
@@ -27,6 +34,12 @@ namespace SilkDirectX11.ViewModels
         {
             get { return _savePathSettings; }
             set { SetProperty(ref _savePathSettings, value); }
+        }
+        private bool _showRestartCamers;
+        public bool ShowRestartCamers
+        {
+            get { return _showRestartCamers; }
+            set { SetProperty(ref _showRestartCamers, value); }
         }
 
         public DelegateCommand SelectForderForCamers { get; private set; }
@@ -48,15 +61,19 @@ namespace SilkDirectX11.ViewModels
         {
 
 
-            _settingsDAO.SaveGeneralSettings(new Model.PathSettingsJson { SavePathSettings = SavePathSettings });
-             _eventAggregator.GetEvent<CloseSettingsViewEvent>().Publish("Close");
+            _settingsDAO.SaveGeneralSettings(new Model.PathSettingsJson { SavePathSettings = SavePathSettings , ShowRestartCamers = ShowRestartCamers });
 
+           ConnectedManager.SendRestartCamersMessageAsync(new ShowRestartCamersMessage(ShowRestartCamers));
+            EventAggregatorProvider.Instance.Publish<bool>(ShowRestartCamers);
+             _eventAggregator.GetEvent<CloseSettingsViewEvent>().Publish("Close");
+            
         }
          public DelegateCommand LoadedCommand { get;   set; }
         public void OnLoadedExecute()
         {
             var settings = _settingsDAO.ReadGeneralSettings();
             SavePathSettings = settings.SavePathSettings;
+            ShowRestartCamers = settings.ShowRestartCamers;
             //return SavePathSettings;
         }
 
@@ -67,5 +84,22 @@ namespace SilkDirectX11.ViewModels
              _eventAggregator.GetEvent<CloseSettingsViewEvent>().Publish("Close");
            
         }
+
+      
+        //private async void SendRestartCamersMessageAsync(ShowRestartCamersMessage rest)
+        //{
+        //    if (_connection != null && _connection.State == HubConnectionState.Connected)
+        //    {
+        //        try
+        //        {
+        //            await _connection.InvokeAsync("ShowRestartingCamers", rest);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Error sending message: {ex.Message}");
+        //        }
+        //    }
+        //}
+
     }
 }

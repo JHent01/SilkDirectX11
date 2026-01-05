@@ -7,6 +7,7 @@ using SilkDirectX11.Events;
 using SilkDirectX11.Interfaces;
 using SilkDirectX11.Model;
 using SilkDirectX11.Modules;
+using SilkDirectX11.SignalR;
 using SilkDirectX11.Views;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -27,6 +28,7 @@ namespace SilkDirectX11.ViewModels
        
         public MainViewModel(IDialogCoordinator instance, ICameraDAO camera,IEventAggregator eventAggregator , ICameraSettingsDAO cameraSettingsDAO)
         { 
+            ConnectedManager.EnsureSignalRAsync();
             #region FFMPEG Init
             ffmpeg.RootPath = "Autogen";
             DynamicallyLoadedBindings.Initialize();
@@ -49,10 +51,10 @@ namespace SilkDirectX11.ViewModels
             #endregion
             #region SubscribeEvents
             _eventAggregator.GetEvent<AddCameraEvent>().Subscribe(AddCameraExsample);
-            _eventAggregator.GetEvent<CloseAddCameraViewEvent>().Subscribe(s => { /*_dialogCoordinator.HideMetroDialogAsync(this, AddCameraDialogs); MainVisibility = true;*/Opasity = 1; addCameraView.DialogResult = true; });
-            _eventAggregator.GetEvent<CloseSettingsViewEvent>().Subscribe(s => { /*_dialogCoordinator.HideMetroDialogAsync(this, SettingsDialog); */Opasity = 1; test.DialogResult = true; /*MainVisibility = true; */});
-            _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { /*_dialogCoordinator.HideMetroDialogAsync(this, CameraSettingsDialog); MainVisibility = true;*/ Opasity = 1; camersSettingsView.DialogResult = true;   } );
-           _eventAggregator.GetEvent<CloseReconectCamersViewEvent>().Subscribe( s=> { /*try { if (!MainVisibility) _dialogCoordinator.HideMetroDialogAsync(this, ReconectCamera); } catch(Exception ex) { Debug.WriteLine(ex.Message); } MainVisibility = true; */ if (reconectCamersView.DialogResult!=true) { Opasity = 1; reconectCamersView.DialogResult = true; } });
+            _eventAggregator.GetEvent<CloseAddCameraViewEvent>().Subscribe(s => { Opasity = 1; addCameraView.DialogResult = true; });
+            _eventAggregator.GetEvent<CloseSettingsViewEvent>().Subscribe(s => {  Opasity = 1; SettingsView.DialogResult = true; });
+            _eventAggregator.GetEvent<CloseCamersSettingsEvent>().Subscribe(s => { Opasity = 1; camersSettingsView.DialogResult = true;   } );
+           _eventAggregator.GetEvent<CloseReconectCamersViewEvent>().Subscribe( s=> { if (reconectCamersView.DialogResult!=true) { Opasity = 1; reconectCamersView.DialogResult = true; } });
              
             _eventAggregator.GetEvent<VisibilityChengeEvent>().Subscribe(VisibilitySet);
             #endregion
@@ -62,10 +64,7 @@ namespace SilkDirectX11.ViewModels
         {
             MainVisibility = (obj == Visibility.Visible);
         }
-        //private BaseMetroDialog AddCameraDialogs = new CustomDialog();
-        //private BaseMetroDialog SettingsDialog = new CustomDialog();
-        //private BaseMetroDialog CameraSettingsDialog = new CustomDialog();
-        //private BaseMetroDialog ReconectCamera = new CustomDialog();
+       
         public IEventAggregator _eventAggregator;
         ICameraSettingsDAO _cameraSettingsDAO;
         private IDialogCoordinator _dialogCoordinator;
@@ -107,33 +106,18 @@ namespace SilkDirectX11.ViewModels
         public  async Task AddCameraDialog()
         {
             Opasity = 0.5;
-            //MainVisibility = false;
+          
             addCameraView = new AddCameraView();
             addCameraView.Owner = System.Windows.Application.Current.MainWindow;
             addCameraView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             addCameraView.Topmost = true;
             addCameraView.ShowDialog();
-
-            //AddCameraDialogs.Title = "Add Camers";
-            //var gridLenghtConvert = new GridLengthConverter();
-
-
-            // AddCameraDialogs.DialogContentWidth = GridLength.Auto;
-            // AddCameraDialogs.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
-
-            //AddCameraDialogs.Content = view.Content;
-            //AddCameraDialogs.DataContext = view.DataContext;
-
-
-
-            //  AddCameraDialogs.Width = 800;
-            //await _dialogCoordinator.ShowMetroDialogAsync(this, AddCameraDialogs);
-
+ 
         }
         ReconectCamersView reconectCamersView;
         public async void CameraReconnects(string nameCamera)
         {
-            //MainVisibility = false;
+           
             Opasity = 0.5;
             reconectCamersView = new ReconectCamersView();
             reconectCamersView.Owner = System.Windows.Application.Current.MainWindow;
@@ -141,19 +125,7 @@ namespace SilkDirectX11.ViewModels
             reconectCamersView.Topmost = true;
             reconectCamersView.Title = nameCamera;
             reconectCamersView.ShowDialog();
-            //view.Title = nameCamera;
-            //ReconectCamera.Title = nameCamera;
-            //ReconectCamera.DialogContentWidth = GridLength.Auto;
-            //ReconectCamera.Width = 400;
-
-            //ReconectCamera.Content = view.Content;
-            //ReconectCamera.DataContext = view.DataContext;
-            //try
-            //{
-            //    await _dialogCoordinator.ShowMetroDialogAsync(this, ReconectCamera);
-            //}
-            //catch (Exception ex) { Console.WriteLine(ex.Message); }
-
+           
         }
         public void OnMessageToReconect(string statusCamera)
         {
@@ -162,7 +134,7 @@ namespace SilkDirectX11.ViewModels
         public void OnReconnectCamera(bool set)
         {
            _eventAggregator.GetEvent<ReconnectEvent>().Publish(set);
-            //MainVisibility = true;
+           
         }
 
         public void OnClouseCamera(string mes)
@@ -180,7 +152,7 @@ namespace SilkDirectX11.ViewModels
                 return;
             }
             var wfh = new WindowsFormsHost();
-            string buf = camera.CameraName.ToString().Replace(".", "_").Replace(";", "_");//Replace("", "_")
+            string buf = camera.CameraName.ToString().Replace(".", "_").Replace(";", "_"); 
             wfh.Name = buf;
             wfh.Tag = camera.ConnectStrings;
             wfh.AllowDrop = true;
@@ -190,15 +162,17 @@ namespace SilkDirectX11.ViewModels
             listCameras.Add(camera);
             addCameraView.DialogResult= true;
             Opasity = 1;
-            //_dialogCoordinator.HideMetroDialogAsync(this, AddCameraDialogs);
-            await _dialogCoordinator.ShowMessageAsync(this, "Success", "Camera added successfully");
+           
+            //await _dialogCoordinator.ShowMessageAsync(this, "Success", "Camera added successfully");
             _cameraDAO.SaveCamera(WindowsFormsHosts);
 
         }
         public DelegateCommand LoadedCommand { get; private set; }
        private ObservableCollection<CameraStream> listCameras = new ObservableCollection<CameraStream>();
+        private bool flag;
         private void LoadedExecute()
         {
+            
           var listCamers =  _cameraDAO.GetAllCameras();
             if (listCamers.Count == 0)
              return;
@@ -242,27 +216,17 @@ namespace SilkDirectX11.ViewModels
             }
             return cameraSettings;
         }
-        SettingsView test;
+        SettingsView SettingsView;
         public DelegateCommand SettingsOpenComman { get; private set; }
         private async void OpenSettings()
         {
             Opasity = 0.5;
-            test = new SettingsView();
-            test.Owner = System.Windows.Application.Current.MainWindow;
-            test.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            test.Topmost = true;
-            test.ShowDialog();
-          
-            //MainVisibility = false;
-            //SettingsView view = new SettingsView();
-            //SettingsDialog.Title = "Settings";
-            //var gridLenghtConvert = new GridLengthConverter();
-            //SettingsDialog.DialogContentWidth = GridLength.Auto;
-            //SettingsDialog.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
-            //SettingsDialog.Content = view.Content;
-            //SettingsDialog.DataContext = view.DataContext;
-            //SettingsDialog.Width = 500;
-            //await _dialogCoordinator.ShowMetroDialogAsync(this, SettingsDialog);
+            SettingsView = new SettingsView();
+            SettingsView.Owner = System.Windows.Application.Current.MainWindow;
+            SettingsView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            SettingsView.Topmost = true;
+            SettingsView.ShowDialog();
+           
         }
         CamersSettingsView camersSettingsView;
         public DelegateCommand CameraSettingsOpen { get; private set; }
@@ -274,24 +238,7 @@ namespace SilkDirectX11.ViewModels
             camersSettingsView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             camersSettingsView.Topmost = true;
             camersSettingsView.ShowDialog();
-
-
-            //MainVisibility = false;
-            //CameraSettingsDialog.Title = "Camera Settings";
-            //var gridLenghtConvert = new GridLengthConverter();
-
-
-            //CameraSettingsDialog.DialogContentWidth = GridLength.Auto;
-            //CameraSettingsDialog.DialogContentMargin = (GridLength)gridLenghtConvert.ConvertFromString("10");
-
-            //CameraSettingsDialog.Content = camersSettingsView.Content;
-            //CameraSettingsDialog.DataContext = camersSettingsView.DataContext;
-            //CameraSettingsDialog.Width = camersSettingsView.Width;
-            //CameraSettingsDialog.Height = camersSettingsView.Height;
-
-            //await _dialogCoordinator.ShowMetroDialogAsync(this, CameraSettingsDialog);
-
-
+             
         }
         
 

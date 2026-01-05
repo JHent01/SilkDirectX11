@@ -12,6 +12,7 @@ using SilkDirectX11.SignalR;
 using SilkDirectX11.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -48,12 +49,13 @@ namespace SilkDirectX11.Behaviors;
     CameraDragDrop _cameraDragDrop = new CameraDragDrop();
     PositionCanvasForZoom _pixelPanelForZoom = new PositionCanvasForZoom();
     private IEventAggregator _eventAggregator;
-    private HubConnection? _connection;
+    private bool _flagForReconnect=false;
     protected override void OnAttached()
     {
         base.OnAttached();
-
-        _ = EnsureSignalRAsync();
+        
+       // _connection = ConnectedManager._connection;
+        //_ = EnsureSignalRAsync();
 
         AssociatedObject.PreviewDragEnter += MouseMoveDragDrop;
       
@@ -66,7 +68,8 @@ namespace SilkDirectX11.Behaviors;
         var ev = ContainerLocator.Container.Resolve<IEventAggregator>();
         _eventAggregator = ev;
         AssociatedObject.IsVisibleChanged += AssociatedObject_IsVisibleChanged;
-        EventAggregatorProvider.Instance.Subscribe<SetSize>(SendSetSize);
+        EventAggregatorProvider.Instance.Subscribe<bool>((s)=> _flagForReconnect= s);
+        // EventAggregatorProvider.Instance.Subscribe<SetSize>(SendSetSize);
 
     }
 
@@ -162,22 +165,22 @@ namespace SilkDirectX11.Behaviors;
 
     }
 
-    private async Task EnsureSignalRAsync()
-    {
-        try
-        {
-            _connection ??= new HubConnectionBuilder()
-                .WithUrl("http://localhost:5178/hubs/points")
-                .WithAutomaticReconnect()
-                .Build();
-            if (_connection.State != HubConnectionState.Connected)
-                await _connection.StartAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"SignalR connect error: {ex.Message}");
-        }
-    }
+    //private async Task EnsureSignalRAsync()
+    //{
+    //    try
+    //    {
+    //        _connection ??= new HubConnectionBuilder()
+    //            .WithUrl("http://localhost:5178/hubs/points")
+    //            .WithAutomaticReconnect()
+    //            .Build();
+    //        if (_connection.State != HubConnectionState.Connected)
+    //            await _connection.StartAsync();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine($"SignalR connect error: {ex.Message}");
+    //    }
+    //}
 
     
 
@@ -211,80 +214,81 @@ namespace SilkDirectX11.Behaviors;
                     {
                             CameraSettingsVisual cameraSettingsVisual = new CameraSettingsVisual(pan.ProcessTag, it.Brightness, it.Contrast, it.Hue, it.Saturation, it.NoiseReduction, it.EdgeEnhancement, it.AnamorphicScaling, it.StereoAdjustment, it.Rotation);
                             
-                            SendSettingsToGroup(cameraSettingsVisual);
+                            ConnectedManager.SendSettingsToGroup(cameraSettingsVisual);
+                        //SendSettingsToGroup(cameraSettingsVisual);
                     }
-                   
+
                 }
             }
         }
     }
 
-    private  async void SendSettingsToGroup(CameraSettingsVisual settingsForCamera)
-    {
-        if (_connection == null) return;
-        try
-        {
-            await _connection.InvokeAsync("ChangeSettingsCamera", settingsForCamera);  
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($" error: {ex.Message}");
-        }
-    }
+    //private  async void SendSettingsToGroup(CameraSettingsVisual settingsForCamera)
+    //{
+    //    if (_connection == null) return;
+    //    try
+    //    {
+    //        await _connection.InvokeAsync("ChangeSettingsCamera", settingsForCamera);  
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine($" error: {ex.Message}");
+    //    }
+    //}
 
 
 
 
-    private async void Rectangle_MouseMove_SendPoint(string groupId, PointsForZoom pointsForZoom) 
-    {
-        if (_connection == null) return;
-        try
-        {
-            await _connection.InvokeAsync("SendPointToGroup", groupId, pointsForZoom);  
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($" error: {ex.Message}");
-        }
-    }
+    //private async void Rectangle_MouseMove_SendPoint(string groupId, PointsForZoom pointsForZoom) 
+    //{
+    //    if (_connection == null) return;
+    //    try
+    //    {
+    //        await _connection.InvokeAsync("SendPointToGroup", groupId, pointsForZoom);  
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine($" error: {ex.Message}");
+    //    }
+    //}
 
-    private async void SendWindowForZoom(OpenZoom openZoom) 
-    {
-        if (_connection == null) return;
-        try
-        {
-            await _connection.InvokeAsync("SendZoomToGroup", openZoom); 
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($" error: {ex.Message}");
-        }
-    }
-    private async void SendChandeConekting(SetConnect setConnect) 
-    {
-        if (_connection == null) return;
-        try
-        {
-            await _connection.InvokeAsync("SendSetConToGroup", setConnect);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($" error: {ex.Message}");
-        }
-    }
-    private async void SendSetSize(SetSize setSize)
-    {
-        if (_connection == null) return;
-        try
-        {
+    //private async void SendWindowForZoom(OpenZoom openZoom) 
+    //{
+    //    if (_connection == null) return;
+    //    try
+    //    {
+    //        await _connection.InvokeAsync("SendZoomToGroup", openZoom); 
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine($" error: {ex.Message}");
+    //    }
+    //}
+    //private async void SendChandeConekting(SetConnect setConnect) 
+    //{
+    //    if (_connection == null) return;
+    //    try
+    //    {
+    //        await _connection.InvokeAsync("SendSetConToGroup", setConnect);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine($" error: {ex.Message}");
+    //    }
+    //}
+    //private async void SendSetSize(SetSize setSize)
+    //{
+    //    if (_connection == null) return;
+    //    try
+    //    {
 
-            await _connection.InvokeAsync("SenNewSizeToGroup", setSize);
-                 }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($" error: {ex.Message}");
-        }
-    }
+    //        await _connection.InvokeAsync("SenNewSizeToGroup", setSize);
+    //             }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine($" error: {ex.Message}");
+    //    }
+    //}
     
 
     

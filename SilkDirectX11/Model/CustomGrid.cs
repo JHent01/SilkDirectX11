@@ -14,6 +14,7 @@ using SilkDirectX11.Servise;
 using DevExpress.XtraPrinting.Native;
 using ControlzEx.Standard;
 using System.Diagnostics;
+using SilkDirectX11.SignalR;
 
 namespace SilkDirectX11.Model
 {
@@ -23,10 +24,10 @@ namespace SilkDirectX11.Model
     public class CustomGrid : Grid
     {
         public string ProcessTag { get; set; }
-        public string WindowTag { get; set; }//??
+        public string WindowTag { get; set; } 
         public CameraConnectStrings CameraConnectStrings { get; set; }
         public string CameraGuidName { get; set; }
-        public Window Window { get; set; }//??
+        public Window Window { get; set; } 
         public CustomGrid()
         {
             this.Background = System.Windows.Media.Brushes.Transparent;
@@ -53,7 +54,9 @@ namespace SilkDirectX11.Model
             {
 
                 SetSize setSize = new SetSize((int)this.ActualWidth - 10, (int)this.ActualHeight - 10, int.Parse(this.ProcessTag));
-                EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
+                ConnectedManager.SendSetSize(setSize);
+               // EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
+                
                 Window.Left = this.PointToScreen(new System.Windows.Point()).X + 5;
                 Window.Top = this.PointToScreen(new System.Windows.Point()).Y + 5;
                 Window.Width = this.ActualWidth - 10;
@@ -70,34 +73,4 @@ namespace SilkDirectX11.Model
 
      
 }
-//public class IsCamersSettingsViewModel<T> : BindableBase
-//{
-//    private T item;
-//    public T Item
-//    {
-//        get => item;
-//        set => item = value;
-//    }
-
-//    private Guid idCamera;
-//    public Guid IdCamera
-//    {
-//        get => idCamera;
-//        set => idCamera = value;
-
-//    }
-
-//    public IsCamersSettingsViewModel(T item)
-//    {
-//        Item = item;
-//    }
-
-
-//    // public event Action<bool>? IsSelectedChanged;
-
-//    //protected virtual void OnIsSelectedChanged(bool newValue)
-//    //{
-//    //    IsSelectedChanged?.Invoke(newValue);
-//    //}
-
-//}
+ 

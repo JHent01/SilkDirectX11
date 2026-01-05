@@ -46,7 +46,7 @@
                 <!--CommandParameter=""-->
 
 
-                <Button Content="Cansel"  Command="{Binding CanselCommand}" HorizontalAlignment="Left" Width="100" Height="30" Margin="15" Grid.Column="1"  />
+                <Button Content="Cancel"  Command="{Binding CanselCommand}" HorizontalAlignment="Left" Width="100" Height="30" Margin="15" Grid.Column="1"  />
             </Grid>
 
         </Grid>

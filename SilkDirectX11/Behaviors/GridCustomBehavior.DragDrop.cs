@@ -40,19 +40,13 @@ namespace SilkDirectX11.Behaviors
                     Grid.SetRow(_cameraDragDrop.GridTake, row);
                     Grid.SetColumn(_cameraDragDrop.GridTake, colum);
                     UpdateWindowPositionForGrid(_cameraDragDrop.GridTake);
-
-                    //_cameraDragDrop.GridTake.Window.Left = Rite.PointToScreen(new Point(Rite.ActualWidth/(colum+1))).X + 5;
-                    //_cameraDragDrop.GridTake.Window.Top = Rite.PointToScreen(new Point()).Y + 5;
-
+                     
                 }
                 else
                 {
                     SwichCameraForDragDrop();
                 }
-
-                //System.Windows.Application.Current.MainWindow.Width += 1.1;
-                //System.Windows.Application.Current.MainWindow.Width -= 1.1;
-
+                 
             }
             else if (e.Data.GetDataPresent(typeof(WindowsFormsHost)))
             {
@@ -68,8 +62,7 @@ namespace SilkDirectX11.Behaviors
                         AllowDrop = true,
                         WindowStyle = WindowStyle.None,
                         ResizeMode = ResizeMode.NoResize,
-                        Owner = System.Windows.Application.Current.MainWindow,
-                       // ToolTip = "Правый клик - полноэкранный режим\nЛевый клик - перетаскивание\nКнопка в углу - закрыть окно",
+                      
                     },
                     Name = VideoHostSelect.Name,
                     CameraGuidName = VideoHostSelect.Name + Guid.NewGuid().ToString("N"),
@@ -115,11 +108,11 @@ namespace SilkDirectX11.Behaviors
               
                 grid.Window.Owner.LocationChanged += OwnedWindowsLocationChange;
                 grid.Window.Owner.SizeChanged += OwnerSizeChanged;
-                List<string> arguments = new List<string>() { grid.CameraConnectStrings.SubStream, grid.CameraConnectStrings.MainStream, grid.Name, grid.WindowTag, grid.CameraGuidName};
+                List<string> arguments = new List<string>() { grid.CameraConnectStrings.SubStream, grid.CameraConnectStrings.MainStream, grid.Name, grid.WindowTag, grid.CameraGuidName, _flagForReconnect.ToString() };
                 var process = StartProcess(arguments, grid.CameraConnectStrings.CameraID);
                 grid.ProcessTag = process.Id.ToString();
              
-                _windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
+                //_windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
                 _windowOverlay.Show();
                 
 

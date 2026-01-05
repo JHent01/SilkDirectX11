@@ -2,6 +2,7 @@
 using MahApps.Metro.Controls;
 using SilkDirectX11.Events;
 using SilkDirectX11.Model;
+using SilkDirectX11.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,9 +68,9 @@ namespace SilkDirectX11.Behaviors
             grid.Window.Width = riteGrid.ActualWidth;
             grid.Window.Height = riteGrid.ActualHeight;
             _pixelPanelForZoom.TopLeft.X = 0;
-            wind.Focus();
+            // wind.Focus();
 
-           
+            
 
             if (MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault() == null)
             {
@@ -102,7 +103,8 @@ namespace SilkDirectX11.Behaviors
                 MainGrid.Children.Add(newGr);
                 Grid.SetColumn(newGr, MainGrid.ColumnDefinitions.Count);
                 SetConnect setConnect = new SetConnect(false, int.Parse(grid.ProcessTag));
-                SendChandeConekting(setConnect);
+                ConnectedManager.SendChandeConekting(setConnect);
+                //SendChandeConekting(setConnect);
                 CustomGrid GridFullScreen = MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
 
                 MainGrid.SizeChanged += OnMainGridSizeChenge;
@@ -111,8 +113,9 @@ namespace SilkDirectX11.Behaviors
                 GridFullScreen.Window.MouseDown += OnMouseDownTakePosition;
                 GridFullScreen.Window.Left = riteGrid.PointToScreen(new Point()).X;
                 GridFullScreen.Window.Top = riteGrid.PointToScreen(new Point()).Y;
-
                 
+                _windowOverlay.Focus();
+              
             }
         }
 
@@ -165,9 +168,12 @@ namespace SilkDirectX11.Behaviors
             parent.Window.Top = parent.PointToScreen(new Point()).Y + 5;
 
             SetConnect setConnect = new SetConnect(true, int.Parse(parent.ProcessTag));
-            SendChandeConekting(setConnect);
+            ConnectedManager.SendChandeConekting(setConnect);
+           // SendChandeConekting(setConnect);
+            
             _pixelPanelForZoom.TopLeft.X = 0;
             var canvas = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
+             
             if (canvas != null)
 
                 gridOverlay.Children.Remove(canvas);
@@ -181,7 +187,8 @@ namespace SilkDirectX11.Behaviors
             if (gridFullScreen.Window.OwnedWindows.Count > 0)
                 {
                     OpenZoom openZoom = new OpenZoom(false, 0, 1, 1, int.Parse(gridFullScreen.ProcessTag));
-                    SendWindowForZoom(openZoom);
+                ConnectedManager.SendWindowForZoom(openZoom);
+               // SendWindowForZoom(openZoom);
                     gridFullScreen.Window.OwnedWindows[0].Close();
                  
                 }
@@ -200,12 +207,12 @@ namespace SilkDirectX11.Behaviors
                 gridFullScreen.Height = gridRite.ActualHeight;
                 if (gridFullScreen.Window.OwnedWindows.Count > 0 )
                 {
-                    gridFullScreen.Window.OwnedWindows[0].Width = gridRite.ActualWidth/2;
-                    gridFullScreen.Window.OwnedWindows[0].Height = gridRite.ActualHeight;
+                    gridFullScreen.Window.OwnedWindows[0].Width = gridRite.ActualWidth/2-10;
+                    gridFullScreen.Window.OwnedWindows[0].Height = gridRite.ActualHeight-10;
                     gridFullScreen.Width = gridRite.ActualWidth/2;
                     gridFullScreen.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                    gridFullScreen.Window.OwnedWindows[0].Left = gridRite.PointToScreen(new Point()).X+ gridRite.ActualWidth / 2;
-                    gridFullScreen.Window.OwnedWindows[0].Top = gridRite.PointToScreen(new Point()).Y;
+                    gridFullScreen.Window.OwnedWindows[0].Left = gridRite.PointToScreen(new Point()).X+ gridRite.ActualWidth / 2+5;
+                    gridFullScreen.Window.OwnedWindows[0].Top = gridRite.PointToScreen(new Point()).Y+5;
                 }
                 else
                 {

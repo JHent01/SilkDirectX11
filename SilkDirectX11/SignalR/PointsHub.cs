@@ -36,44 +36,23 @@ namespace SilkDirectX11.SignalR
             return Clients.Group(setSize.ID.ToString()).SendAsync("NewSize", setSize);
         }
         public   void ClosingModulRender(MessageClousedModul message)
-        {
-            //MessageBox.Show(message.Message);
-            EventAggregatorProvider.Instance.Publish(message);
-          //  return Clients.All.SendAsync("ClosingModulRender", message);
+        { 
+            EventAggregatorProvider.Instance.Publish(message);  
         }
 
         public   void MassegeFromModul(MassegeFromModul message)
-        {
-            
-            // MessageBox.Show(message.Message);
-            EventAggregatorProvider.Instance.Publish(message);
-           // return Clients.All.SendAsync("MassegeFromModul", message);
+        { 
+            EventAggregatorProvider.Instance.Publish(message); 
         }
         public Task ChangeSettingsCamera(CameraSettingsVisual cameraSettingsVisual)
         { 
             return Clients.Group(cameraSettingsVisual.IDprocces).SendAsync("ChangeSettings", cameraSettingsVisual);
         }
 
-
-
-        //public Task SendPoint(PointsForZoom pointsForZoom)//double xTL, double yTL, double xBR, double yBR
-        //{
-        //    return Clients.All.SendAsync("point", pointsForZoom);//pointReceived
-        //}
-        //public Task SendZoom(OpenZoom openZoom)//bool usSwapCain, int wind,int w , int h,int ID
-        //{
-        //    return Clients.All.SendAsync("swapCain", openZoom); 
-        //}
-        //public Task SendSetCon(SetConnect setConnect)//bool Use ,int ID
-        //{
-        //    return Clients.All.SendAsync("conecting", setConnect); 
-        //}
-        //public Task SenNewSize(SetSize setSize)
-        //{
-        //    return Clients.All.SendAsync("NewSize", setSize);//width, height, ID
-
-        //}
-
-
+        public Task ShowRestartingCamers(ShowRestartCamersMessage restartCamersMessage)
+        {
+            return Clients.All.SendAsync("Flag", restartCamersMessage);
+        }
+         
     } 
 }
