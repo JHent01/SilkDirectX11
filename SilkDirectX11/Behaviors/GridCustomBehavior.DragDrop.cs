@@ -120,7 +120,7 @@ namespace SilkDirectX11.Behaviors
                 if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
                 {
                     Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
-                    Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
+                    //Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
                     Rite.ColumnDefinitions.Add(new ColumnDefinition());
                     Rite.Children.Add(grid);
 
@@ -130,8 +130,8 @@ namespace SilkDirectX11.Behaviors
                 {
                     Rite.RowDefinitions.Add(new RowDefinition());
                     Grid.SetRow(grid, Rite.RowDefinitions.Count);
-                    Grid.SetRow(grid, Rite.RowDefinitions.Count);
-                    Rite.RowDefinitions.Add(new RowDefinition());
+                   // Grid.SetRow(grid, Rite.RowDefinitions.Count);
+                     Rite.RowDefinitions.Add(new RowDefinition());
                     Rite.Children.Add(grid);
 
                 }
@@ -153,6 +153,7 @@ namespace SilkDirectX11.Behaviors
                         else // тут проверка на заполненность последней ячеки правой нижней
                         {
                             Rite.RowDefinitions.Add(new RowDefinition());
+                             if (Rite.RowDefinitions.Count>2)
                             Rite.ColumnDefinitions.Add(new ColumnDefinition());
                             Grid.SetRow(grid, Rite.RowDefinitions.Count - 1);
                             Rite.Children.Add(grid);
@@ -463,7 +464,7 @@ namespace SilkDirectX11.Behaviors
                 }
                 if (Rite.RowDefinitions.Count == 1 | Rite.RowDefinitions.Count == 0)
                 {
-                    if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) == null)
+                    if ((Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) == null)
                     {
                         try
                         {
@@ -472,6 +473,20 @@ namespace SilkDirectX11.Behaviors
                         catch
                         {
                             return;
+                        }
+                    }
+                    else if (Rite.ColumnDefinitions.Count == 2 | Rite.RowDefinitions.Count == 0)//тут поправить с проверкой на потом 
+                    {
+                        if ((Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count  && Grid.GetColumn(c) == 0)) == null)
+                        {
+                            try
+                            {
+                                Rite.RowDefinitions.RemoveAt(Rite.ColumnDefinitions.Count);
+                            }
+                            catch
+                            {
+                                return;
+                            }
                         }
                     }
 
