@@ -33,14 +33,13 @@ namespace SilkDirectX11.Model
             this.Background = System.Windows.Media.Brushes.Transparent;
             this.SizeChanged += CustomGrid_SizeChanged;
             this.IsVisibleChanged += CustomGrid_IsVisibleChanged;
-
+           
             this.MinHeight = 50;
             this.MinWidth = 50;
 
         }
 
-
-
+        
 
         private void CustomGrid_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -64,11 +63,31 @@ namespace SilkDirectX11.Model
 
             }
         }
-        internal void Location( )
+        internal void ChengeSizeOverleyWindow(object sender, SizeChangedEventArgs e)
         {
-            Window.Left = this.PointToScreen(new System.Windows.Point()).X + 5;
-            Window.Top = this.PointToScreen(new System.Windows.Point()).Y + 5;
+            //if (this.Window != null)
+           // {
+               var wind = sender as Window;
+                wind.OwnedWindows[0].Left = wind.PointToScreen(new System.Windows.Point()).X ;
+                wind.OwnedWindows[0].Top = wind.PointToScreen(new System.Windows.Point()).Y;
+                wind.OwnedWindows[0].Width = wind.ActualWidth;
+                wind.OwnedWindows[0].Height = wind.ActualHeight;
+            //}
         }
+        internal void ChengeLocationOverleyWindow(object sender, EventArgs e)
+        {
+            //if (this.Window != null)
+            //{
+                var wind = sender as Window;
+                wind.OwnedWindows[0].Left = wind.PointToScreen(new System.Windows.Point()).X;
+                wind.OwnedWindows[0].Top = wind.PointToScreen(new System.Windows.Point()).Y;
+            //}
+        }
+        //internal void Location( )
+        //{
+        //    Window.Left = this.PointToScreen(new System.Windows.Point()).X + 5;
+        //    Window.Top = this.PointToScreen(new System.Windows.Point()).Y + 5;
+        //}
     }
 
      

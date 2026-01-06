@@ -1,4 +1,6 @@
-﻿using SilkDirectX11.Model;
+﻿using LibraryForSignalR;
+using SilkDirectX11.Model;
+using SilkDirectX11.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +14,16 @@ namespace SilkDirectX11.Behaviors
 {
     partial class GridCustomBehavior
     {
-        private void InitOverlayWindow()
+        private  Window InitOverlayWindow()
         {
+            Window windOverlay = new Window();
             Grid Rite = AssociatedObject as Grid;
 
-            _windowOverlay.Background = System.Windows.Media.Brushes.Transparent;
-            _windowOverlay.WindowStyle = WindowStyle.None;
-            _windowOverlay.AllowsTransparency = true;
-            _windowOverlay.ShowInTaskbar = false;
-            _windowOverlay.Topmost = true;
+            windOverlay.Background = System.Windows.Media.Brushes.Transparent;
+            windOverlay.WindowStyle = WindowStyle.None;
+            windOverlay.AllowsTransparency = true;
+            windOverlay.ShowInTaskbar = false;
+            windOverlay.Topmost = true;
 
             Button buttonClouseInOverlay = new Button
             {
@@ -30,19 +33,30 @@ namespace SilkDirectX11.Behaviors
 
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
-
+                
             };
+            Button buttonZoomMode = new Button
+            {
+                Content = "O",
+                Width = 30,
+                Height = 30,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                //Margin = new Thickness(0,35,0,0)
+            };
+           buttonZoomMode.Click += OnChengeZoomMode;
             Border border = new Border
             {
 
-                Width = _windowOverlay.Width,
-                Height = _windowOverlay.Height,
+                Width = windOverlay.Width,
+                Height = windOverlay.Height,
 
 
             };
             buttonClouseInOverlay.Click += DeleteGridChild;
-            Grid gridWithButtonOverlay = new Grid()
+            Grid gridWithButtonClouceOverlay = new Grid()
             {
+                Name = "GridWithButtonClouseOverlay",
                 Visibility = Visibility.Collapsed,
                 Background = System.Windows.Media.Brushes.Black,
                 Opacity = 0.5,
@@ -50,56 +64,74 @@ namespace SilkDirectX11.Behaviors
                 Height = buttonClouseInOverlay.Height,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(5)
             };
             Grid GridOverlay = new Grid()
             {
                 Background = System.Windows.Media.Brushes.Transparent,
 
-                Width = _windowOverlay.Width,
-                Height = _windowOverlay.Height,
+                Width = windOverlay.Width,
+                Height = windOverlay.Height,
             };
-            gridWithButtonOverlay.Children.Add(buttonClouseInOverlay);
-            GridOverlay.Children.Add(gridWithButtonOverlay);
+            Grid gridWithButtonZoomMode = new Grid()
+            {
+                Name = "GridWithButtonZoomMode",
+                Visibility = Visibility.Collapsed,
+                Background = System.Windows.Media.Brushes.Black,
+                Opacity = 0.5,
+                Width = buttonClouseInOverlay.Width,
+                Height = buttonClouseInOverlay.Height,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(5)
+            };
+            gridWithButtonClouceOverlay.Children.Add(buttonClouseInOverlay);
+            gridWithButtonZoomMode.Children.Add(buttonZoomMode);
+            GridOverlay.Children.Add(gridWithButtonClouceOverlay);
+            GridOverlay.Children.Add(gridWithButtonZoomMode);
+
             border.Child = GridOverlay;
 
-            _windowOverlay.Content = border;
+            windOverlay.Content = border;
 
-            _windowOverlay.Width = Rite.ActualWidth / Rite.ColumnDefinitions.Count;
-            if (Rite.RowDefinitions.Count != 0) _windowOverlay.Height = Rite.ActualHeight / Rite.RowDefinitions.Count;
-            else _windowOverlay.Height = Rite.ActualHeight;
+            //windOverlay.Width = Rite.ActualWidth / Rite.ColumnDefinitions.Count;
+            //if (Rite.RowDefinitions.Count != 0) windOverlay.Height = Rite.ActualHeight / Rite.RowDefinitions.Count;
+            //else windOverlay.Height = Rite.ActualHeight;
 
-            _windowOverlay.Visibility = Visibility.Visible;
+            windOverlay.Visibility = Visibility.Visible;
 
-
-            gridWithButtonOverlay.MouseMove += OnMouseEnterWindowShowOverlay;
-
-            gridWithButtonOverlay.MouseLeave += OnMouseLeaveOverLay;
+            gridWithButtonZoomMode.MouseMove += OnMouseEnterWindowShowOverlay;
+            gridWithButtonZoomMode.MouseLeave += OnMouseLeaveOverLay;
+            gridWithButtonClouceOverlay.MouseMove += OnMouseEnterWindowShowOverlay;
+            gridWithButtonClouceOverlay.MouseLeave += OnMouseLeaveOverLay;
+            return windOverlay;
 
         }
         private void OnMouseLeaveHideOverlay(object? sender, EventArgs e)
         {
             if (!_flagForOverlay) return;
-            Border border = (Border)_windowOverlay.Content;
+            Window surfaceWindow = sender as Window;
+            Border border = (Border)surfaceWindow.OwnedWindows[0].Content;
             Grid grids = (Grid)border.Child;
-            Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
+            Grid grid = grids.Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonClouseOverlay").FirstOrDefault();
+            
+            Grid grid2 = grids.Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonZoomMode").FirstOrDefault();
+
+            grid2.Visibility = Visibility.Hidden;
             grid.Visibility = Visibility.Hidden;
         }
 
         private void OnMouseMuveWindowShow(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            var panel = sender as Window;
-            Border border = (Border)_windowOverlay.Content;
+            var surfaceWindow = sender as Window;
+            Border border = (Border)surfaceWindow.OwnedWindows[0].Content;
             Grid grids = (Grid)border.Child;
-            Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
-            Button b = grid.Children.OfType<Button>().FirstOrDefault();
-            b.Name = panel.Name;
-
+            Grid grid = grids.Children.OfType<Grid>().Where(s=> s.Name == "GridWithButtonClouseOverlay").FirstOrDefault();
+            Grid grid2 = grids.Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonZoomMode").FirstOrDefault();
+             
+            grid2.Visibility = Visibility.Visible;
             grid.Visibility = Visibility.Visible;
-            _windowOverlay.Height = panel.Height;
-            _windowOverlay.Width = panel.Width;
-            _windowOverlay.Left = panel.PointToScreen(new System.Windows.Point()).X;
-            _windowOverlay.Top = panel.PointToScreen(new System.Windows.Point()).Y;
-            _windowOverlay.Focus();
+            
         }
         private void OnMouseLeaveOverLay(object sender, System.Windows.Input.MouseEventArgs e)
         {
@@ -116,11 +148,49 @@ namespace SilkDirectX11.Behaviors
 
             grid.Visibility = Visibility.Visible;
         }
+
+        private void OnChengeZoomMode(object sender, RoutedEventArgs e)//дописапть тут логику закрытия 
+        { 
+           Button zommButton = sender as Button;
+                ZoomModeOn(zommButton);
+
+        }
+        private void ZoomModeOn(Button button)
+        {
+            var riteGrid = AssociatedObject as Grid;
+            var MainGrid = riteGrid.Parent as Grid;
+            var grid = riteGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == button.Name).FirstOrDefault();
+            if (grid == null) return;
+            Window surfaceWindow = grid.Window;
+            surfaceWindow.MouseRightButtonDown -= OnChangeFullScreen;
+            surfaceWindow.Drop -= AssociatedObject_Drop;
+            surfaceWindow.MouseLeave -= OnMouseLeaveHideOverlay;
+           // surfaceWindow.MouseMove -= OnMouseMuveWindowShow;
+            surfaceWindow.MouseDown -= StartDragDrop;
+            surfaceWindow.MouseUp += OnMouseUpTakePosition;
+            surfaceWindow.MouseDown += OnMouseDownTakePosition;
+            surfaceWindow.Tag = grid.ProcessTag;
+            button.MouseLeave -= OnMouseLeaveOverLay;
+
+
+            SetConnect setConnect = new SetConnect(false, int.Parse(grid.ProcessTag));
+            ConnectedManager.SendChandeConekting(setConnect);
+
+
+
+
+        }
+
+        private void ZoomModeOff()
+        {
+
+        }
+
         private void CreateCanvalInOverlay(object? sender)
         {
             var riteGrid = AssociatedObject as Grid;
-          
-            Grid gridOverlay = ((Border)_windowOverlay.Content).Child as Grid;
+            Window surfaceWindow = sender as Window;
+            Grid gridOverlay = ((Border)surfaceWindow.OwnedWindows[0].Content).Child as Grid;
             var child = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
 
            
@@ -131,8 +201,8 @@ namespace SilkDirectX11.Behaviors
             }
             Canvas canvas = new Canvas()
             {
-                Width = _windowOverlay.Width,
-                Height = _windowOverlay.Height,
+                Width = surfaceWindow.OwnedWindows[0].Width,
+                Height = surfaceWindow.OwnedWindows[0].Height,
                 Background = System.Windows.Media.Brushes.Transparent,
                 Tag = (sender as Window).Tag
 
@@ -159,7 +229,7 @@ namespace SilkDirectX11.Behaviors
             canvas.MouseMove += OnMoveCanvals;
             rectangle.MouseDown += OnRectangleMouseDown;
             rectangle.MouseUp += OnRectangleMouseUp;
-           _windowOverlay.Focus();
+            surfaceWindow.OwnedWindows[0].Focus();
           
 
 

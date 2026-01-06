@@ -46,16 +46,16 @@ namespace SilkDirectX11.Behaviors
             var riteGrid = AssociatedObject as Grid;
             var MainGrid = riteGrid.Parent as Grid;
             var grid = riteGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == wind.Name).FirstOrDefault();
-            Grid gridOverlayCanvals = ((Border)_windowOverlay.Content).Child as Grid;
+            Grid gridOverlayCanvals = ((Border)grid.Window.OwnedWindows[0].Content).Child as Grid;
             Grid gridOverlay = gridOverlayCanvals.Children.OfType<Grid>().FirstOrDefault();
 
-            gridOverlay.Visibility = Visibility.Hidden;
-            _eventAggregator.GetEvent<VisibilityChengeEvent>().Publish(Visibility.Hidden);
+           gridOverlay.Visibility = Visibility.Hidden;
+           
 
-            _windowOverlay.Width = riteGrid.ActualWidth;
-            _windowOverlay.Height = riteGrid.ActualHeight;
-            _windowOverlay.Left = riteGrid.PointToScreen(new Point()).X;
-            _windowOverlay.Top = riteGrid.PointToScreen(new Point()).Y;
+            //_windowOverlay.Width = riteGrid.ActualWidth;
+            //_windowOverlay.Height = riteGrid.ActualHeight;
+            //_windowOverlay.Left = riteGrid.PointToScreen(new Point()).X;
+            //_windowOverlay.Top = riteGrid.PointToScreen(new Point()).Y;
 
 
             AssociatedObject.Drop -= AssociatedObject_Drop;
@@ -113,9 +113,9 @@ namespace SilkDirectX11.Behaviors
                 GridFullScreen.Window.MouseDown += OnMouseDownTakePosition;
                 GridFullScreen.Window.Left = riteGrid.PointToScreen(new Point()).X;
                 GridFullScreen.Window.Top = riteGrid.PointToScreen(new Point()).Y;
-                
-                _windowOverlay.Focus();
-              
+
+                //GridFullScreen.Window.OwnedWindows[0].Focus();
+                _eventAggregator.GetEvent<VisibilityChengeEvent>().Publish(Visibility.Hidden);
             }
         }
 
@@ -123,7 +123,7 @@ namespace SilkDirectX11.Behaviors
         {
             wind.Tag = null;
               
-            Grid gridOverlayCanvals = ((Border)_windowOverlay.Content).Child as Grid;
+            Grid gridOverlayCanvals = ((Border)wind.OwnedWindows[0].Content).Child as Grid;
    
             if (gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault() != null)
             {
@@ -140,12 +140,12 @@ namespace SilkDirectX11.Behaviors
             var parent = riteGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == wind.Name).FirstOrDefault();
             CustomGrid gridFullScreen = MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
 
-            Grid gridOverlayCanvals = ((Border)_windowOverlay.Content).Child as Grid;
+            Grid gridOverlayCanvals = ((Border)gridFullScreen.Window.OwnedWindows[0].Content).Child as Grid;
             Grid gridOverlay = gridOverlayCanvals.Children.OfType<Grid>().FirstOrDefault();
             gridOverlay.Visibility = Visibility.Visible;
             _eventAggregator.GetEvent<VisibilityChengeEvent>().Publish(Visibility.Visible);
-            _windowOverlay.Width = riteGrid.ActualWidth;
-            _windowOverlay.Height = riteGrid.ActualHeight;
+            //_windowOverlay.Width = riteGrid.ActualWidth;
+            //_windowOverlay.Height = riteGrid.ActualHeight;
              
             AssociatedObject.Drop += AssociatedObject_Drop;
             gridFullScreen.Window.MouseUp -= OnMouseUpTakePosition;
@@ -183,13 +183,13 @@ namespace SilkDirectX11.Behaviors
             var riteGrid = AssociatedObject as Grid;
             var MainGrid = riteGrid.Parent as Grid;
             CustomGrid gridFullScreen = MainGrid.Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
-            Grid gridOverlayCanvals = ((Border)_windowOverlay.Content).Child as Grid;
-            if (gridFullScreen.Window.OwnedWindows.Count > 0)
+            Grid gridOverlayCanvals = ((Border)gridFullScreen.Window.OwnedWindows[0].Content).Child as Grid;
+            if (gridFullScreen.Window.OwnedWindows.Count > 1)
                 {
                     OpenZoom openZoom = new OpenZoom(false, 0, 1, 1, int.Parse(gridFullScreen.ProcessTag));
                 ConnectedManager.SendWindowForZoom(openZoom);
                // SendWindowForZoom(openZoom);
-                    gridFullScreen.Window.OwnedWindows[0].Close();
+                    gridFullScreen.Window.OwnedWindows[1].Close();
                  
                 }
             var childOverlay = gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault();
@@ -205,31 +205,31 @@ namespace SilkDirectX11.Behaviors
             if (gridFullScreen != null)
             {
                 gridFullScreen.Height = gridRite.ActualHeight;
-                if (gridFullScreen.Window.OwnedWindows.Count > 0 )
+                if (gridFullScreen.Window.OwnedWindows.Count > 1 )
                 {
-                    gridFullScreen.Window.OwnedWindows[0].Width = gridRite.ActualWidth/2-10;
-                    gridFullScreen.Window.OwnedWindows[0].Height = gridRite.ActualHeight-10;
+                    gridFullScreen.Window.OwnedWindows[1].Width = gridRite.ActualWidth/2-10;
+                    gridFullScreen.Window.OwnedWindows[1].Height = gridRite.ActualHeight-10;
                     gridFullScreen.Width = gridRite.ActualWidth/2;
                     gridFullScreen.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                    gridFullScreen.Window.OwnedWindows[0].Left = gridRite.PointToScreen(new Point()).X+ gridRite.ActualWidth / 2+5;
-                    gridFullScreen.Window.OwnedWindows[0].Top = gridRite.PointToScreen(new Point()).Y+5;
+                    gridFullScreen.Window.OwnedWindows[1].Left = gridRite.PointToScreen(new Point()).X+ gridRite.ActualWidth / 2+5;
+                    gridFullScreen.Window.OwnedWindows[1].Top = gridRite.PointToScreen(new Point()).Y+5;
                 }
                 else
                 {
                     gridFullScreen.Width = gridRite.ActualWidth;
                 }
 
-                _windowOverlay.Width = gridFullScreen.ActualWidth;
-                _windowOverlay.Height = gridFullScreen.ActualHeight;
-                var canvas = _windowOverlay.FindChild<Canvas>();
+                //_windowOverlay.Width = gridFullScreen.ActualWidth;
+                //_windowOverlay.Height = gridFullScreen.ActualHeight;
+                var canvas = gridFullScreen.Window.OwnedWindows[0].FindChild<Canvas>();
                 if (canvas != null)
                 {
                     canvas.Width = gridFullScreen.ActualWidth;
                     canvas.Height = gridFullScreen.ActualHeight;
                 }
                 
-                _windowOverlay.Left = gridFullScreen.PointToScreen(new Point()).X;
-                _windowOverlay.Top = gridFullScreen. PointToScreen(new Point()).Y;
+                //_windowOverlay.Left = gridFullScreen.PointToScreen(new Point()).X;
+                //_windowOverlay.Top = gridFullScreen. PointToScreen(new Point()).Y;
                
             }
         }

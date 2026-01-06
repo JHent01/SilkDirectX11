@@ -16,9 +16,12 @@ using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using Win32.Graphics.Direct3D;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using Button = System.Windows.Controls.Button;
 using Point = System.Windows.Point;
+using Window = System.Windows.Window;
 
 namespace SilkDirectX11.Behaviors
 {
@@ -40,13 +43,13 @@ namespace SilkDirectX11.Behaviors
                     Grid.SetRow(_cameraDragDrop.GridTake, row);
                     Grid.SetColumn(_cameraDragDrop.GridTake, colum);
                     UpdateWindowPositionForGrid(_cameraDragDrop.GridTake);
-                     
+
                 }
                 else
                 {
                     SwichCameraForDragDrop();
                 }
-                 
+
             }
             else if (e.Data.GetDataPresent(typeof(WindowsFormsHost)))
             {
@@ -55,24 +58,24 @@ namespace SilkDirectX11.Behaviors
                 WindowsFormsHost VideoHostSelect = e.Data.GetData(typeof(WindowsFormsHost)) as WindowsFormsHost;
                 CustomGrid grid = new CustomGrid()
                 {
-                     
+
                     Window = new()
                     {
-                        
+
                         AllowDrop = true,
                         WindowStyle = WindowStyle.None,
                         ResizeMode = ResizeMode.NoResize,
-                      
+                        ShowInTaskbar = false,
                     },
                     Name = VideoHostSelect.Name,
                     CameraGuidName = VideoHostSelect.Name + Guid.NewGuid().ToString("N"),
                     CameraConnectStrings = VideoHostSelect.Tag as CameraConnectStrings,
                     Background = System.Windows.Media.Brushes.Transparent,
-                 
-                     
-                   
+
+
+
                 };
-                grid.Children.Add(  new Border()
+                grid.Children.Add(new Border()
                 {
                     Background = System.Windows.Media.Brushes.Transparent,
                     BorderBrush = System.Windows.Media.Brushes.White,
@@ -80,15 +83,15 @@ namespace SilkDirectX11.Behaviors
                     CornerRadius = new CornerRadius(5),
                     Margin = new Thickness(1, 1, 1, 1),
                     Padding = new Thickness(1, 1, 1, 1),
-                   
-                    
-                 });
-                
-                 
-               
+
+
+                });
+
+
+
                 Rite.MouseUp += DropCamera;
                 grid.Window.PreviewDragEnter += MouseMoveDragDrop;
-                grid.Window.BorderBrush = System.Windows.Media.Brushes.Red;
+                //grid.Window.BorderBrush = System.Windows.Media.Brushes.Red;
                 grid.Window.MouseLeave += ChengeBorderColor;
                 grid.Window.MouseMove += CameraWindowMouseMove;
                 grid.Window.Drop += AssociatedObject_Drop;
@@ -105,18 +108,26 @@ namespace SilkDirectX11.Behaviors
                 grid.Margin = new Thickness(5);
                 int colum = GetGridColumn(e.GetPosition(Rite));
                 int row = GetGridRow(e.GetPosition(Rite));
-              
+
                 grid.Window.Owner.LocationChanged += OwnedWindowsLocationChange;
-                grid.Window.Owner.SizeChanged += OwnerSizeChanged;
+                //grid.Window.Owner.SizeChanged += OwnerSizeChanged;
                 List<string> arguments = new List<string>() { grid.CameraConnectStrings.SubStream, grid.CameraConnectStrings.MainStream, grid.Name, grid.WindowTag, grid.CameraGuidName, _flagForReconnect.ToString() };
                 var process = StartProcess(arguments, grid.CameraConnectStrings.CameraID);
                 grid.ProcessTag = process.Id.ToString();
-             
+                Window windOwerlay = InitOverlayWindow();
+                (((Border)windOwerlay.Content).Child as Grid).Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonClouseOverlay").FirstOrDefault().Children.OfType<Button>().FirstOrDefault().Name = grid.CameraGuidName;
+                (((Border)windOwerlay.Content).Child as Grid).Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonZoomMode").FirstOrDefault().Children.OfType<Button>().FirstOrDefault().Name = grid.CameraGuidName;
+                windOwerlay.Width = grid.Window.ActualWidth;
+                windOwerlay.Height = grid.Window.ActualHeight;
+                windOwerlay.Owner = grid.Window;
+
+                windOwerlay.Show();
+                System.Windows.Application.Current.MainWindow.Closed += MainWindow_Closed;
                 //_windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
-                _windowOverlay.Show();
-               
-
-
+                // _windowOverlay.Show();
+                grid.Window.SizeChanged += grid.ChengeSizeOverleyWindow;
+                grid.Window.LocationChanged += grid.ChengeLocationOverleyWindow;
+                System.Windows.Application.Current.MainWindow.Focus();
                 if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
                 {
                     Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
@@ -130,8 +141,8 @@ namespace SilkDirectX11.Behaviors
                 {
                     Rite.RowDefinitions.Add(new RowDefinition());
                     Grid.SetRow(grid, Rite.RowDefinitions.Count);
-                   // Grid.SetRow(grid, Rite.RowDefinitions.Count);
-                     Rite.RowDefinitions.Add(new RowDefinition());
+                    // Grid.SetRow(grid, Rite.RowDefinitions.Count);
+                    Rite.RowDefinitions.Add(new RowDefinition());
                     Rite.Children.Add(grid);
 
                 }
@@ -153,8 +164,8 @@ namespace SilkDirectX11.Behaviors
                         else // тут проверка на заполненность последней ячеки правой нижней
                         {
                             Rite.RowDefinitions.Add(new RowDefinition());
-                             if (Rite.RowDefinitions.Count>2)
-                            Rite.ColumnDefinitions.Add(new ColumnDefinition());
+                            if (Rite.RowDefinitions.Count > 2)
+                                Rite.ColumnDefinitions.Add(new ColumnDefinition());
                             Grid.SetRow(grid, Rite.RowDefinitions.Count - 1);
                             Rite.Children.Add(grid);
                         }
@@ -162,10 +173,20 @@ namespace SilkDirectX11.Behaviors
 
 
                 }
-                
+
 
             }
+            //??
+           
+
         }
+
+        private void MainWindow_Closed(object? sender, EventArgs e)
+        {
+            Process.GetProcessById(Process.GetCurrentProcess().Id).Kill();
+             
+        }
+
         private void UpdateWindowPositionForGrid(CustomGrid grid)
         {
             if (grid == null || grid.Window == null) return;
@@ -176,28 +197,28 @@ namespace SilkDirectX11.Behaviors
             grid.Window.Left = p.X + 5;
             grid.Window.Top = p.Y + 5;
         }
-        private void OwnerSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            Border border = (Border)_windowOverlay.Content;
-            Grid grids = (Grid)border.Child;
-            Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
-            Button b = grid.Children.OfType<Button>().FirstOrDefault();
-            var selectedGrid = AssociatedObject.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == b.Name).FirstOrDefault();
-            if (selectedGrid == null) return;
-            if (selectedGrid.Window != null)
-            {
-                _windowOverlay.Width = selectedGrid.Window.ActualWidth;
-                _windowOverlay.Height = selectedGrid.Window.ActualHeight;
-                _windowOverlay.Left = selectedGrid.Window.PointToScreen(new Point()).X;
-                _windowOverlay.Top = selectedGrid.Window.PointToScreen(new Point()).Y;
-            }
-            else
-            {
-                _windowOverlay.Width = selectedGrid.ActualWidth;
-                _windowOverlay.Height = selectedGrid.ActualHeight;
+        //private void OwnerSizeChanged(object sender, SizeChangedEventArgs e)
+        //{
+        //    //Border border = (Border)_windowOverlay.Content;
+        //    //Grid grids = (Grid)border.Child;
+        //    //Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
+        //    //Button b = grid.Children.OfType<Button>().FirstOrDefault();
+        //    //var selectedGrid = AssociatedObject.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == b.Name).FirstOrDefault();
+        //    //if (selectedGrid == null) return;
+        //    //if (selectedGrid.Window != null)
+        //    //{
+        //    //    _windowOverlay.Width = selectedGrid.Window.ActualWidth;
+        //    //    _windowOverlay.Height = selectedGrid.Window.ActualHeight;
+        //    //    _windowOverlay.Left = selectedGrid.Window.PointToScreen(new Point()).X;
+        //    //    _windowOverlay.Top = selectedGrid.Window.PointToScreen(new Point()).Y;
+        //    //}
+        //    //else
+        //    //{
+        //    //    _windowOverlay.Width = selectedGrid.ActualWidth;
+        //    //    _windowOverlay.Height = selectedGrid.ActualHeight;
                 
-            }
-        }
+        //    //}
+        //}
 
         private void OwnedWindowsLocationChange(object? sender, EventArgs e)
         { 
@@ -210,8 +231,8 @@ namespace SilkDirectX11.Behaviors
             CustomGrid host = (AssociatedObject.Parent as Grid).Children.OfType<CustomGrid>().Where(s => s.Name == "FullScreenGrid").FirstOrDefault();
             if (host != null)
             {
-                host.Window.Left = host.PointToScreen(new Point()).X;
-                host.Window.Top = host.PointToScreen(new Point()).Y;
+                host.Window.Left = host.PointToScreen(new Point()).X + 5;
+                host.Window.Top = host.PointToScreen(new Point()).Y + 5;
                 
             }
            
@@ -422,11 +443,12 @@ namespace SilkDirectX11.Behaviors
                             Process.GetProcessById(int.Parse(tag)).Kill();
                         }
                         catch { }
-                        Border border = (Border)_windowOverlay.Content;
-                        Grid grids = (Grid)border.Child;
-                        Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
+                        grid.Window.OwnedWindows[0].Close();
+                        //Border border = (Border)_windowOverlay.Content;
+                        //Grid grids = (Grid)border.Child;
+                        //Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
 
-                        gridOverlay.Visibility = Visibility.Hidden;
+                        //gridOverlay.Visibility = Visibility.Hidden;
 
 
 
@@ -518,9 +540,9 @@ namespace SilkDirectX11.Behaviors
                         if (Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1) != null)
                         {
                             Grid.SetColumn(Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1), 0);
-
+                            Rite.ColumnDefinitions.RemoveAt(0);
                         }
-                    Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
+                   
                    
                         return;
                 }
