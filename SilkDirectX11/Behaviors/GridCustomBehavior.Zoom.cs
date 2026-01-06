@@ -123,7 +123,7 @@ namespace SilkDirectX11.Behaviors
                 return true;
             }
             else
-            {.. привязать к размероам окна оверлей 
+            {// привязать к размероам окна оверлей 
                
                 Window wind = sender as Window;
                 CustomGrid surfaceGrid = riteGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == wind.Name).FirstOrDefault();
