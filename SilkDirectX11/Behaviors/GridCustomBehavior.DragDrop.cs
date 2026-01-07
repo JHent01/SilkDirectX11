@@ -547,7 +547,7 @@ namespace SilkDirectX11.Behaviors
                     break;
                 }
             }
-            if (Rite.ColumnDefinitions.Count == 1 && Rite.RowDefinitions.Count == 1)
+            if (Rite.ColumnDefinitions.Count <= 1 && Rite.RowDefinitions.Count <= 1)
                 return "Null";
             if (listRow.Count == 0 && listColumn.Count == 0)
             {
@@ -595,11 +595,11 @@ namespace SilkDirectX11.Behaviors
                     listColumn.Add(i);
                 }
             }
-            if (Rite.ColumnDefinitions.Count == 1 && Rite.RowDefinitions.Count == 1)
+            if (Rite.ColumnDefinitions.Count <= 1 && Rite.RowDefinitions.Count <= 1)
                 return "Null";
             if (listRow.Count == 0 && listColumn.Count == 0)
-            {if (Rite.ColumnDefinitions.Count == 2 && Rite.RowDefinitions.Count == 2)
-                    return "Null";
+            { 
+                     
                
                 return "TopLeft";
             }
