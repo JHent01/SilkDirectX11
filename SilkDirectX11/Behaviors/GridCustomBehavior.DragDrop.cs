@@ -32,12 +32,12 @@ namespace SilkDirectX11.Behaviors
         {
             if (e.Data.GetDataPresent(typeof(CameraDragDrop)))
             {
-                var Rite = AssociatedObject as Grid;
-                System.Windows.Point point = e.GetPosition(Rite);
+                var hostGrid = AssociatedObject as Grid;
+                System.Windows.Point point = e.GetPosition(hostGrid);
                 int row = GetGridRow(point);
                 int colum = GetGridColumn(point);
 
-                var cellChil = Rite.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+                var cellChil = hostGrid.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
                 if (cellChil == null)
                 {
                     Grid.SetRow(_cameraDragDrop.GridTake, row);
@@ -53,15 +53,13 @@ namespace SilkDirectX11.Behaviors
             }
             else if (e.Data.GetDataPresent(typeof(WindowsFormsHost)))
             {
-                var Rite = AssociatedObject as Grid;
+                var hostGrid = AssociatedObject as Grid;
 
                 WindowsFormsHost VideoHostSelect = e.Data.GetData(typeof(WindowsFormsHost)) as WindowsFormsHost;
                 CustomGrid grid = new CustomGrid()
                 {
-
                     Window = new()
                     {
-
                         AllowDrop = true,
                         WindowStyle = WindowStyle.None,
                         ResizeMode = ResizeMode.NoResize,
@@ -71,9 +69,7 @@ namespace SilkDirectX11.Behaviors
                     CameraGuidName = VideoHostSelect.Name + Guid.NewGuid().ToString("N"),
                     CameraConnectStrings = VideoHostSelect.Tag as CameraConnectStrings,
                     Background = System.Windows.Media.Brushes.Transparent,
-
-
-
+                    Margin = new Thickness(5)
                 };
                 grid.Children.Add(new Border()
                 {
@@ -84,14 +80,9 @@ namespace SilkDirectX11.Behaviors
                     Margin = new Thickness(1, 1, 1, 1),
                     Padding = new Thickness(1, 1, 1, 1),
 
-
                 });
-
-
-
-                Rite.MouseUp += DropCamera;
+                hostGrid.MouseUp += DropCamera;
                 grid.Window.PreviewDragEnter += MouseMoveDragDrop;
-                //grid.Window.BorderBrush = System.Windows.Media.Brushes.Red;
                 grid.Window.MouseLeave += ChengeBorderColor;
                 grid.Window.MouseMove += CameraWindowMouseMove;
                 grid.Window.Drop += AssociatedObject_Drop;
@@ -105,71 +96,62 @@ namespace SilkDirectX11.Behaviors
                 grid.Window.MouseUp += DropCamera;
                 grid.Window.MouseLeave += OnMouseLeaveHideOverlay;
                 grid.Window.MouseMove += OnMouseMuveWindowShow;
-                grid.Margin = new Thickness(5);
-                int colum = GetGridColumn(e.GetPosition(Rite));
-                int row = GetGridRow(e.GetPosition(Rite));
-
+                System.Windows.Application.Current.MainWindow.Closed += MainWindow_Closed;
+                grid.Window.SizeChanged += grid.ChengeSizeOverleyWindow;
+                grid.Window.LocationChanged += grid.ChengeLocationOverleyWindow;
                 grid.Window.Owner.LocationChanged += OwnedWindowsLocationChange;
-                //grid.Window.Owner.SizeChanged += OwnerSizeChanged;
                 List<string> arguments = new List<string>() { grid.CameraConnectStrings.SubStream, grid.CameraConnectStrings.MainStream, grid.Name, grid.WindowTag, grid.CameraGuidName, _flagForReconnect.ToString() };
                 var process = StartProcess(arguments, grid.CameraConnectStrings.CameraID);
                 grid.ProcessTag = process.Id.ToString();
+
                 Window windOwerlay = InitOverlayWindow();
                 (((Border)windOwerlay.Content).Child as Grid).Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonClouseOverlay").FirstOrDefault().Children.OfType<Button>().FirstOrDefault().Name = grid.CameraGuidName;
                 (((Border)windOwerlay.Content).Child as Grid).Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonZoomMode").FirstOrDefault().Children.OfType<Button>().FirstOrDefault().Name = grid.CameraGuidName;
                 windOwerlay.Width = grid.Window.ActualWidth;
                 windOwerlay.Height = grid.Window.ActualHeight;
                 windOwerlay.Owner = grid.Window;
-
                 windOwerlay.Show();
-                System.Windows.Application.Current.MainWindow.Closed += MainWindow_Closed;
-                //_windowOverlay.Owner = System.Windows.Application.Current.MainWindow;
-                // _windowOverlay.Show();
-                grid.Window.SizeChanged += grid.ChengeSizeOverleyWindow;
-                grid.Window.LocationChanged += grid.ChengeLocationOverleyWindow;
+               
                 System.Windows.Application.Current.MainWindow.Focus();
-                if (Rite.Children.Count <= 1) // заполнение первых двух ячеек 
+                int colum = GetGridColumn(e.GetPosition(hostGrid));
+                int row = GetGridRow(e.GetPosition(hostGrid));
+                if (hostGrid.Children.Count <= 1) // заполнение первых двух ячеек 
                 {
-                    Rite.ColumnDefinitions.Add(new ColumnDefinition());
-                    int u =Rite.ColumnDefinitions.Count;
-                    Grid.SetColumn(grid, Rite.Children.Count);
-                    //Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
-                    
-                    Rite.Children.Add(grid);
-
-
+                    hostGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                    int u =hostGrid.ColumnDefinitions.Count;
+                    Grid.SetColumn(grid, hostGrid.Children.Count);
+                    hostGrid.Children.Add(grid);
                 }
-                else if (Rite.RowDefinitions.Count == 0) // вставляется третья фотка 
+                else if (hostGrid.RowDefinitions.Count == 0) // вставляется третья фотка 
                 {
-                    Rite.RowDefinitions.Add(new RowDefinition());
-                    Grid.SetRow(grid, Rite.RowDefinitions.Count);
-                    // Grid.SetRow(grid, Rite.RowDefinitions.Count);
-                    Rite.RowDefinitions.Add(new RowDefinition());
-                    Rite.Children.Add(grid);
+                    hostGrid.RowDefinitions.Add(new RowDefinition());
+                    Grid.SetRow(grid, hostGrid.RowDefinitions.Count);
+                    hostGrid.RowDefinitions.Add(new RowDefinition());
+                    hostGrid.Children.Add(grid);
 
                 }
                 else
                 {
-                    var cellChil = Rite.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+                    var cellChil = hostGrid.Children.OfType<Grid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
                     if (cellChil == null)
                     {
                         Grid.SetRow(grid, row);
                         Grid.SetColumn(grid, colum);
-                        Rite.Children.Add(grid);
+                        hostGrid.Children.Add(grid);
                     }
                     else
                     {
-                        if (CheckEmptyChildInGrid(Rite))// заполнение ячеек по порядку  если ячейка правая нижняя пустая
+                        if (CheckEmptyChildInGrid(hostGrid))// заполнение ячеек по порядку  если ячейка правая нижняя пустая
                         {
-                            AddGrid(Rite, grid);
+                            AddGrid(hostGrid, grid);
                         }
                         else // тут проверка на заполненность последней ячеки правой нижней
                         {
-                            Rite.RowDefinitions.Add(new RowDefinition());
-                            if (Rite.RowDefinitions.Count > 2)
-                                Rite.ColumnDefinitions.Add(new ColumnDefinition());
-                            Grid.SetRow(grid, Rite.RowDefinitions.Count - 1);
-                            Rite.Children.Add(grid);
+                            hostGrid.RowDefinitions.Add(new RowDefinition());
+                            if (hostGrid.RowDefinitions.Count > 2)
+                                hostGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                            Grid.SetRow(grid, hostGrid.RowDefinitions.Count - 1);
+                            hostGrid.Children.Add(grid);
                         }
                     }
 
@@ -178,7 +160,7 @@ namespace SilkDirectX11.Behaviors
 
 
             }
-            //??
+            
            
 
         }
@@ -266,8 +248,7 @@ namespace SilkDirectX11.Behaviors
 
         }
         private void ChengeBorderColor(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            
+        { 
             var senderWind = sender as Window;
             var Rite = AssociatedObject as Grid;
             var cellChil = Rite.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == senderWind.Name).FirstOrDefault();
@@ -298,7 +279,13 @@ namespace SilkDirectX11.Behaviors
             if (grid != null)
             {
                 _cameraDragDrop.GridTake = grid;
-                
+                return;
+            }
+            var gridZoom = Rite.Children.OfType<CustomGrid>().Where(c => c.Name == wind.Owner.Name).FirstOrDefault();
+            if (gridZoom != null)
+            {
+                _cameraDragDrop.GridTake = gridZoom;
+                return;
             }
         }
         private Process StartProcess(List<string> argument, Guid IDCamera)
@@ -357,6 +344,7 @@ namespace SilkDirectX11.Behaviors
             Grid.SetColumn(_cameraDragDrop.GridChange, flipC);
             try
             {
+
                 _cameraDragDrop.GridTake.Window.Left = _cameraDragDrop.GridChange.PointToScreen(new Point()).X + 5;
                 _cameraDragDrop.GridTake.Window.Top = _cameraDragDrop.GridChange.PointToScreen(new Point()).Y + 5;
                 _cameraDragDrop.GridChange.Window.Left = _cameraDragDrop.GridTake.PointToScreen(new Point()).X + 5;
@@ -510,7 +498,7 @@ namespace SilkDirectX11.Behaviors
                         if (Rite.RowDefinitions.Count >= 1)
                             Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
                         break;
-                    case "Rite":
+                    case "hostGrid":
                         if (Rite.ColumnDefinitions.Count >= 1)
                             Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
                         break;
@@ -549,27 +537,16 @@ namespace SilkDirectX11.Behaviors
             }
             if (Rite.ColumnDefinitions.Count <= 1 && Rite.RowDefinitions.Count <= 1)
                 return "Null";
+
             if (listRow.Count == 0 && listColumn.Count == 0)
-            {
-                
-
                 return "RiteBottom";
-            }
+             
             if (listRow.Count == 0)
-            {
-               
-                    return "Bottom";
-                  
-
-                
-            }
+                return "Bottom";
+            
              if (listColumn.Count == 0)
-            {
-               
-                return "Rite";
-               
-
-            }
+                 return "hostGrid";
+              
              return "Null";
         }
         private string CheckTopLeft()
@@ -597,27 +574,16 @@ namespace SilkDirectX11.Behaviors
             }
             if (Rite.ColumnDefinitions.Count <= 1 && Rite.RowDefinitions.Count <= 1)
                 return "Null";
-            if (listRow.Count == 0 && listColumn.Count == 0)
-            { 
-                     
-               
-                return "TopLeft";
-            }
-            if (listRow.Count == 0)
-            {
-                if (Rite.RowDefinitions.Count != 0)
-                {
-                   
-                    return "Top";
-                }
-            }
-            if (listColumn.Count == 0)
-            {
-                
-                       
 
+            if (listRow.Count == 0 && listColumn.Count == 0)
+                return "TopLeft";
+             
+            if (listRow.Count == 0)
+                return "Top";
+              
+            if (listColumn.Count == 0)
                 return "Left";
-            }
+           
             return "Null";
         }
 
