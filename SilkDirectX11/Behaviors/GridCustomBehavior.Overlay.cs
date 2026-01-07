@@ -261,6 +261,7 @@ namespace SilkDirectX11.Behaviors
             if (child != null)
             {
                 buttonGrid = child.Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonZoomMode").FirstOrDefault();
+                child.Children.Remove(buttonGrid);
                 gridOverlay.Children.Remove(child);
             }
             Canvas canvas = new Canvas()
