@@ -128,11 +128,13 @@ namespace SilkDirectX11.Behaviors
                 grid.Window.SizeChanged += grid.ChengeSizeOverleyWindow;
                 grid.Window.LocationChanged += grid.ChengeLocationOverleyWindow;
                 System.Windows.Application.Current.MainWindow.Focus();
-                if (Rite.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
+                if (Rite.Children.Count <= 1) // заполнение первых двух ячеек 
                 {
-                    Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
-                    //Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
                     Rite.ColumnDefinitions.Add(new ColumnDefinition());
+                    int u =Rite.ColumnDefinitions.Count;
+                    Grid.SetColumn(grid, Rite.Children.Count);
+                    //Grid.SetColumn(grid, Rite.ColumnDefinitions.Count);
+                    
                     Rite.Children.Add(grid);
 
 
@@ -192,33 +194,16 @@ namespace SilkDirectX11.Behaviors
             if (grid == null || grid.Window == null) return;
 
             (AssociatedObject as Grid)?.UpdateLayout();
-
-            var p = grid.PointToScreen(new Point());
-            grid.Window.Left = p.X + 5;
-            grid.Window.Top = p.Y + 5;
+            try
+            {
+                var p = grid.PointToScreen(new Point());
+                grid.Window.Left = p.X + 5;
+                grid.Window.Top = p.Y + 5;
+            }
+            catch
+            { }
         }
-        //private void OwnerSizeChanged(object sender, SizeChangedEventArgs e)
-        //{
-        //    //Border border = (Border)_windowOverlay.Content;
-        //    //Grid grids = (Grid)border.Child;
-        //    //Grid grid = grids.Children.OfType<Grid>().FirstOrDefault();
-        //    //Button b = grid.Children.OfType<Button>().FirstOrDefault();
-        //    //var selectedGrid = AssociatedObject.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == b.Name).FirstOrDefault();
-        //    //if (selectedGrid == null) return;
-        //    //if (selectedGrid.Window != null)
-        //    //{
-        //    //    _windowOverlay.Width = selectedGrid.Window.ActualWidth;
-        //    //    _windowOverlay.Height = selectedGrid.Window.ActualHeight;
-        //    //    _windowOverlay.Left = selectedGrid.Window.PointToScreen(new Point()).X;
-        //    //    _windowOverlay.Top = selectedGrid.Window.PointToScreen(new Point()).Y;
-        //    //}
-        //    //else
-        //    //{
-        //    //    _windowOverlay.Width = selectedGrid.ActualWidth;
-        //    //    _windowOverlay.Height = selectedGrid.ActualHeight;
-                
-        //    //}
-        //}
+         
 
         private void OwnedWindowsLocationChange(object? sender, EventArgs e)
         { 
@@ -370,12 +355,15 @@ namespace SilkDirectX11.Behaviors
 
             Grid.SetRow(_cameraDragDrop.GridChange, flipS);
             Grid.SetColumn(_cameraDragDrop.GridChange, flipC);
-
-            _cameraDragDrop.GridTake.Window.Left = _cameraDragDrop.GridChange.PointToScreen(new Point()).X + 5;
-            _cameraDragDrop.GridTake.Window.Top = _cameraDragDrop.GridChange.PointToScreen(new Point()).Y + 5;
-            _cameraDragDrop.GridChange.Window.Left = _cameraDragDrop.GridTake.PointToScreen(new Point()).X + 5;
-            _cameraDragDrop.GridChange.Window.Top = _cameraDragDrop.GridTake.PointToScreen(new Point()).Y + 5;
-
+            try
+            {
+                _cameraDragDrop.GridTake.Window.Left = _cameraDragDrop.GridChange.PointToScreen(new Point()).X + 5;
+                _cameraDragDrop.GridTake.Window.Top = _cameraDragDrop.GridChange.PointToScreen(new Point()).Y + 5;
+                _cameraDragDrop.GridChange.Window.Left = _cameraDragDrop.GridTake.PointToScreen(new Point()).X + 5;
+                _cameraDragDrop.GridChange.Window.Top = _cameraDragDrop.GridTake.PointToScreen(new Point()).Y + 5;
+            }
+            catch
+            { }
 
         }
         private void AddGrid(Grid mainGrid, Grid children)
@@ -424,10 +412,12 @@ namespace SilkDirectX11.Behaviors
         private void DeleteGridChild(object sender, RoutedEventArgs e)
         {
             var Rite = AssociatedObject as Grid;
-
+            CustomGrid gridDelet = null;
             Button button = sender as Button;
-            var gridDelet = Rite.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == button.Name).FirstOrDefault();
-            if (gridDelet!=null)
+           
+                gridDelet = Rite.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == button.Name).FirstOrDefault();
+            
+            if (gridDelet != null)
             {
                 var indexC = Grid.GetColumn(gridDelet);
                 var IndexR = Grid.GetRow(gridDelet);
@@ -435,7 +425,7 @@ namespace SilkDirectX11.Behaviors
                 CustomGrid grid = cellContent as CustomGrid;
                 if (grid != null)
                 {
-                    var tag = grid.ProcessTag ;
+                    var tag = grid.ProcessTag;
                     if (!string.IsNullOrEmpty(tag))
                     {
                         try
@@ -444,184 +434,194 @@ namespace SilkDirectX11.Behaviors
                         }
                         catch { }
                         grid.Window.OwnedWindows[0].Close();
-                        //Border border = (Border)_windowOverlay.Content;
-                        //Grid grids = (Grid)border.Child;
-                        //Grid gridOverlay = grids.Children.OfType<Grid>().FirstOrDefault();
-
-                        //gridOverlay.Visibility = Visibility.Hidden;
-
-
-
+                       
                     }
                     grid.Window.Close();
                 }
 
                 grid.Children.Clear();
                 Rite.Children.Remove(cellContent);
-                List<int> listRow = new List<int>();
-                List<int> listColumn = new List<int>();
-                for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
-                {
-                    if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count - 1 && Grid.GetColumn(c) == i) != null)
-                    {
-                        listRow.Add(i);
-                    }
 
 
-                }
-                for (int i = 0; i < Rite.RowDefinitions.Count; i++)
-                {
-                    if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) != null)
-                    {
-                        listColumn.Add(i);
-                    }
-                }
-
-                if (listRow.Count == 0 && listColumn.Count == 0)
-                {
-                    if (Rite.RowDefinitions.Count != 0)
-                    {
-                        Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
-                        Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
-                    }
-                }
-                else if (listRow.Count == 0)
-                {
-                    if (Rite.RowDefinitions.Count != 0)
-                    {
-                        Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count-1 );
-                       // return;
-                    }
-                }
-                else if (listColumn.Count == 0)
-                {
-                    Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count -1);
-                    //return;
-                }
-
-                // 
-                listRow= new List<int>();
-                listColumn= new List<int>();
-                for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
-                {
-                    if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == i) != null)
-                    {
-                        listRow.Add(i);
-                    }
-
-
-                }
-                for (int i = 0; i < Rite.RowDefinitions.Count; i++)
-                {
-                    if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == 0)) != null)
-                    {
-                        listColumn.Add(i);
-                    }
-                }
-                if (listRow.Count == 0 && listColumn.Count == 0)
-                {
-                    if (Rite.RowDefinitions.Count != 0)
-                        Rite.RowDefinitions.RemoveAt(0);
-                    if (Rite.ColumnDefinitions.Count != 0)
-                        Rite.ColumnDefinitions.RemoveAt(0);
-                    return;
-                }
-                else if (listRow.Count == 0)
-                {
-                    if (Rite.RowDefinitions.Count != 0)
-                    {
-                        Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
-                         return;
-                    }
-                }
-                else if (listColumn.Count == 0)
-                {
-                    if (Rite.Children.Count == 1)
-                        if (Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1) != null)
-                        {
-                            Grid.SetColumn(Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1), 0);
-                            Rite.ColumnDefinitions.RemoveAt(0);
-                        }
-                   
-                   
-                        return;
-                }
-                //
-                
-
-                if (Rite.RowDefinitions.Count == 1 | Rite.RowDefinitions.Count == 0)
-                {
-                    if ((Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) == null)
-                    {
-                        try
-                        {
-                            Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
-                        }
-                        catch
-                        {
-                            return;
-                        }
-                    }
-                    else if (Rite.ColumnDefinitions.Count == 2 && Rite.RowDefinitions.Count == 0)//тут поправить с проверкой на потом 
-                    {
-                        if ((Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count && Grid.GetColumn(c) == 0)) == null)
-                        {
-                            try
-                            {
-                                Grid.SetColumn(Rite.Children.OfType<CustomGrid>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1), 0);
-                                Rite.ColumnDefinitions.RemoveAt(1);
-
-                            }
-                            catch
-                            {
-                                return;
-                            }
-                        }
-                    }
-
-                }
+                RemuveTopLeft();
+                RemuveBottomRite();
+                 
+               
 
             }
         }
 
+        private void RemuveTopLeft()
+        {
+            var Rite = AssociatedObject as Grid;
+            for (string i = "Null"; i == "Null";)
 
-        //private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
-        //{
-            
-        //    CustomGrid grid = sender as CustomGrid;
-        //    grid.Window.Left = grid.PointToScreen(new Point()).X; 
-        //    grid.Window.Top = grid.PointToScreen(new Point()).Y;
-        //    grid.Window.Width = grid.ActualWidth; 
-        //    grid.Window.Height = grid.ActualHeight;  
-        //    //WindowsFormsHost wfh = grid.Children.OfType<WindowsFormsHost>().FirstOrDefault();
-        //    //if (wfh != null)
-        //    //{
-        //    //    //SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
-        //    //    //wfh.Child.Size = new System.Drawing.Size((int)e.NewSize.Width, (int)e.NewSize.Height);
-        //    //    wfh.Width = e.NewSize.Width;
-        //    //    wfh.Height = e.NewSize.Height;
-        //    //    //wfh.Child.Width = (int)grid.ActualWidth;
-        //    //    //wfh.Child.Height = (int)grid.ActualWidth;
-        //    //    //SendSetSize(setSize);
-        //    //}
-        //}
+                switch (CheckTopLeft())
+                {
+                    case "Top":
+                        if (Rite.RowDefinitions.Count >= 1)
+                            Rite.RowDefinitions.RemoveAt(0);
+                        foreach (var item in Rite.Children.OfType<CustomGrid>())
+                        {
+                            Grid.SetRow(item, Math.Max(0, Grid.GetRow(item) - 1));
+                            
+                        }
+                        break;
+                    case "Left":
+                        if (Rite.ColumnDefinitions.Count >= 1)
+                            Rite.ColumnDefinitions.RemoveAt(0);
+                        foreach (var item in Rite.Children.OfType<CustomGrid>())
+                        {
+                            Grid.SetColumn(item, Math.Max(0, Grid.GetColumn(item) - 1));
+                          
+                        }
+                        break;
+                    case "TopLeft":
+                        if (Rite.RowDefinitions.Count >= 1)
+                            Rite.RowDefinitions.RemoveAt(0);
+                        if (Rite.ColumnDefinitions.Count >= 1)
+                            Rite.ColumnDefinitions.RemoveAt(0);
+                        foreach (var item in Rite.Children.OfType<CustomGrid>())
+                        {
+                            Grid.SetRow(item, Math.Max(0, Grid.GetRow(item) - 1));
+                            Grid.SetColumn(item, Math.Max(0, Grid.GetColumn(item) - 1));
+                            
+                        }
+                        break;
+                    case "Null":
+                        i = "break";
+                        break;
+                }
+             (AssociatedObject as Grid)?.UpdateLayout();
+        }
+        private void RemuveBottomRite()
+        {
+            var Rite = AssociatedObject as Grid;
+            for (string i = "Null"; i == "Null";)
+                switch (CheckBottomRite())
+                {
+                    case "RiteBottom":
+                        if (Rite.RowDefinitions.Count >= 1)
+                            Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
+                        if (Rite.ColumnDefinitions.Count >= 1)
+                            Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
+                        break;
+                    case "Bottom":
+                        if (Rite.RowDefinitions.Count >= 1)
+                            Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
+                        break;
+                    case "Rite":
+                        if (Rite.ColumnDefinitions.Count >= 1)
+                            Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
+                        break;
+                    case "Null":
+                        i = "break";
+                        break;
+                }
+             (AssociatedObject as Grid)?.UpdateLayout();
+        }
 
-        //private void VideoHost_SizeChanged(object sender, SizeChangedEventArgs e)
-        //{
-        //    WindowsFormsHost host = sender as WindowsFormsHost;
-        //    if (host != null)
-        //    {
-        //        Grid grid = host.Parent as Grid;
+        private string CheckBottomRite()
+        {
+            var Rite = AssociatedObject as Grid;
 
-        //        SetSize setSize = new SetSize((int)e.NewSize.Width, (int)e.NewSize.Height, int.Parse(grid.Tag.ToString()));
-        //        //SendSetSize((int)e.NewSize.Width, (int)e.NewSize.Height,int.Parse(grid.Tag.ToString()));
-        //        SendSetSize(setSize);
-        //        host.Child.Width = (int)e.NewSize.Width;
-        //        host.Child.Height = (int)e.NewSize.Height;
-        //        // host.Margin = new Thickness(5);
-        //    }
-        //}
+            List<int> listRow = new List<int>() { 1};
+            List<int> listColumn = new List<int>() { 1};
+            for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
+            {
+                listRow =new List<int>();
+                if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count - 1 && Grid.GetColumn(c) == i) != null)
+                {
+                    listRow.Add(i);
+                    break;
+                }
 
+
+            }
+            for (int i = 0; i < Rite.RowDefinitions.Count; i++)
+            {
+                listColumn = new List<int>();
+                if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) != null)
+                {
+                    listColumn.Add(i);
+                    break;
+                }
+            }
+            if (Rite.ColumnDefinitions.Count == 1 && Rite.RowDefinitions.Count == 1)
+                return "Null";
+            if (listRow.Count == 0 && listColumn.Count == 0)
+            {
+                
+
+                return "RiteBottom";
+            }
+            if (listRow.Count == 0)
+            {
+               
+                    return "Bottom";
+                  
+
+                
+            }
+             if (listColumn.Count == 0)
+            {
+               
+                return "Rite";
+               
+
+            }
+             return "Null";
+        }
+        private string CheckTopLeft()
+        {
+
+            var Rite = AssociatedObject as Grid;
+        
+            List<int> listRow = new List<int>();
+            List<int> listColumn = new List<int>();
+            for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
+            {
+                if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == i) != null)
+                {
+                    listRow.Add(i);
+                }
+
+
+            }
+            for (int i = 0; i < Rite.RowDefinitions.Count; i++)
+            {
+                if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == 0)) != null)
+                {
+                    listColumn.Add(i);
+                }
+            }
+            if (Rite.ColumnDefinitions.Count == 1 && Rite.RowDefinitions.Count == 1)
+                return "Null";
+            if (listRow.Count == 0 && listColumn.Count == 0)
+            {if (Rite.ColumnDefinitions.Count == 2 && Rite.RowDefinitions.Count == 2)
+                    return "Null";
+               
+                return "TopLeft";
+            }
+            if (listRow.Count == 0)
+            {
+                if (Rite.RowDefinitions.Count != 0)
+                {
+                   
+                    return "Top";
+                }
+            }
+            if (listColumn.Count == 0)
+            {
+                
+                       
+
+                return "Left";
+            }
+            return "Null";
+        }
+
+      
 
     }
 }

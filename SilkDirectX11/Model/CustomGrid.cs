@@ -54,7 +54,7 @@ namespace SilkDirectX11.Model
 
                 SetSize setSize = new SetSize((int)this.ActualWidth - 10, (int)this.ActualHeight - 10, int.Parse(this.ProcessTag));
                 ConnectedManager.SendSetSize(setSize);
-               // EventAggregatorProvider.Instance.Publish<SetSize>(setSize);
+                
                 
                 Window.Left = this.PointToScreen(new System.Windows.Point()).X + 5;
                 Window.Top = this.PointToScreen(new System.Windows.Point()).Y + 5;
@@ -65,29 +65,23 @@ namespace SilkDirectX11.Model
         }
         internal void ChengeSizeOverleyWindow(object sender, SizeChangedEventArgs e)
         {
-            //if (this.Window != null)
-           // {
+            
                var wind = sender as Window;
                 wind.OwnedWindows[0].Left = wind.PointToScreen(new System.Windows.Point()).X ;
                 wind.OwnedWindows[0].Top = wind.PointToScreen(new System.Windows.Point()).Y;
                 wind.OwnedWindows[0].Width = wind.ActualWidth;
                 wind.OwnedWindows[0].Height = wind.ActualHeight;
-            //}
+            
         }
         internal void ChengeLocationOverleyWindow(object sender, EventArgs e)
         {
-            //if (this.Window != null)
-            //{
+             
                 var wind = sender as Window;
                 wind.OwnedWindows[0].Left = wind.PointToScreen(new System.Windows.Point()).X;
                 wind.OwnedWindows[0].Top = wind.PointToScreen(new System.Windows.Point()).Y;
-            //}
+             
         }
-        //internal void Location( )
-        //{
-        //    Window.Left = this.PointToScreen(new System.Windows.Point()).X + 5;
-        //    Window.Top = this.PointToScreen(new System.Windows.Point()).Y + 5;
-        //}
+        
     }
 
      

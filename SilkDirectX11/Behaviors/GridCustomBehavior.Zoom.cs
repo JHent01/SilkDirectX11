@@ -128,7 +128,7 @@ namespace SilkDirectX11.Behaviors
                 Window wind = sender as Window;
                 CustomGrid surfaceGrid = riteGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == wind.Name).FirstOrDefault();
                 if (surfaceGrid == null) return false;
-                surfaceGrid.Children.OfType<Border>().FirstOrDefault().BorderBrush = System.Windows.Media.Brushes.Red;//цвет 
+                
                 Window zoomWind = new()
                 {
                     WindowStyle = WindowStyle.None,
@@ -136,12 +136,14 @@ namespace SilkDirectX11.Behaviors
                     Owner = wind,
                     Width = wind.Width,
                     Height = wind.Height,
+                    Tag = surfaceGrid.ProcessTag
+
                 };
                
                
                 CustomGrid grid = new CustomGrid() 
                 {
-                    Name = "ZoomGrid",
+                    Name = surfaceGrid.CameraGuidName,
                     CameraGuidName = surfaceGrid.CameraGuidName,
                     ProcessTag = surfaceGrid.ProcessTag,
                    
@@ -164,31 +166,57 @@ namespace SilkDirectX11.Behaviors
                 WindowInteropHelper helper = new WindowInteropHelper(zoomWind);
                 grid.WindowTag = helper.Handle.ToString();
                 int windHandel = int.Parse(helper.Handle.ToString());
-                CustomGrid zoomGrid = riteGrid.Children.OfType<CustomGrid>().Where(c => c.Name == "ZoomGrid").FirstOrDefault();
+                CustomGrid zoomGrid = riteGrid.Children.OfType<CustomGrid>().Where(c => c.Name == wind.Name).FirstOrDefault();
                 if (zoomGrid != null)
                 {
+                    riteGrid.Children.Add(grid);
                     zoomGrid.Window.Close();
+                    var rowSet = Grid.GetRow(zoomGrid);
+                    var columSet = Grid.GetColumn(zoomGrid);
+                    Grid.SetRow(grid, rowSet);
+                    Grid.SetColumn(grid, columSet);
                     riteGrid.Children.Remove(zoomGrid);
 
 
                 }
-                 
-                if (CheckEmptyChildInGrid(riteGrid))
+                else
+                
+                if (riteGrid.ColumnDefinitions.Count <= 1)
                 {
-                    AddGrid(riteGrid, grid);
+                    Grid.SetColumn(grid, riteGrid.ColumnDefinitions.Count);
+
+                    riteGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                    riteGrid.Children.Add(grid);
+
+
+                }
+                else if (riteGrid.RowDefinitions.Count == 0)
+                {
+                    riteGrid.RowDefinitions.Add(new RowDefinition());
+                    Grid.SetRow(grid, riteGrid.RowDefinitions.Count);
+
+                    riteGrid.RowDefinitions.Add(new RowDefinition());
+                    riteGrid.Children.Add(grid);
 
                 }
                 else
                 {
-                    riteGrid.RowDefinitions.Add(new RowDefinition());
-                    if (riteGrid.RowDefinitions.Count > 2)
-                        riteGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                    Grid.SetRow(grid, riteGrid.RowDefinitions.Count - 1);
-                    riteGrid.Children.Add(grid);
-                    UpdateWindowPositionForGrid(grid);
+                    if (CheckEmptyChildInGrid(riteGrid))
+                    {
+                        AddGrid(riteGrid, grid);
 
+                    }
+                    else
+                    {
+                        riteGrid.RowDefinitions.Add(new RowDefinition());
+                        if (riteGrid.RowDefinitions.Count > 2)
+                            riteGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                        Grid.SetRow(grid, riteGrid.RowDefinitions.Count - 1);
+                        riteGrid.Children.Add(grid);
+                        UpdateWindowPositionForGrid(grid);
+
+                    }
                 }
-
                
 
 
