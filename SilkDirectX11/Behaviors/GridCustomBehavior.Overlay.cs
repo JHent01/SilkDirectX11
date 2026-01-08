@@ -167,8 +167,10 @@ namespace SilkDirectX11.Behaviors
         }
         private void ZoomModeOn(Button button)
         {
-            //button.Background = System.Windows.Media.Brushes.Red;
+            
             button.Style = (Style)System.Windows.Application.Current.FindResource("ButtonStyleOffZoomMode");
+            var g = button.Parent as Grid;
+            g.Opacity = 1;
             var hostGrid = AssociatedObject as Grid;
             var surfaceGrid = hostGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == button.Name).FirstOrDefault();
             if (surfaceGrid == null) return;
@@ -199,6 +201,8 @@ namespace SilkDirectX11.Behaviors
         private void ZoomModeOff(CustomGrid zoomgrid, Button button)
         {
             button.Style = (Style)System.Windows.Application.Current.FindResource("ButtonStyleOnZoomMode");
+            var g = button.Parent as Grid;
+            g.Opacity = 0.5;
             var hostGrid = AssociatedObject as Grid;
             
             

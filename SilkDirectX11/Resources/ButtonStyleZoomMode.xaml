@@ -16,16 +16,16 @@
 
 
                         </Button>
-                    <ControlTemplate.Triggers>
+                    <!--<ControlTemplate.Triggers>
 
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="buttonZoom" Property="Content" Value="Black" />
                             <Setter TargetName="buttonZoom" Property="BorderThickness" Value="2" />
                             <Setter TargetName="buttonZoom" Property="Margin" Value="11" /> 
-                            <!--<Setter TargetName="buttonZoom" Property="Background" Value="{Binding RelativeSource={ RelativeSource AncestorType= {x:Type Button}},Path=Background,Mode=OneWay}"/>-->
+                            --><!--<Setter TargetName="buttonZoom" Property="Background" Value="{Binding RelativeSource={ RelativeSource AncestorType= {x:Type Button}},Path=Background,Mode=OneWay}"/>--><!--
                         </Trigger>
 
-                    </ControlTemplate.Triggers>
+                    </ControlTemplate.Triggers>-->
 
                 </ControlTemplate>
                 
