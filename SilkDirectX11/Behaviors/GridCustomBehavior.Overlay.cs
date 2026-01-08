@@ -156,11 +156,17 @@ namespace SilkDirectX11.Behaviors
             Button zommButton = sender as Button;
             var gridOverlay = zommButton.Parent as Grid;
             gridOverlay.SizeChanged -= OnSizeChengeOverlayWindow;
-            var zoom = AssociatedObject.Children.OfType<CustomGrid>().Where(c => c.Name == zommButton.Name).FirstOrDefault();
-            if (zoom == null)
+            var zoom = AssociatedObject.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == zommButton.Name).FirstOrDefault();
+            if (!zoom.OnZoomMode)
+            {
+                zoom.OnZoomMode = true;
                 ZoomModeOn(zommButton);
+            }
             else
-                ZoomModeOff(zoom, zommButton);
+            {
+                zoom.OnZoomMode = false;
+                ZoomModeOff( zommButton);
+            }
 
 
 
@@ -198,17 +204,24 @@ namespace SilkDirectX11.Behaviors
 
         }
 
-        private void ZoomModeOff(CustomGrid zoomgrid, Button button)
+        private void ZoomModeOff( Button button)
         {
+            Grid gridButton = button.Parent as Grid;
+            gridButton.Visibility = Visibility.Visible;
+            gridButton.MouseMove += OnMouseEnterWindowShowOverlay;
+            gridButton.MouseLeave += OnMouseLeaveOverLay;
             button.Style = (Style)System.Windows.Application.Current.FindResource("ButtonStyleOnZoomMode");
-            var g = button.Parent as Grid;
-            g.Opacity = 0.5;
+            
+            gridButton.Opacity = 0.5;
+
+
+
+
             var hostGrid = AssociatedObject as Grid;
-            
-            
-             hostGrid.Children.Remove(zoomgrid);
-            
-            var surfaceGrid = hostGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == zoomgrid.Name).FirstOrDefault();
+            var surfaceGrid = hostGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == button.Name).FirstOrDefault();
+            if (surfaceGrid == null) return;
+            CustomGrid zoomGrid = hostGrid.Children.OfType<CustomGrid>().Where(c => c.Name == button.Name ).FirstOrDefault();
+            hostGrid.Children.Remove(zoomGrid);
             Window surfaceWindow = surfaceGrid.Window;
             surfaceGrid.AllowDrop = true;
             surfaceWindow.MouseRightButtonDown += OnChangeFullScreen;
@@ -222,13 +235,19 @@ namespace SilkDirectX11.Behaviors
             surfaceWindow.MouseDown -= OnMouseDownTakePosition;
             surfaceWindow.Tag = surfaceGrid.ProcessTag;
             surfaceGrid.Children.OfType<Border>().FirstOrDefault().BorderBrush = System.Windows.Media.Brushes.White;
-           
+            if (zoomGrid == null) 
+            {
+                SetConnect set = new SetConnect(true, int.Parse(surfaceGrid.ProcessTag));
+                ConnectedManager.SendChandeConekting(set );
+                return;
+            }
+            
             Grid gridOverlayCanvals = ((Border)surfaceGrid.Window.OwnedWindows[0].Content).Child as Grid;
-            if (surfaceGrid.Window.OwnedWindows.Count > 0)
+            if (surfaceGrid.Window.OwnedWindows.Count > 1)
             {
                 OpenZoom openZoom = new OpenZoom(false, 0, 1, 1, int.Parse(surfaceGrid.ProcessTag));
                 ConnectedManager.SendWindowForZoom(openZoom);
-                zoomgrid.Window.Close();
+                zoomGrid.Window.Close();
                 RemuveTopLeft();
                 RemuveBottomRite();
 
@@ -243,10 +262,7 @@ namespace SilkDirectX11.Behaviors
             gridOverlayCanvals.Children.Add(gridWithButtonZoom);
 
 
-            Grid gridButton = button.Parent as Grid;
-            gridButton.Visibility = Visibility.Visible;
-            gridButton.MouseMove += OnMouseEnterWindowShowOverlay;
-            gridButton.MouseLeave += OnMouseLeaveOverLay;
+           
         }
 
         private void CreateCanvalInOverlay(object? sender)

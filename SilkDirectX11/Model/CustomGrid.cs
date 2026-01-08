@@ -23,6 +23,7 @@ namespace SilkDirectX11.Model
 
     public class CustomGrid : Grid
     {
+        public bool OnZoomMode { get; set; }
         public string ProcessTag { get; set; }
         public string WindowTag { get; set; } 
         public CameraConnectStrings CameraConnectStrings { get; set; }

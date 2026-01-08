@@ -60,6 +60,7 @@ namespace SilkDirectX11.Behaviors
                 WindowsFormsHost VideoHostSelect = e.Data.GetData(typeof(WindowsFormsHost)) as WindowsFormsHost;
                 CustomGrid grid = new CustomGrid()
                 {
+                    OnZoomMode = false, 
                     Window = new()
                     {
                         AllowDrop = true,
