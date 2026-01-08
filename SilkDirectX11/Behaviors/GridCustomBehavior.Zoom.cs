@@ -90,7 +90,8 @@ namespace SilkDirectX11.Behaviors
                 WindowStyle = WindowStyle.None,
                 ResizeMode = ResizeMode.NoResize,
                 Owner = windSurface,
-               
+                Width = windSurface.Width,
+                Height = windSurface.Height,
                 AllowDrop = true,
                 Tag = surfaceGrid.ProcessTag,
                 ShowInTaskbar = false,
@@ -263,10 +264,7 @@ namespace SilkDirectX11.Behaviors
             _startPoint = e.GetPosition(canvas);
 
         }
-        //private void OnRectangleMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        //{
-           
-        //}
+         
         private void OnMoveCanvals(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (e.LeftButton==MouseButtonState.Pressed)
@@ -299,15 +297,15 @@ namespace SilkDirectX11.Behaviors
                 _startPoint = currentPoint;
                 PointsForZoom pointsForZoom = new PointsForZoom(newLeft, newTop, newRight, newBottom);
                 ConnectedManager.Rectangle_MouseMove_SendPoint(canvas.Tag.ToString(), pointsForZoom);
-                //Rectangle_MouseMove_SendPoint(canvas.Tag.ToString(), pointsForZoom);
+                 
             }
         }
 
         private void OnMouseDownTakePosition(object? sender, MouseButtonEventArgs e)
         {
-            //if (!flagChengePosition)
+         
                 _pixelPanelForZoom.TopLeft = new Point(e.GetPosition(sender as Window).X, e.GetPosition(sender as Window).Y);
-            //else _pixelPanelForZoom.TopLeft = new Point(0, 0);
+             
         }
 
     }

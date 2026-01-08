@@ -16,6 +16,7 @@
             xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
             Dialog:DialogParticipation.Register="{Binding}"
          prism:ViewModelLocator.AutoWireViewModel="True"
+                   xmlns:Zoom="clr-namespace:SilkDirectX11"
         mc:Ignorable="d"
         Title="MainView" Height="700" Width="1000"  Background="Transparent" x:Name="MainW" Opacity="{Binding Opasity }" >
     <i:Interaction.Triggers>

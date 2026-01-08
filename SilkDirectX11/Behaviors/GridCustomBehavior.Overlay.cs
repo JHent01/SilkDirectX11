@@ -11,6 +11,8 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Button = System.Windows.Controls.Button;
+using SilkDirectX11;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace SilkDirectX11.Behaviors
 {
@@ -30,9 +32,9 @@ namespace SilkDirectX11.Behaviors
             Button buttonClouseInOverlay = new Button
             {
                 Content = "X",
-                Width = 30,
-                Height = 30,
-
+                Width = 35,
+                Height = 35,
+                FontSize = 16,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
 
@@ -40,11 +42,12 @@ namespace SilkDirectX11.Behaviors
             Button buttonZoomMode = new Button
             {
                 Content = "O",
-                Width = 30,
-                Height = 30,
+                Width = 35,
+                Height = 35,
+                Style = (Style)System.Windows.Application.Current.FindResource("ButtonStyleOnZoomMode"),
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
-                //Margin = new Thickness(0,35,0,0)
+                
             };
             buttonZoomMode.Click += OnChengeZoomMode;
             Border border = new Border
@@ -81,8 +84,8 @@ namespace SilkDirectX11.Behaviors
                 Visibility = Visibility.Collapsed,
                 Background = System.Windows.Media.Brushes.Black,
                 Opacity = 0.5,
-                Width = buttonClouseInOverlay.Width,
-                Height = buttonClouseInOverlay.Height,
+                Width = buttonZoomMode.Width,
+                Height = buttonZoomMode.Height,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(5),
@@ -151,7 +154,8 @@ namespace SilkDirectX11.Behaviors
         private void OnChengeZoomMode(object sender, RoutedEventArgs e)
         {
             Button zommButton = sender as Button;
-             
+            var gridOverlay = zommButton.Parent as Grid;
+            gridOverlay.SizeChanged -= OnSizeChengeOverlayWindow;
             var zoom = AssociatedObject.Children.OfType<CustomGrid>().Where(c => c.Name == zommButton.Name).FirstOrDefault();
             if (zoom == null)
                 ZoomModeOn(zommButton);
@@ -163,10 +167,13 @@ namespace SilkDirectX11.Behaviors
         }
         private void ZoomModeOn(Button button)
         {
+            //button.Background = System.Windows.Media.Brushes.Red;
+            button.Style = (Style)System.Windows.Application.Current.FindResource("ButtonStyleOffZoomMode");
             var hostGrid = AssociatedObject as Grid;
             var surfaceGrid = hostGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == button.Name).FirstOrDefault();
             if (surfaceGrid == null) return;
             Window surfaceWindow = surfaceGrid.Window;
+            surfaceGrid.AllowDrop = false;
             surfaceWindow.MouseRightButtonDown -= OnChangeFullScreen;
             surfaceWindow.Drop -= AssociatedObject_Drop;
             surfaceWindow.MouseLeave -= OnMouseLeaveHideOverlay;
@@ -191,6 +198,7 @@ namespace SilkDirectX11.Behaviors
 
         private void ZoomModeOff(CustomGrid zoomgrid, Button button)
         {
+            button.Style = (Style)System.Windows.Application.Current.FindResource("ButtonStyleOnZoomMode");
             var hostGrid = AssociatedObject as Grid;
             
             
@@ -198,7 +206,7 @@ namespace SilkDirectX11.Behaviors
             
             var surfaceGrid = hostGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == zoomgrid.Name).FirstOrDefault();
             Window surfaceWindow = surfaceGrid.Window;
-
+            surfaceGrid.AllowDrop = true;
             surfaceWindow.MouseRightButtonDown += OnChangeFullScreen;
             surfaceWindow.Drop += AssociatedObject_Drop;
             surfaceWindow.MouseLeave += OnMouseLeaveHideOverlay;
@@ -221,7 +229,7 @@ namespace SilkDirectX11.Behaviors
                 RemuveBottomRite();
 
             }
-            SetConnect setConnect = new SetConnect(true, int.Parse(surfaceGrid.ProcessTag));
+            SetConnect setConnect = new SetConnect(true, int.Parse(surfaceGrid.ProcessTag)); 
             ConnectedManager.SendChandeConekting(setConnect);
 
             var gridWithButtonZoom = gridOverlayCanvals.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<Grid>().Where(s => s.Name == "GridWithButtonZoomMode").FirstOrDefault();
@@ -280,29 +288,57 @@ namespace SilkDirectX11.Behaviors
             System.Windows.Shapes.Rectangle rectangle = gridOverlay.Children.OfType<Canvas>().FirstOrDefault().Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault();
             rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             rectangle.VerticalAlignment = VerticalAlignment.Top;
-            Canvas.SetLeft(rectangle, (_pixelPanelForZoom.TopLeft.X) - 10);
+            Canvas.SetLeft(rectangle, (_pixelPanelForZoom.TopLeft.X));
             Canvas.SetTop(rectangle, _pixelPanelForZoom.TopLeft.Y);
 
             canvas.MouseMove += OnMoveCanvals;
             rectangle.MouseDown += OnRectangleMouseDown;
             surfaceWindow.OwnedWindows[0].Focus();
+            gridOverlay.SizeChanged -= OnSizeChengeOverlayWindow;
             gridOverlay.SizeChanged += OnSizeChengeOverlayWindow;
-           
 
+            gridOverlay.UpdateLayout();
         }
 
         private void OnSizeChengeOverlayWindow(object? sender, SizeChangedEventArgs e)
         {
             Grid gridOverlay = sender as Grid;
-            Canvas canvals = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
+            Canvas canvas = gridOverlay.Children.OfType<Canvas>().FirstOrDefault();
             Window wind =gridOverlay.Tag as Window;
-            if (canvals !=null)
+            if (canvas !=null)
             {
-                canvals.Width = gridOverlay.Width;
-                canvals.Height = gridOverlay.Height;
+                 
+
+                double scaleX = gridOverlay.ActualWidth /canvas.ActualWidth  ;
+                double scaleY = gridOverlay.ActualHeight /canvas.ActualHeight  ;
+
+                canvas.Width = gridOverlay.ActualWidth;
+                canvas.Height = gridOverlay.ActualHeight;
                 WindowInteropHelper helper = new WindowInteropHelper(wind);
-                OpenZoom openZoom = new OpenZoom(true, int.Parse(helper.Handle.ToString()), (int)gridOverlay.ActualWidth, (int)gridOverlay.ActualHeight, int.Parse(canvals.Tag as string));
+                OpenZoom openZoom = new OpenZoom(true, int.Parse(helper.Handle.ToString()), (int)gridOverlay.ActualWidth, (int)gridOverlay.ActualHeight, int.Parse(canvas.Tag as string));
                 ConnectedManager.SendWindowForZoom(openZoom);
+                double rectangeWidth = canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault().Width;
+                double rectangeHeidth = canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault().Height;
+                
+                rectangeHeidth = rectangeHeidth*scaleY < 0 ? rectangeHeidth : rectangeHeidth * scaleY;
+                rectangeWidth = rectangeWidth*scaleX < 0 ? rectangeHeidth : rectangeWidth * scaleX;
+                canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault().Width =  rectangeWidth ;
+                canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault().Height = rectangeHeidth  ;
+
+                 double leftREctangle = Canvas.GetLeft(canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault());
+                double topRectangle = Canvas.GetTop(canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault());
+                 
+                leftREctangle = leftREctangle * scaleX < 0 ? 0 : leftREctangle * scaleX;
+                topRectangle = topRectangle * scaleY< 0 ? 0 : topRectangle * scaleY;
+
+                Canvas.SetLeft(canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault(), leftREctangle);
+                Canvas.SetTop(canvas.Children.OfType<System.Windows.Shapes.Rectangle>().FirstOrDefault(), topRectangle);
+
+                 
+                PointsForZoom pointsForZoom = new PointsForZoom(leftREctangle, topRectangle, leftREctangle+ rectangeWidth, topRectangle+ rectangeHeidth);
+                ConnectedManager.Rectangle_MouseMove_SendPoint(canvas.Tag.ToString(), pointsForZoom);
+
+
             }
         }
     }

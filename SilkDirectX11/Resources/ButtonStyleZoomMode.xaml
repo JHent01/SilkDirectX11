@@ -1,0 +1,49 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:mah="metro.mahapps.com"
+                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks">
+            
+    <Style x:Key="ButtonStyleOnZoomMode" TargetType="Button">
+        
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                   
+                        <Button x:Name="buttonZoom"  Margin="1">
+                        <iconPacks:BootstrapIcons Kind="ZoomIn" Width="20" Height="20" />
+                         
+
+
+
+                        </Button>
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="buttonZoom" Property="Content" Value="Black" />
+                            <Setter TargetName="buttonZoom" Property="BorderThickness" Value="2" />
+                            <Setter TargetName="buttonZoom" Property="Margin" Value="11" /> 
+                            <!--<Setter TargetName="buttonZoom" Property="Background" Value="{Binding RelativeSource={ RelativeSource AncestorType= {x:Type Button}},Path=Background,Mode=OneWay}"/>-->
+                        </Trigger>
+
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+                
+            </Setter.Value>
+        </Setter>
+        
+    </Style>
+
+    <Style x:Key="ButtonStyleOffZoomMode" TargetType="Button">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+
+                    <Button x:Name="buttonZoom"  Margin="1" Background="Red" Foreground ="Black">
+                        <iconPacks:BootstrapIcons Kind="ZoomOut" Width="20" Height="20"  />
+                    </Button>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

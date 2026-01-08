@@ -36,7 +36,7 @@ namespace SilkDirectX11.Behaviors
                 System.Windows.Point point = e.GetPosition(hostGrid);
                 int row = GetGridRow(point);
                 int colum = GetGridColumn(point);
-
+                if (_cameraDragDrop.GridChange.AllowDrop == false) return;
                 var cellChil = hostGrid.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
                 if (cellChil == null)
                 {
@@ -48,8 +48,10 @@ namespace SilkDirectX11.Behaviors
                 else
                 {
                     SwichCameraForDragDrop();
-                }
 
+                }
+                RemuveTopLeft();
+                RemuveBottomRite();
             }
             else if (e.Data.GetDataPresent(typeof(WindowsFormsHost)))
             {
@@ -115,12 +117,21 @@ namespace SilkDirectX11.Behaviors
                 System.Windows.Application.Current.MainWindow.Focus();
                 int colum = GetGridColumn(e.GetPosition(hostGrid));
                 int row = GetGridRow(e.GetPosition(hostGrid));
-                if (hostGrid.Children.Count <= 1) // заполнение первых двух ячеек 
+                if (hostGrid.ColumnDefinitions.Count <= 1) // заполнение первых двух ячеек 
                 {
-                    hostGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                    int u =hostGrid.ColumnDefinitions.Count;
-                    Grid.SetColumn(grid, hostGrid.Children.Count);
-                    hostGrid.Children.Add(grid);
+                    if (hostGrid.ColumnDefinitions.Count > hostGrid.Children.Count)
+                    {
+                        Grid.SetColumn(grid, hostGrid.Children.Count);
+                        hostGrid.Children.Add(grid);
+                    }
+                    else
+                    {
+                        hostGrid.ColumnDefinitions.Add(new ColumnDefinition());
+
+                        Grid.SetColumn(grid, hostGrid.Children.Count);
+                        hostGrid.Children.Add(grid);
+                    }
+                   
                 }
                 else if (hostGrid.RowDefinitions.Count == 0) // вставляется третья фотка 
                 {
@@ -262,7 +273,9 @@ namespace SilkDirectX11.Behaviors
              if (idk) return;
             if (_cameraDragDrop.GridTake != null & _cameraDragDrop.GridChange != null)
                 DragDrop.DoDragDrop(_cameraDragDrop.GridTake, _cameraDragDrop, System.Windows.DragDropEffects.Move);
-           
+            idk = true;
+
+
         }
         bool idk = false;
         private void StartDragDrop(object sender, MouseButtonEventArgs e)
