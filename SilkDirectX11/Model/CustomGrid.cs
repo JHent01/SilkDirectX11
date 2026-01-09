@@ -82,7 +82,22 @@ namespace SilkDirectX11.Model
                 wind.OwnedWindows[0].Top = wind.PointToScreen(new System.Windows.Point()).Y;
              
         }
-        
+        internal void UpdeteSize( )
+        {
+            if (this.Window != null)
+            {
+
+                SetSize setSize = new SetSize((int)this.ActualWidth - 10, (int)this.ActualHeight - 10, int.Parse(this.ProcessTag));
+                ConnectedManager.SendSetSize(setSize);
+
+
+                Window.Left = this.PointToScreen(new System.Windows.Point()).X + 5;
+                Window.Top = this.PointToScreen(new System.Windows.Point()).Y + 5;
+                Window.Width = this.ActualWidth - 10;
+                Window.Height = this.ActualHeight - 10;
+
+            }
+        }
     }
 
      

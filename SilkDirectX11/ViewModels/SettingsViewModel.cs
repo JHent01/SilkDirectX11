@@ -41,7 +41,18 @@ namespace SilkDirectX11.ViewModels
             get { return _showRestartCamers; }
             set { SetProperty(ref _showRestartCamers, value); }
         }
+        private bool _cengeZoomMode;
+        public bool CengeZoomMode
+        {
+            get { return _cengeZoomMode; }
+            set { SetProperty(ref _cengeZoomMode, value, OnZoomInNewWindowExecute);  }
+        }
 
+        private void OnZoomInNewWindowExecute()
+        {
+            _eventAggregator.GetEvent<CengeZoomModeEvent>().Publish(CengeZoomMode);
+
+        }
         public DelegateCommand SelectForderForCamers { get; private set; }
         private void SelectForderForCamersExecute()
         {

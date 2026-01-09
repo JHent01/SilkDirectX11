@@ -193,6 +193,7 @@ namespace SilkDirectX11.Behaviors
                 var p = grid.PointToScreen(new Point());
                 grid.Window.Left = p.X + 5;
                 grid.Window.Top = p.Y + 5;
+                
             }
             catch
             { }
@@ -227,17 +228,17 @@ namespace SilkDirectX11.Behaviors
 
         private int GetGridRow(Point point)
         {
-            var Rite = AssociatedObject as Grid;
-            int countRow = Rite.RowDefinitions.Count;
-            double heightCell = Rite.ActualHeight / (countRow == 0 ? 1 : countRow);
+            var hostGrid = AssociatedObject as Grid;
+            int countRow = hostGrid.RowDefinitions.Count;
+            double heightCell = hostGrid.ActualHeight / (countRow == 0 ? 1 : countRow);
             int row = (int)(point.Y / heightCell);
             return row;
         }
         private int GetGridColumn(Point point)
         {
-            var Rite = AssociatedObject as Grid;
-            int countCollumn = Rite.ColumnDefinitions.Count;
-            double widthCell = Rite.ActualWidth / (countCollumn == 0 ? 1 : countCollumn);
+            var hostGrid = AssociatedObject as Grid;
+            int countCollumn = hostGrid.ColumnDefinitions.Count;
+            double widthCell = hostGrid.ActualWidth / (countCollumn == 0 ? 1 : countCollumn);
             int colum = (int)(point.X / widthCell);
             return colum;
 
@@ -245,11 +246,11 @@ namespace SilkDirectX11.Behaviors
 
         private void MouseMoveDragDrop(object sender, System.Windows.DragEventArgs e)
         {
-            var Rite = AssociatedObject as Grid;
-            System.Windows.Point point = e.GetPosition(Rite);
+            var hostGrid = AssociatedObject as Grid;
+            System.Windows.Point point = e.GetPosition(hostGrid);
             int row = GetGridRow(point);
             int colum = GetGridColumn(point);
-            var cellChil2 = Rite.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
+            var cellChil2 = hostGrid.Children.OfType<CustomGrid>().Where(c => Grid.GetRow(c) == row && Grid.GetColumn(c) == colum).FirstOrDefault();
 
             if (cellChil2 != null)
             {
@@ -262,8 +263,8 @@ namespace SilkDirectX11.Behaviors
         private void ChengeBorderColor(object sender, System.Windows.Input.MouseEventArgs e)
         { 
             var senderWind = sender as Window;
-            var Rite = AssociatedObject as Grid;
-            var cellChil = Rite.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == senderWind.Name).FirstOrDefault();
+            var hostGrid = AssociatedObject as Grid;
+            var cellChil = hostGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == senderWind.Name).FirstOrDefault();
             if (cellChil != null)
             {
                 cellChil.Children.OfType<Border>().FirstOrDefault().BorderBrush = System.Windows.Media.Brushes.White;
@@ -286,16 +287,16 @@ namespace SilkDirectX11.Behaviors
                 idk = true; return;
             }
             idk = false;
-            var Rite = AssociatedObject as Grid;
+            var hostGrid = AssociatedObject as Grid;
             var wind = sender as Window;
-            var grid = Rite.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == wind.Name).FirstOrDefault();
+            var grid = hostGrid.Children.OfType<CustomGrid>().Where(c => c.CameraGuidName == wind.Name).FirstOrDefault();
 
             if (grid != null)
             {
                 _cameraDragDrop.GridTake = grid;
                 return;
             }
-            var gridZoom = Rite.Children.OfType<CustomGrid>().Where(c => c.Name == wind.Owner.Name).FirstOrDefault();
+            var gridZoom = hostGrid.Children.OfType<CustomGrid>().Where(c => c.Name == wind.Owner.Name).FirstOrDefault();
             if (gridZoom != null)
             {
                 _cameraDragDrop.GridTake = gridZoom;
@@ -413,17 +414,28 @@ namespace SilkDirectX11.Behaviors
 
         private void DeleteGridChild(object sender, RoutedEventArgs e)
         {
-            var Rite = AssociatedObject as Grid;
+            var hostGrid = AssociatedObject as Grid;
             CustomGrid gridDelet = null;
             Button button = sender as Button;
            
-                gridDelet = Rite.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == button.Name).FirstOrDefault();
-            
+                gridDelet = hostGrid.Children.OfType<CustomGrid>().Where(s => s.CameraGuidName == button.Name).FirstOrDefault();
+                
             if (gridDelet != null)
             {
+                if (gridDelet.OnZoomMode)
+                { 
+                    var zoomGrid = hostGrid.Children.OfType<CustomGrid>().Where(s => s.Name == button.Name).FirstOrDefault();
+                    if (zoomGrid != null)
+                    {
+                        //zoomGrid.Window.OwnedWindows[0].Close();
+                        zoomGrid.Window.Close();
+                        hostGrid.Children.Remove(zoomGrid);
+                    }
+                }
+
                 var indexC = Grid.GetColumn(gridDelet);
                 var IndexR = Grid.GetRow(gridDelet);
-                var cellContent = Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == IndexR && Grid.GetColumn(c) == indexC);
+                var cellContent = hostGrid.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == IndexR && Grid.GetColumn(c) == indexC);
                 CustomGrid grid = cellContent as CustomGrid;
                 if (grid != null)
                 {
@@ -442,7 +454,7 @@ namespace SilkDirectX11.Behaviors
                 }
 
                 grid.Children.Clear();
-                Rite.Children.Remove(cellContent);
+                hostGrid.Children.Remove(cellContent);
 
 
                 RemuveTopLeft();
@@ -455,35 +467,35 @@ namespace SilkDirectX11.Behaviors
 
         private void RemuveTopLeft()
         {
-            var Rite = AssociatedObject as Grid;
+            var hostGrid = AssociatedObject as Grid;
             for (string i = "Null"; i == "Null";)
 
                 switch (CheckTopLeft())
                 {
                     case "Top":
-                        if (Rite.RowDefinitions.Count >= 1)
-                            Rite.RowDefinitions.RemoveAt(0);
-                        foreach (var item in Rite.Children.OfType<CustomGrid>())
+                        if (hostGrid.RowDefinitions.Count >= 1)
+                            hostGrid.RowDefinitions.RemoveAt(0);
+                        foreach (var item in hostGrid.Children.OfType<CustomGrid>())
                         {
                             Grid.SetRow(item, Math.Max(0, Grid.GetRow(item) - 1));
                             
                         }
                         break;
                     case "Left":
-                        if (Rite.ColumnDefinitions.Count >= 1)
-                            Rite.ColumnDefinitions.RemoveAt(0);
-                        foreach (var item in Rite.Children.OfType<CustomGrid>())
+                        if (hostGrid.ColumnDefinitions.Count >= 1)
+                            hostGrid.ColumnDefinitions.RemoveAt(0);
+                        foreach (var item in hostGrid.Children.OfType<CustomGrid>())
                         {
                             Grid.SetColumn(item, Math.Max(0, Grid.GetColumn(item) - 1));
                           
                         }
                         break;
                     case "TopLeft":
-                        if (Rite.RowDefinitions.Count >= 1)
-                            Rite.RowDefinitions.RemoveAt(0);
-                        if (Rite.ColumnDefinitions.Count >= 1)
-                            Rite.ColumnDefinitions.RemoveAt(0);
-                        foreach (var item in Rite.Children.OfType<CustomGrid>())
+                        if (hostGrid.RowDefinitions.Count >= 1)
+                            hostGrid.RowDefinitions.RemoveAt(0);
+                        if (hostGrid.ColumnDefinitions.Count >= 1)
+                            hostGrid.ColumnDefinitions.RemoveAt(0);
+                        foreach (var item in hostGrid.Children.OfType<CustomGrid>())
                         {
                             Grid.SetRow(item, Math.Max(0, Grid.GetRow(item) - 1));
                             Grid.SetColumn(item, Math.Max(0, Grid.GetColumn(item) - 1));
@@ -494,45 +506,46 @@ namespace SilkDirectX11.Behaviors
                         i = "break";
                         break;
                 }
-             (AssociatedObject as Grid)?.UpdateLayout();
+            //OnUpdateSize(hostGrid);
         }
         private void RemuveBottomRite()
         {
-            var Rite = AssociatedObject as Grid;
+            var hostGrid = AssociatedObject as Grid;
             for (string i = "Null"; i == "Null";)
                 switch (CheckBottomRite())
                 {
                     case "RiteBottom":
-                        if (Rite.RowDefinitions.Count >= 1)
-                            Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
-                        if (Rite.ColumnDefinitions.Count >= 1)
-                            Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
+                        if (hostGrid.RowDefinitions.Count >= 1)
+                            hostGrid.RowDefinitions.RemoveAt(hostGrid.RowDefinitions.Count - 1);
+                        if (hostGrid.ColumnDefinitions.Count >= 1)
+                            hostGrid.ColumnDefinitions.RemoveAt(hostGrid.ColumnDefinitions.Count - 1);
                         break;
                     case "Bottom":
-                        if (Rite.RowDefinitions.Count >= 1)
-                            Rite.RowDefinitions.RemoveAt(Rite.RowDefinitions.Count - 1);
+                        if (hostGrid.RowDefinitions.Count >= 1)
+                            hostGrid.RowDefinitions.RemoveAt(hostGrid.RowDefinitions.Count - 1);
                         break;
                     case "hostGrid":
-                        if (Rite.ColumnDefinitions.Count >= 1)
-                            Rite.ColumnDefinitions.RemoveAt(Rite.ColumnDefinitions.Count - 1);
+                        if (hostGrid.ColumnDefinitions.Count >= 1)
+                            hostGrid.ColumnDefinitions.RemoveAt(hostGrid.ColumnDefinitions.Count - 1);
                         break;
                     case "Null":
                         i = "break";
                         break;
                 }
-             (AssociatedObject as Grid)?.UpdateLayout();
+           // OnUpdateSize(hostGrid);
+            //hostGrid.UpdateLayout();
         }
 
         private string CheckBottomRite()
         {
-            var Rite = AssociatedObject as Grid;
+            var hostGrid = AssociatedObject as Grid;
 
             List<int> listRow = new List<int>() { 1};
             List<int> listColumn = new List<int>() { 1};
-            for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
+            for (int i = 0; i < hostGrid.ColumnDefinitions.Count; i++)
             {
                 listRow =new List<int>();
-                if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == Rite.RowDefinitions.Count - 1 && Grid.GetColumn(c) == i) != null)
+                if (hostGrid.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == hostGrid.RowDefinitions.Count - 1 && Grid.GetColumn(c) == i) != null)
                 {
                     listRow.Add(i);
                     break;
@@ -540,16 +553,16 @@ namespace SilkDirectX11.Behaviors
 
 
             }
-            for (int i = 0; i < Rite.RowDefinitions.Count; i++)
+            for (int i = 0; i < hostGrid.RowDefinitions.Count; i++)
             {
                 listColumn = new List<int>();
-                if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == Rite.ColumnDefinitions.Count - 1)) != null)
+                if ((hostGrid.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == hostGrid.ColumnDefinitions.Count - 1)) != null)
                 {
                     listColumn.Add(i);
                     break;
                 }
             }
-            if (Rite.ColumnDefinitions.Count <= 1 && Rite.RowDefinitions.Count <= 1)
+            if (hostGrid.ColumnDefinitions.Count <= 1 && hostGrid.RowDefinitions.Count <= 1)
                 return "Null";
 
             if (listRow.Count == 0 && listColumn.Count == 0)
@@ -566,27 +579,27 @@ namespace SilkDirectX11.Behaviors
         private string CheckTopLeft()
         {
 
-            var Rite = AssociatedObject as Grid;
+            var hostGrid = AssociatedObject as Grid;
         
             List<int> listRow = new List<int>();
             List<int> listColumn = new List<int>();
-            for (int i = 0; i < Rite.ColumnDefinitions.Count; i++)
+            for (int i = 0; i < hostGrid.ColumnDefinitions.Count; i++)
             {
-                if (Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == i) != null)
+                if (hostGrid.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == 0 && Grid.GetColumn(c) == i) != null)
                 {
                     listRow.Add(i);
                 }
 
 
             }
-            for (int i = 0; i < Rite.RowDefinitions.Count; i++)
+            for (int i = 0; i < hostGrid.RowDefinitions.Count; i++)
             {
-                if ((Rite.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == 0)) != null)
+                if ((hostGrid.Children.OfType<UIElement>().FirstOrDefault(c => Grid.GetRow(c) == i && Grid.GetColumn(c) == 0)) != null)
                 {
                     listColumn.Add(i);
                 }
             }
-            if (Rite.ColumnDefinitions.Count <= 1 && Rite.RowDefinitions.Count <= 1)
+            if (hostGrid.ColumnDefinitions.Count <= 1 && hostGrid.RowDefinitions.Count <= 1)
                 return "Null";
 
             if (listRow.Count == 0 && listColumn.Count == 0)

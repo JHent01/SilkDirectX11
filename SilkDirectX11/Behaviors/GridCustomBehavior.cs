@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Xaml.Behaviors;
 using RenderANDVideoReaderVIdeoDecoder;
+using SilkDirectX11.Events;
 using SilkDirectX11.Model;
 using SilkDirectX11.Servise;
 using SilkDirectX11.SignalR;
@@ -53,15 +54,11 @@ namespace SilkDirectX11.Behaviors;
     protected override void OnAttached()
     {
         base.OnAttached();
-        
-       // _connection = ConnectedManager._connection;
-        //_ = EnsureSignalRAsync();
-
+         
         AssociatedObject.PreviewDragEnter += MouseMoveDragDrop;
       
         AssociatedObject.Drop += AssociatedObject_Drop;
-       
-       // InitOverlayWindow();
+        
           EventAggregatorProvider.Instance.Subscribe<MassegeFromModul>(OnDialogMessegeReceived);
         EventAggregatorProvider.Instance.Subscribe<MessageClousedModul>(OnModuleClouse);
         EventAggregatorProvider.Instance.Subscribe<List<Filters>>(ChengeSettingsCamera);
@@ -69,9 +66,11 @@ namespace SilkDirectX11.Behaviors;
         _eventAggregator = ev;
         AssociatedObject.IsVisibleChanged += AssociatedObject_IsVisibleChanged;
         EventAggregatorProvider.Instance.Subscribe<bool>((s)=> _flagForReconnect= s);
-        // EventAggregatorProvider.Instance.Subscribe<SetSize>(SendSetSize);
+         _eventAggregator.GetEvent<CengeZoomModeEvent>().Subscribe((s)=> testFlag = s);
 
     }
+
+     bool testFlag = false;
 
     private void AssociatedObject_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
@@ -164,26 +163,7 @@ namespace SilkDirectX11.Behaviors;
         }
 
     }
-
-    //private async Task EnsureSignalRAsync()
-    //{
-    //    try
-    //    {
-    //        _connection ??= new HubConnectionBuilder()
-    //            .WithUrl("http://localhost:5178/hubs/points")
-    //            .WithAutomaticReconnect()
-    //            .Build();
-    //        if (_connection.State != HubConnectionState.Connected)
-    //            await _connection.StartAsync();
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine($"SignalR connect error: {ex.Message}");
-    //    }
-    //}
-
-    
-
+     
     static string GetSolutionParentPath()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
@@ -221,6 +201,16 @@ namespace SilkDirectX11.Behaviors;
                 }
             }
         }
+    }
+
+    private void OnUpdateSize(object sender )
+    { 
+        foreach(CustomGrid grid in (sender as Grid).Children)
+        {
+
+           // grid.UpdeteSize();
+        }
+        
     }
 
     //private  async void SendSettingsToGroup(CameraSettingsVisual settingsForCamera)
